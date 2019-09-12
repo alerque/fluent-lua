@@ -9,4 +9,19 @@ describe('fluent', function ()
     assert.same(locale, bundle.locale)
   end)
 
+  it('should parse single simple messages', function ()
+    local locale = "en-US"
+    local bundle = fluent(locale)
+    bundle:add_messages("foo = bar")
+    assert.same("bar", bundle.messages.foo)
+  end)
+
+  it('should parse multiple simple messages', function ()
+    local locale = "en-US"
+    local bundle = fluent(locale)
+    bundle:add_messages("foo = bar\nbar = baz")
+    assert.same("bar", bundle.messages.foo)
+    assert.same("baz", bundle.messages.bar)
+  end)
+
 end)

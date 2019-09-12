@@ -6,6 +6,12 @@ local fluent = class({
 
   _init = function (self, locale)
     self.locale = locale
+  end,
+
+  add_messages = function (self, input)
+    for k, v in input:gmatch("(%w+) = (%w+)") do
+      self.messages[k] = v
+    end
   end
 })
 
