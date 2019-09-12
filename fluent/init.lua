@@ -1,18 +1,21 @@
 local class = require("pl.class")
 
+local messages = class({
+  })
+
 local fluent = class({
-  locale = nil,
-  messages = {},
+    locale = nil,
 
-  _init = function (self, locale)
-    self.locale = locale
-  end,
+    _init = function (self, locale)
+      self.locale = locale
+      self.messages = messages()
+    end,
 
-  add_messages = function (self, input)
-    for k, v in input:gmatch("(%w+) = (%w+)") do
-      self.messages[k] = v
+    add_messages = function (self, input)
+      for k, v in input:gmatch("(%w+) = (%w+)") do
+        self.messages[k] = v
+      end
     end
-  end
-})
+  })
 
 return fluent
