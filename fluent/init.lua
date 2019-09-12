@@ -15,6 +15,10 @@ local fluent = class({
       for k, v in input:gmatch("(%w+) = (%w+)") do
         self.messages[k] = v
       end
+    end,
+
+    format = function (self, key)
+      return self.messages[key]
     end
   })
 

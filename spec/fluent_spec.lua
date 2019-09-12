@@ -24,4 +24,11 @@ describe('fluent', function ()
     assert.same("baz", bundle.messages.bar)
   end)
 
+  it('should return formatted strings', function ()
+    local locale = "en-US"
+    local bundle = fluent(locale)
+    bundle:add_messages("foo = bar")
+    assert.same("bar", bundle:format("foo"))
+  end)
+
 end)
