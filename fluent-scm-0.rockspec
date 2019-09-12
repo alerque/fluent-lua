@@ -16,12 +16,12 @@ description = {
 }
 
 dependencies = {
-   "lua",
+   "lua"
 }
 
 build = {
    type = "builtin",
    modules = {
-      fluent = "fluent.lua"
+      ["fluent"] = "fluent/init.lua"
    }
 }
