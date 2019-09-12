@@ -1,15 +1,12 @@
 local class = require("pl.class")
 
-local fluent = {
+local fluent = class({
   locale = nil,
-  messages = {}
-}
+  messages = {},
 
-setmetatable(fluent, {
-  })
-
-function fluent:set_locale (locale)
-  self.locale = locale
-end
+  _init = function (self, locale)
+    self.locale = locale
+  end
+})
 
 return fluent
