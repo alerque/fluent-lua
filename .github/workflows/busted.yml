@@ -24,5 +24,6 @@ jobs:
       run: |
         luarocks install busted
         luarocks install luacov-coveralls
+        luarocks install penlight
     - name: Run Busted Tests
       run: busted -c

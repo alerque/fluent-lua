@@ -1,3 +1,5 @@
+local class = require("pl.class")
+
 local fluent = {
   locale = nil,
   messages = {}

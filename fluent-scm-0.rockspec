@@ -16,7 +16,8 @@ description = {
 }
 
 dependencies = {
-   "lua"
+   "lua",
+   "penlight"
 }
 
 build = {
