@@ -8,4 +8,10 @@
 
 Lua implementation of [Project Fluent][fluent].
 
-  [fluent]:https://projectfluent.org
+# status
+
+As of yet this does nothing; the code base is mostly boiler plate to get the Lua project started with a touch of experimentation thrown in for good measure.
+
+I'm actively soliciting feedback on how the API should look and work in Lua from several projects that might use it. If this is of iterest to you please join the project chat and/or open issues for points of discussion.
+
+  [fluent]: https://projectfluent.org
