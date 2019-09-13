@@ -34,7 +34,7 @@ describe('fluent.syntax', function ()
 
     it('should handle a simple entry', function ()
       assert.equals("Entry", syntax:parse("foo = bar")[1].id)
-      assert.equals("Entry", syntax:parse("baz = bar")[1].id)
+      assert.equals("Entry", syntax:parse("baz = qiz")[1].id)
     end)
 
     it('should handle simple comments', function ()
