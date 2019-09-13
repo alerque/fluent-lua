@@ -7,7 +7,7 @@ describe('fluent.syntax', function ()
     assert.truthy(syntax:is_a(FluentSyntax))
   end)
 
-  describe('parser', function ()
+  describe('parse', function ()
 
     it('should be called as a method', function ()
       assert.error(function () syntax.parse() end)
@@ -21,9 +21,25 @@ describe('fluent.syntax', function ()
       assert.error(function () syntax:parse({}) end)
     end)
 
-    it('should return an AST', function ()
+    it('should return an empty AST on no input', function ()
       local ast = syntax:parse("")
-      assert.same("Resource", ast.id)
+      assert.equals("Resource", ast.id)
+      assert.equals(0, #ast)
+    end)
+
+    it('should handle a simple entry', function ()
+      local ast = syntax:parse("foo = bar")
+      assert.equals("Entry", ast[1].id)
+    end)
+
+    it('should handle a blank block', function ()
+      local ast = syntax:parse(" ")
+      assert.equals("blank_block", ast[1].id)
+    end)
+
+    it('should handle junk', function ()
+      local ast = syntax:parse("!")
+      assert.equals("Junk", ast[1].id)
     end)
 
   end)
