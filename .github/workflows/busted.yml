@@ -24,6 +24,6 @@ jobs:
       run: |
         luarocks install busted
         luarocks install luacov-coveralls
-        luarocks install penlight
+        luarocks install --only-deps fluent-scm-0.rockspec
     - name: Run Busted Tests
       run: busted -c
