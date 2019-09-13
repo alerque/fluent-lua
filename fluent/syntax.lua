@@ -46,10 +46,15 @@ local ftlparser = epnf.define(function (_ENV)
   local inline_text = text_char^1
   local block_text = blank_block * blank_inline * indented_char * inline_text^-1
   StringLiteral = P'"' * quoted_char^0 * P'"'
-  FunctionReference = P"foof"
-  MessageReference = P"foom"
-  TermReference = P"foot"
-  VariableReference = P"foov"
+  FunctionReference = V"Identifier" * V"CallArguments"
+  MessageReference = V"Identifier" * V"AttributeAccessor"^-1
+  TermReference = P"-" * V"Identifier" * V"AttributeAccessor"^-1 * V"CallArguments"^-1
+  VariableReference = P"$" * V"Identifier"
+  AttributeAccessor = P"." * V"Identifier"
+  NamedArgument = V"Identifier" * blank^-1 * P":" * blank^-1 * (V"StringLiteral" + V"NumberLiteral")
+  Argument = V"NamedArgument" + V"InlineExpression"
+  local argument_list = (V"Argument" * blank^-1 * P"," * blank^-1)^0 * V"Argument"^-1
+  CallArguments = blank^-1 * P"(" * blank^-1 * argument_list * blank^-1 * P")"
   SelectExpression = V"InlineExpression" * blank^-1 * P"->" * blank_inline^-1 * variant_list
   InlineExpression = V"StringLiteral" + V"NumberLiteral" + V"FunctionReference" + V"MessageReference" + V"TermReference" + V"VariableReference" + inline_placeable
   PatternElement = inline_text + block_text + inline_placeable + block_placeable
@@ -66,8 +71,6 @@ local ftlparser = epnf.define(function (_ENV)
   START("Resource")
 end)
 -- luacheck: pop
-
--- TODO: Spec L66-L75
 
 local FluentSyntax = class({
     parser = ftlparser,
