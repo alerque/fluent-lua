@@ -46,6 +46,10 @@ describe('fluent.syntax', function ()
       assert.equals("Entry", syntax:parse("foo = bar\n .baz = quiz")[1].id)
     end)
 
+    it('should handle complex term entries', function ()
+      assert.equals("Entry", syntax:parse("foo = türkçe\n görüşürüz")[1].id)
+    end)
+
     it('should handle simple comments', function ()
       assert.same("CommentLine", syntax:parse("# foo")[1][1].id)
       assert.same("CommentLine", syntax:parse("## foo")[1][1].id)
