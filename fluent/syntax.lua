@@ -7,9 +7,9 @@ local ftlparser = epnf.define(function (_ENV)
   START("Resource")
   Resource = Cg(V"Entry" + V"blank_block" + V"Junk")^0
   Entry = C(P"foo = bar")
-  Junk = C(P"!")
+  Junk = P"!"
   blank_inline = P" "^1
-  line_end = P(P"\r\n" * P"\n" * EOF"")
+  line_end = P"\r\n" * P"\n" * EOF""
   blank_block = P(V"blank_inline"^0 * V"line_end")^1
   blank = P(V"blank_inline" + V"line_end")^1
 end)
