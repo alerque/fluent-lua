@@ -37,6 +37,11 @@ describe('fluent.syntax', function ()
       assert.equals("blank_block", ast[1].id)
     end)
 
+    -- it('should handle a simple comment', function ()
+    --   local ast = syntax:parse("# foo")
+    --   assert.same("Comment", ast[1].id)
+    -- end)
+
     it('should handle junk', function ()
       local ast = syntax:parse("!")
       assert.equals("Junk", ast[1].id)

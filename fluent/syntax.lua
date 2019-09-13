@@ -5,11 +5,13 @@ local epnf = require("epnf")
 -- luacheck: push ignore
 local ftlparser = epnf.define(function (_ENV)
   START("Resource")
-  Resource = Cg(V"Entry" + V"blank_block" + V"Junk")^0 * EOF"Unexpected character at end of input"
-  Entry = "foo = bar"
-  blank_block = P" "
-  Junk = P"!"
-
+  Resource = Cg(V"Entry" + V"blank_block" + V"Junk")^0
+  Entry = C(P"foo = bar")
+  Junk = C(P"!")
+  blank_inline = P" "^1
+  line_end = P(P"\r\n" * P"\n" * EOF"")
+  blank_block = P(V"blank_inline"^0 * V"line_end")^1
+  blank = P(V"blank_inline" + V"line_end")^1
 end)
 -- luacheck: pop
 
