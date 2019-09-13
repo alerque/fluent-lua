@@ -1,4 +1,9 @@
+-- External dependencies
 local class = require("pl.class")
+
+-- Internal modules
+local syntax = require("fluent.syntax")
+
 
 local messages = class({
   })
@@ -9,6 +14,7 @@ local fluent = class({
     _init = function (self, locale)
       self.locale = locale
       self.messages = messages()
+      self.syntax = syntax()
     end,
 
     add_messages = function (self, input)

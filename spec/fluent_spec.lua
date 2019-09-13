@@ -44,5 +44,3 @@ describe('fluent', function ()
   end)
 
 end)
-
-

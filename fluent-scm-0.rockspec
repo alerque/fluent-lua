@@ -17,12 +17,14 @@ description = {
 
 dependencies = {
    "lua",
+   "lpeg",
    "penlight"
 }
 
 build = {
    type = "builtin",
    modules = {
-      ["fluent"] = "fluent/init.lua"
+      ["fluent.init"] = "fluent/init.lua",
+      ["fluent.syntax"] = "fluent/syntax.lua"
    }
 }
