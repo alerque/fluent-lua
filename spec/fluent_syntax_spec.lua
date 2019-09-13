@@ -1,10 +1,10 @@
-local syntax = require("fluent.syntax")
+local FluentSyntax = require("fluent.syntax")
 
 describe('fluent.syntax', function ()
 
   it('should instantiate', function ()
-    local s = syntax()
-    assert.truthy(s:is_a(syntax))
+    local syntax = FluentSyntax()
+    assert.truthy(syntax:is_a(FluentSyntax))
   end)
 
 end)

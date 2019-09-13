@@ -2,19 +2,19 @@
 local class = require("pl.class")
 
 -- Internal modules
-local syntax = require("fluent.syntax")
+local FluentSyntax = require("fluent.syntax")
 
 
-local messages = class({
+local FluentMessages = class({
   })
 
-local fluent = class({
+local FluentBundle = class({
     locale = nil,
 
     _init = function (self, locale)
       self.locale = locale
-      self.messages = messages()
-      self.syntax = syntax()
+      self.messages = FluentMessages()
+      self.syntax = FluentSyntax()
     end,
 
     add_messages = function (self, input)
@@ -28,4 +28,4 @@ local fluent = class({
     end
   })
 
-return fluent
+return FluentBundle

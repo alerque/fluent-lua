@@ -2,7 +2,7 @@
 local class = require("pl.class")
 local lpeg = require("lpeg")
 
-local syntax = class({
+local FluentSyntax = class({
   })
 
-return syntax
+return FluentSyntax
