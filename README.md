@@ -8,7 +8,7 @@
 
 A Lua implementation of [Project Fluent][projectfluent], a localization paradigm designed to unleash the entire expressive power of natural language translations. Fluent is a family of localization specifications, implementations and good practices developed by Mozilla who extracted parts of their 'l20n' solution (used in Firefox and other apps) into a re-usable specification. For more information also see the [Fluent Syntax Guide][syntaxguide], the [Discourse channel][discourse], [documentation wiki][wiki], and [playground][play].
 
-Other implementations already exist in [Rust][fluent-rs], [Javascript][fluent.js], [Python][python-fluent], [c#][fluent.net], and [elm][elm-fluent].
+Other implementations already exist in [Rust][fluent-rs], [Javascript][fluent.js], [Python][python-fluent], [c#][fluent.net], [elm][elm-fluent], and [perl][perl-fluent]. See also [other implementations][others].
 
 ¹ <sub>Fluent the localization paradigm, not to be confused with Fluent the [API interface concept][fluentinterface]!</sub>
 
@@ -31,6 +31,8 @@ If you need something that works in Lua *now*, have a look at the already mature
   [fluent.net]: https://github.com/blushingpenguin/Fluent.Net
   [fluent]: https://github.com/projectfluent/fluent
   [fluentinterface]: https://en.wikipedia.org/wiki/Fluent_interface
+  [others]: https://github.com/projectfluent/fluent#other-implementations
+  [perl-fluent]: https://github.com/alabamenhu/Fluent
   [play]: https://projectfluent.org/play/
   [pontoon]: https://github.com/mozilla/pontoon
   [projectfluent]: https://projectfluent.org
