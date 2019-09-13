@@ -32,8 +32,13 @@ local ftlparser = epnf.define(function (_ENV)
   local text_char = any_char - special_text_char - line_end
   local indented_char = text_char - P"{" - P"*" - P"."
   Identifier = R("az", "AZ") * (R("az", "AZ", "09") + P"_" + P"-")^0
+  local variant_list = V"Variant"^0 * V"DefaultVariant" * V"Variant" * line_end
+  Variant = line_end * blank^-1 * V"VariantKey" * blank_inline^-1 * V"Pattern"
+  DefaultVariant = line_end * blank^-1 * P"*" * V"VariantKey" * blank_inline^-1 * V"Pattern"
+  VariantKey = P"[" * blank^-1 * (V"NumberLiteral" + V"Identifier") * blank^-1 * P"]"
+  NumberLiteral = P"-"^-1 * digits * (P"." * digits)^-1
+  SelectExpression = V"InlineExpression" * blank^-1 * P"->" * blank_inline^-1 * variant_list
   InlineExpression = P"foo"
-  SelectExpression = P"bar"
   local inline_placeable = P"{" * blank^-1 * (V"SelectExpression" + V"InlineExpression") * blank^-1 * P"}"
   local block_placeable = blank_block * blank_inline^-1 * inline_placeable
   local inline_text = text_char^1
@@ -53,7 +58,7 @@ local ftlparser = epnf.define(function (_ENV)
 end)
 -- luacheck: pop
 
--- TODO: Spec L53-L82, L122-L129
+-- TODO: Spec L53-62, L66-L75, L122-L129
 
 local FluentSyntax = class({
     parser = ftlparser,
