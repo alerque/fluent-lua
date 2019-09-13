@@ -30,6 +30,10 @@ local ftlparser = epnf.define(function (_ENV)
   local special_text_char = P"{" + P"}"
   local any_char = R("\0\127") / f1 + R("\194\223") * R(cont) / f2 + R("\224\239") * R(cont) * R(cont) / f3 + R("\240\244") * R(cont) * R(cont) * R(cont) / f4
   local text_char = any_char - special_text_char - line_end
+  local special_quoted_char = P'"' + P"\\"
+  local special_escape = P"\\" * special_quoted_char
+  local unicode_escape = (P"\\u" * P(4) * R("09", "af", "AF")^4) + (P"\\u" * P(6) * R("09", "af", "AF")^6)
+  local quoted_char = (any_char - special_quoted_char - line_end) + special_escape + unicode_escape
   local indented_char = text_char - P"{" - P"*" - P"."
   Identifier = R("az", "AZ") * (R("az", "AZ", "09") + P"_" + P"-")^0
   local variant_list = V"Variant"^0 * V"DefaultVariant" * V"Variant" * line_end
@@ -37,12 +41,17 @@ local ftlparser = epnf.define(function (_ENV)
   DefaultVariant = line_end * blank^-1 * P"*" * V"VariantKey" * blank_inline^-1 * V"Pattern"
   VariantKey = P"[" * blank^-1 * (V"NumberLiteral" + V"Identifier") * blank^-1 * P"]"
   NumberLiteral = P"-"^-1 * digits * (P"." * digits)^-1
-  SelectExpression = V"InlineExpression" * blank^-1 * P"->" * blank_inline^-1 * variant_list
-  InlineExpression = P"foo"
   local inline_placeable = P"{" * blank^-1 * (V"SelectExpression" + V"InlineExpression") * blank^-1 * P"}"
   local block_placeable = blank_block * blank_inline^-1 * inline_placeable
   local inline_text = text_char^1
   local block_text = blank_block * blank_inline * indented_char * inline_text^-1
+  StringLiteral = P'"' * quoted_char^0 * P'"'
+  FunctionReference = P"foof"
+  MessageReference = P"foom"
+  TermReference = P"foot"
+  VariableReference = P"foov"
+  SelectExpression = V"InlineExpression" * blank^-1 * P"->" * blank_inline^-1 * variant_list
+  InlineExpression = V"StringLiteral" + V"NumberLiteral" + V"FunctionReference" + V"MessageReference" + V"TermReference" + V"VariableReference" + inline_placeable
   PatternElement = inline_text + block_text + inline_placeable + block_placeable
   Pattern = V"PatternElement"^1
   Attribute = line_end * blank^-1 * P"." * V"Identifier" * blank_inline^-1 * "=" * blank_inline^-1 * V"Pattern"
@@ -58,7 +67,7 @@ local ftlparser = epnf.define(function (_ENV)
 end)
 -- luacheck: pop
 
--- TODO: Spec L53-62, L66-L75, L122-L129
+-- TODO: Spec L66-L75
 
 local FluentSyntax = class({
     parser = ftlparser,
