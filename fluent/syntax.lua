@@ -14,12 +14,15 @@ local ftlparser = epnf.define(function (_ENV)
   local comment_char = 1 - line_end
   CommentLine = (P"###" + P"##" + P"#") * (" " * comment_char^0)-1 * line_end
   Term = P"xxx"
-  Message = P"foo = bar"
+  Identifier = R("az", "AZ") * (R("az", "AZ", "09") + P"_" + P"-")^0
+  Message = V"Identifier" * blank_inline^-1 * P"=" * blank_inline^-1 * P"bar"
   Entry = (V"Message" * line_end) + (V"Term" * line_end) + V"CommentLine"
   Resource = (V"Entry" + blank_block + V"Junk")^0 * EOF"unparsable input"
   START("Resource")
 end)
 -- luacheck: pop
+
+-- TODO: Spec L14-L84, L86-L129
 
 local FluentSyntax = class({
     parser = ftlparser,
