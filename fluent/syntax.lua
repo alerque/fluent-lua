@@ -10,8 +10,12 @@ local ftlparser = epnf.define(function (_ENV)
   local blank = (blank_inline + line_end)^1
   local digits = R"09"^1
   local junk_line = -P"\n"^0 * P"\n"-- * -1
+  local comment_char = 1 - line_end
   Junk = junk_line * (junk_line - P"#" - P"-" - R("az","AZ"))^0
-  Entry = P"foo = bar"
+  CommentLine = (P"###" + P"##" + P"#") * (" " * comment_char^0) * line_end
+  Term = P"xxx"
+  Message = P"foo = bar"
+  Entry = (V"Message" * line_end) + (V"Term" * line_end) + V"CommentLine"
   Resource = (V"Entry" + blank_block + V"Junk")^0 * -1
   START("Resource")
 end)

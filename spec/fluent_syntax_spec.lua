@@ -36,9 +36,9 @@ describe('fluent.syntax', function ()
       assert.equals("Entry", syntax:parse("foo = bar")[1].id)
     end)
 
-    -- it('should handle a simple comment', function ()
-    --   assert.same("Comment", syntax:parse("# foo")[1].id)
-    -- end)
+    it('should handle a simple comment', function ()
+      assert.same("CommentLine", syntax:parse("# foo")[1][1].id)
+    end)
 
     -- it('should handle junk', function ()
     -- syntax:parse("\rfoo")
