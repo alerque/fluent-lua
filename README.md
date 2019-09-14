@@ -22,6 +22,8 @@ As of yet this does nothing *usable* (see [lua alternatives](#alternatives)). I'
 
 If you need something that works in Lua *now*, have a look at the already mature `i18n.lua` project ([Github](https://github.com/kikito/i18n.lua) / [LuaRocks](https://luarocks.org/modules/kikito/i18n)). It implements many of the same features this project will, just without the interoperability with other Fluent based tools. The Lua API it provides is quite nice, but your localization data needs to be provided in Lua tables instead of FTL files. While Fluent has quite a few more tricks up its sleeve the *i18n* module already has working interpolation, pluralization, locale fallbacks, and more.  And it works now, today.
 
+Another even simpler solution is the Lua `say` module ([Github](https://github.com/Olivine-Labs/say) / [LuaRocks](https://luarocks.org/modules/olivine-labs/say)) from the makers of Busted. This is much closer to a flat one-to-one key value map, but with namespacing is such a way that it is useful for localization.
+
 ## Design Goals
 
  This project's end goal is to provide an idiomatic Lua API implementing the [Fluent spec][fluent] that is fully compatible with other FTL based tooling. This will allow Lua projects to easily implement localized interfaces with natural sounding translations and take advantage of tools such as [Pontoon][pontoon].
