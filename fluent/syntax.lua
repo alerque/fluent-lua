@@ -4,14 +4,16 @@ local epnf = require("epnf")
 
 -- luacheck: push ignore
 local ftlparser = epnf.define(function (_ENV)
+  local blank_inline = P" "^1
+  local line_end = P"\r\n" + P"\n"-- + -1
+  local blank_block = (blank_inline^-1 * line_end)^1
+  local blank = (blank_inline + line_end)^1
+  local digits = R"09"^1
+  local junk_line = -P"\n"^0 * P"\n"-- * -1
+  Junk = junk_line * (junk_line - P"#" - P"-" - R("az","AZ"))^0
+  Entry = P"foo = bar"
+  Resource = (V"Entry" + blank_block + V"Junk")^0 * -1
   START("Resource")
-  Resource = Cg(V"Entry" + V"blank_block" + V"Junk")^0
-  Entry = C(P"foo = bar")
-  Junk = P"!"
-  blank_inline = P" "^1
-  line_end = P"\r\n" * P"\n" * EOF""
-  blank_block = P(V"blank_inline"^0 * V"line_end")^1
-  blank = P(V"blank_inline" + V"line_end")^1
 end)
 -- luacheck: pop
 
@@ -20,11 +22,10 @@ local FluentSyntax = class({
     parse = function (self, input)
       if not self or type(self) ~= "table" then
         error("FluentSyntax.parser error: must be invoked as a method")
-      end
-      if not input or type(input) ~= "string" then
+      elseif not input or type(input) ~= "string" then
         error("FluentSyntax.parser error: input must be a string")
       end
-      local ast = epnf.parsestring(self.parser, input)
+      local ast = epnf.parsestring(self.parser, input .. "\n")
       return ast
     end
   })
