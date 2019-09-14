@@ -12,7 +12,7 @@ local function filetostring (fname)
   return content
 end
 
-describe('upstream fixtures', function ()
+describe('upstream fixture', function ()
   local syntax = FluentSyntax()
 
   local fixtures_dir = lfs.currentdir() .. "/spec/fixtures/"
@@ -23,6 +23,10 @@ describe('upstream fixtures', function ()
         local ftl = filetostring(fname)
         local jsonref = filetostring(fname:gsub(".ftl$", ".json"))
         local reference = json.decode(jsonref)
+
+        it('should have a reference', function()
+          assert.equal("table", type(reference))
+        end)
 
         it('should parse without blowing up', function ()
           assert.no.error(function () syntax:parse(ftl) end)

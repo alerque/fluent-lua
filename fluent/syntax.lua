@@ -21,7 +21,7 @@ end
 local cont = "\128\191"
 
 -- luacheck: push ignore
-local ftlparser = epnf.define(function (_ENV)
+local ftlpeg = epnf.define(function (_ENV)
   local blank_inline = P" "^1
   local line_end = P"\r\n" + P"\n"
   local blank_block = (blank_inline^-1 * line_end)^1
@@ -73,16 +73,16 @@ end)
 -- luacheck: pop
 
 local FluentSyntax = class({
-    parser = ftlparser,
     parse = function (self, input)
       if not self or type(self) ~= "table" then
         error("FluentSyntax.parser error: must be invoked as a method")
       elseif not input or type(input) ~= "string" then
         error("FluentSyntax.parser error: input must be a string")
       end
-      local ast = epnf.parsestring(self.parser, input .. "\n")
+      local ast = epnf.parsestring(ftlpeg, input .. "\n")
       return ast
     end
+    -- TODO: add loader that leverages epnf.parsefile()
   })
 
 return FluentSyntax
