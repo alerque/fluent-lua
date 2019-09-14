@@ -14,7 +14,9 @@ Other implementations already exist in [Rust][fluent-rs], [Javascript][fluent.js
 
 ## Status
 
-As of yet this does nothing useful; the code base is mostly boiler plate to get the Lua project started with a touch of experimentation thrown in for good measure. I'm actively soliciting feedback on how the API should look and work in Lua from several projects that might use it. If this is of interest to you please join the project chat and/or open [issues](https://github.com/alerque/fluent-lua/issues) for points of discussion.
+As of yet this does nothing *usable* (see [lua alternatives][#alternatives]). I'm actively soliciting feedback on how the API should look and work in Lua from several projects that might use it. If this is of interest to you please join the project chat and/or open [issues](https://github.com/alerque/fluent-lua/issues) for points of discussion.
+
+**Update 2019-09-14**: I've completed a PEG grammar based parser for the entire 1.0 Fluent file format spec. All the pieces are there, but it's only partially tested. It at least parses a few basic types of entries. The AST it returns is straight out of *luaebnf* and probably needs massaging to match the reference ones (via capture groups?), then it needs testing against the upstream fixtures.
 
 ## Alternative(s)
 
