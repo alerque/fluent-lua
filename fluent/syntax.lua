@@ -16,7 +16,7 @@ local ftlparser = epnf.define(function (_ENV)
   Term = P"xxx"
   Message = P"foo = bar"
   Entry = (V"Message" * line_end) + (V"Term" * line_end) + V"CommentLine"
-  Resource = (V"Entry" + blank_block + V"Junk")^0 * -1
+  Resource = (V"Entry" + blank_block + V"Junk")^0 * EOF"Unparsable input"
   START("Resource")
 end)
 -- luacheck: pop
