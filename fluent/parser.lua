@@ -1,3 +1,8 @@
+-- luacheck: ignore D d t
+local D = require("pl.pretty").dump
+local d = require("epnf").dumpast
+local t = require("pegdebug").trace
+
 -- External dependencies
 local class = require("pl.class")
 local epnf = require("epnf")

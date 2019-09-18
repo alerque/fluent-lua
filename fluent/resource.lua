@@ -1,3 +1,8 @@
+-- luacheck: ignore D d S
+local D = require("pl.pretty").dump
+local d = require("epnf").dumpast
+local S = require("serpent").block
+
 -- External dependencies
 local class = require("pl.class")
 local tablex = require("pl.tablex")

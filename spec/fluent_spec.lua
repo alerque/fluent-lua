@@ -1,3 +1,6 @@
+-- luacheck: ignore D
+local D = require("pl.pretty").dump
+
 -- Internal modules
 local FluentBundle = require("fluent")
 
