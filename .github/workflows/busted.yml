@@ -28,4 +28,8 @@ jobs:
         luarocks install luafilesystem
         luarocks install dkjson
     - name: Run Busted Tests
-      run: busted -c
+      run: busted -c -v
+    - name: Log coverage to coveralls.io
+      if: matrix.luaVersion == '5.3' && success()
+      continue-on-error: true
+      run: luacov-coveralls -i fluent -e spec -v -t "${{ secrets.COVERALLS_TOKEN }}"
