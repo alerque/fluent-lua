@@ -72,6 +72,29 @@ local ftlpeg = epnf.define(function (_ENV)
 end)
 -- luacheck: pop
 
+local function mungeast (input, parent)
+  -- if true then return input end
+  local ast = { }
+  local children = {}
+  for k, v in pairs(input) do
+    if (type(k) == "number") then
+      if (type(v) == "table") then
+        elements[k] = mungeast(v, input["id"])
+      end
+    elseif (type(k) == "string") then
+      if (k == "id") then
+        ast["type"] = v
+      elseif (k == "pos") then
+      else error("what the ast "..k)
+      end
+    end
+  end
+  if (ast["type"] == "Resource") then
+    ast.body = children
+  end
+  return ast
+end
+
 local FluentSyntax = class({
     parse = function (self, input)
       if not self or type(self) ~= "table" then
@@ -80,7 +103,7 @@ local FluentSyntax = class({
         error("FluentSyntax.parser error: input must be a string")
       end
       local ast = epnf.parsestring(ftlpeg, input .. "\n")
-      return ast
+      return mungeast(ast)
     end
     -- TODO: add loader that leverages epnf.parsefile()
   })
