@@ -227,7 +227,7 @@ local FluentSyntax = class({
       elseif not input or type(input) ~= "string" then
         error("FluentSyntax.parser error: input must be a string")
       end
-      local ast = epnf.parsestring(ftlpeg, input .. "\n")
+      local ast = epnf.parsestring(ftlpeg, input)
       return munge_ast(ast)
     end
     -- TODO: add loader that leverages epnf.parsefile()
