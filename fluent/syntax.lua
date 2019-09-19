@@ -1,6 +1,7 @@
 -- External dependencies
 local class = require("pl.class")
 local epnf = require("epnf")
+local tablex = require("pl.tablex")
 
 -- UTF8 code points up to four-byte encodings
 local function f1 (s)
@@ -48,7 +49,7 @@ local ftlpeg = epnf.define(function (_ENV)
   local unicode_escape = (P"\\u" * P(4) * R("09", "af", "AF")^4) + (P"\\u" * P(6) * R("09", "af", "AF")^6)
   local quoted_char = (any_char - special_quoted_char - line_end) + special_escape + unicode_escape
   local indented_char = text_char - P"{" - P"*" - P"."
-  Identifier = R("az", "AZ") * (R("az", "AZ", "09") + P"_" + P"-")^0
+  Identifier = Cg(R("az", "AZ") * (R("az", "AZ", "09") + P"_" + P"-")^0, "name")
   local variant_list = V"Variant"^0 * V"DefaultVariant" * V"Variant" * line_end
   Variant = line_end * blank^-1 * V"VariantKey" * blank_inline^-1 * V"Pattern"
   DefaultVariant = line_end * blank^-1 * P"*" * V"VariantKey" * blank_inline^-1 * V"Pattern"
@@ -76,7 +77,7 @@ local ftlpeg = epnf.define(function (_ENV)
   local junk_line =  (1-line_end)^0 * line_end
   Junk = Cg(junk_line * (junk_line - P"#" - P"-" - R("az","AZ"))^0, "content")
   local comment_char = any_char - line_end
-  CommentLine = Cg(P"###" + P"##" + P"#", "_marker") * (" " * Cg(C(comment_char^0), "content"))-1 * line_end
+  CommentLine = Cg(P"###" + P"##" + P"#", "_comment_marker") * (" " * Cg(C(comment_char^0), "content"))-1 * line_end
   Term = P"-" * V"Identifier" * blank_inline^-1 * "=" * blank_inline^-1 * V"Pattern" * V"Attribute"^0
   Message = V"Identifier" * blank_inline^-1 * P"=" * blank_inline^-1 * ((V"Pattern" * V"Attribute"^0) + V"Attribute"^1)
   Entry = (V"Message" * line_end) + (V"Term" * line_end) + V"CommentLine"
@@ -85,74 +86,111 @@ local ftlpeg = epnf.define(function (_ENV)
 end)
 -- luacheck: pop
 
-local commentlevel = 0
-local commentstash = {}
-
-local function mungeast (input)
-  local ast = { }
-  local elements = {}
-  local content = nil
-
-  for k, v in pairs(input) do
-    if type(k) == "string" then
-      if k == "type" then
-        -- running nested, type already set
-      elseif v == "CommentLine" then
-        -- drop, set via _marker
-      elseif k == "id" then
-        ast.type = v
-      elseif k == "blank_block" then
-        ast.type = k
-        -- flush comments?
-        -- elements = mungeast({ id = k }, input.id)
-      elseif k == "pos" then
-      elseif k == "content" then
-        ast.content = v
-      elseif k == "_marker" then
-        ast.type = #v == 3 and "ResourceComment" or #v == 2 and "GroupComment" or "Comment"
+local function ast_props (input)
+  local ast = {}
+  for key, value in pairs(input) do
+    if type(key) == "string" then
+      if key == "id" and value ~= "CommentLine" then ast.type = value
+      elseif value == "CommentLine" then
+      elseif key == "pos" then
+      elseif key == "_comment_marker" then
+        ast.type = #value == 3 and "ResourceComment" or #value == 2 and "GroupComment" or "Comment"
       else
-        error("what the ast arg "..k)
+        ast[key] = value
       end
     end
   end
+  return ast
+end
 
-  for k, v in ipairs(input) do
-    if type(k) == "number" then
-      if type(v) == "string" then
-        error("what the ast string")
-      elseif type(v) == "table" then
-        table.insert(elements, mungeast(v))
-        -- elseif #content == 0 and type(v) == "number" then
-        --   content = content .. utf8char(v)
-      elseif type(v) == "number" then
-        -- Ignore individual character code captures
-        -- error("what the ast char code")
-      else error ("what the ast element "..type(v))
-      end
+local function ast_children (input)
+  local children = {}
+  for key, value in ipairs(input) do
+    if type(key) == "number" then children[key] = value end
+  end
+  return children
+end
+
+-- elseif #content == 0 and type(v) == "number" then
+--   content = content .. utf8char(v)
+
+local parse_by_type = {
+
+  Entry = function (self, input)
+    local ast = ast_props(input[1])
+    tablex.merge(ast, self(input[1]))
+    return ast
+  end,
+
+  Junk = function (self, input)
+    local stuff = ast_children(input)
+    stuff.annotations = {}
+    return stuff
+  end,
+
+  Message = function (self, input)
+    local stuff = ast_children(input)
+    return stuff
+  end,
+
+  Identifier = function (self, input)
+    local stuff = ast_children(input)
+    return stuff
+  end,
+
+  Term = function (self, input)
+    local stuff = ast_children(input)
+    return stuff
+  end,
+
+  Patterm = function (self, input)
+    local stuff = ast_children(input)
+    return stuff
+  end,
+
+  PatternElement = function (self, input)
+    local stuff = ast_children(input)
+    return stuff
+  end,
+
+  CommentLine = function (self, input)
+    local stuff = ast_children(input)
+    return stuff
+  end,
+
+  Comment = function (self, input)
+    local stuff = ast_children(input)
+    return stuff
+  end,
+
+  GroupComment = function (self, input)
+    local stuff = ast_children(input)
+    return stuff
+  end,
+
+  ResourceComment = function (self, input)
+    local stuff = ast_children(input)
+    return stuff
+  end,
+
+}
+
+setmetatable(parse_by_type, {
+    __call = function (self, input)
+      local ast = ast_props(input)
+      local stuff = self[ast.type](self, input)
+      return tablex.merge(ast, stuff, true)
+    end
+  })
+
+local function munge_ast (input)
+  local ast = ast_props(input)
+  ast.body = {}
+  for key, value in ipairs(input) do
+    if type(key) == "number" then
+      table.insert(ast.body, parse_by_type(value))
     end
   end
-
-  if input.id == "Resource" then
-    ast.body = elements
-  elseif input.id == "Junk" then
-    ast.annotations = {}
-  elseif input.id == "Entry" then
-    if #elements == 1 then return elements[1]
-    else error("what the ast element overflow")
-    end
-  elseif input.id == "Message" then
-  elseif input.id == "Identifier" then
-  elseif input.id == "Term" then
-  elseif input.id == "Pattern" then
-  elseif input.id == "PatternElement" then
-  elseif input.id == "CommentLine" then
-  elseif input.type == "Comment" then
-  -- elseif input.id == "GroupComment" then
-  -- elseif input.id == "ResourceComment" then
-  elseif not input.id then
-  else D(input); error("what the ast input") -- .. input.type or input.id)
-  end
-
   return ast
 end
 
@@ -164,7 +202,7 @@ local FluentSyntax = class({
         error("FluentSyntax.parser error: input must be a string")
       end
       local ast = epnf.parsestring(ftlpeg, input .. "\n")
-      return mungeast(ast)
+      return munge_ast(ast)
     end
     -- TODO: add loader that leverages epnf.parsefile()
   })
