@@ -64,7 +64,7 @@ local ftlpeg = epnf.define(function (_ENV)
   local junk_line =  (1-line_end)^0 * line_end
   Junk = Cg(junk_line * (junk_line - P"#" - P"-" - R("az","AZ"))^0, "content")
   local comment_char = any_char - line_end
-  CommentLine = Cg(P"###" + P"##" + P"#", "_comment_marker") * (" " * Cg(C(comment_char^0), "content"))-1 * line_end
+  CommentLine = Cg(P"###" + P"##" + P"#", "_comment_marker") * (" " * Cg(C(comment_char^0), "content"))^-1 * line_end
   Term = P"-" * V"Identifier" * blank_inline^-1 * "=" * blank_inline^-1 * V"Pattern" * V"Attribute"^0
   Message = V"Identifier" * blank_inline^-1 * P"=" * blank_inline^-1 * ((V"Pattern" * V"Attribute"^0) + V"Attribute"^1)
   Entry = (V"Message" * line_end) + (V"Term" * line_end) + V"CommentLine"
@@ -188,7 +188,7 @@ local function munge_ast (input)
     if not stash then
       stash = input
     elseif stash.type == input.type then
-      stash.content = stash.content .. "\n" .. input.content
+      stash.content = (stash.content or "") .. "\n" .. (input.content or "")
     else
       flushcomments()
       stash = input
