@@ -37,7 +37,7 @@ end
 local ftlpeg = epnf.define(function (_ENV)
   local blank_inline = P" "^1
   local line_end = P"\r\n" + P"\n"
-  local blank_block = (blank_inline^-1 * line_end)^1
+  local blank_block = Cg((blank_inline^-1 * line_end)^1, "blank_block")
   local blank = (blank_inline + line_end)^1
   local digits = R"09"^1
   local special_text_char = P"{" + P"}"
@@ -74,9 +74,9 @@ local ftlpeg = epnf.define(function (_ENV)
   Pattern = V"PatternElement"^1
   Attribute = line_end * blank^-1 * P"." * V"Identifier" * blank_inline^-1 * "=" * blank_inline^-1 * V"Pattern"
   local junk_line =  (1-line_end)^0 * line_end
-  Junk = C(junk_line * (junk_line - P"#" - P"-" - R("az","AZ"))^0)
+  Junk = Cg(junk_line * (junk_line - P"#" - P"-" - R("az","AZ"))^0, "content")
   local comment_char = any_char - line_end
-  CommentLine = (P"###" + P"##" + P"#") * (" " * C(comment_char^0))-1 * line_end
+  CommentLine = Cg(P"###" + P"##" + P"#", "_marker") * (" " * Cg(C(comment_char^0), "content"))-1 * line_end
   Term = P"-" * V"Identifier" * blank_inline^-1 * "=" * blank_inline^-1 * V"Pattern" * V"Attribute"^0
   Message = V"Identifier" * blank_inline^-1 * P"=" * blank_inline^-1 * ((V"Pattern" * V"Attribute"^0) + V"Attribute"^1)
   Entry = (V"Message" * line_end) + (V"Term" * line_end) + V"CommentLine"
@@ -85,45 +85,74 @@ local ftlpeg = epnf.define(function (_ENV)
 end)
 -- luacheck: pop
 
-local function mungeast (input, parent)
-  -- if true then return input end
+local commentlevel = 0
+local commentstash = {}
+
+local function mungeast (input)
   local ast = { }
   local elements = {}
-  local content = ""
+  local content = nil
+
   for k, v in pairs(input) do
-    if type(k) == "number" then
-      if k == 1 and type(v) == "string" then
-        d(v)
-        content = v
-      elseif type(v) == "table" then
-        elements[k] = mungeast(v, input["id"])
-      elseif #content == 0 and type(v) == "number" then
-        content = content .. utf8char(v)
-      elseif #content > 0 and type(v) == "number" then
-        -- Captured as string
-      else error ("what the ast element "..type(v))
-      end
-    elseif type(k) == "string" then
-      if k == "id" then ast["type"] = v
+    if type(k) == "string" then
+      if k == "type" then
+        -- running nested, type already set
+      elseif v == "CommentLine" then
+        -- drop, set via _marker
+      elseif k == "id" then
+        ast.type = v
+      elseif k == "blank_block" then
+        ast.type = k
+        -- flush comments?
+        -- elements = mungeast({ id = k }, input.id)
       elseif k == "pos" then
-      else error("what the ast key "..k)
+      elseif k == "content" then
+        ast.content = v
+      elseif k == "_marker" then
+        ast.type = #v == 3 and "ResourceComment" or #v == 2 and "GroupComment" or "Comment"
+      else
+        error("what the ast arg "..k)
       end
-    else error("what the ast datatype "..type(k))
     end
   end
-  if ast["type"] == "Resource" then
-    ast.body = elements
-  elseif ast["type"] == "Junk" then
-    ast.annotations = {}
-  elseif ast["type"] == "Entry" then
-    ast = elements
-  elseif ast["type"] == "Message" then
-    ast = elements
-  elseif ast["type"] == "CommentLine" then
-    ast["type"] = "Comment"
-  -- else error("what the type "..ast["type"])
+
+  for k, v in ipairs(input) do
+    if type(k) == "number" then
+      if type(v) == "string" then
+        error("what the ast string")
+      elseif type(v) == "table" then
+        table.insert(elements, mungeast(v))
+        -- elseif #content == 0 and type(v) == "number" then
+        --   content = content .. utf8char(v)
+      elseif type(v) == "number" then
+        -- Ignore individual character code captures
+        -- error("what the ast char code")
+      else error ("what the ast element "..type(v))
+      end
+    end
   end
-  if #content > 0 then ast.content = content end
+
+  if input.id == "Resource" then
+    ast.body = elements
+  elseif input.id == "Junk" then
+    ast.annotations = {}
+  elseif input.id == "Entry" then
+    if #elements == 1 then return elements[1]
+    else error("what the ast element overflow")
+    end
+  elseif input.id == "Message" then
+  elseif input.id == "Identifier" then
+  elseif input.id == "Term" then
+  elseif input.id == "Pattern" then
+  elseif input.id == "PatternElement" then
+  elseif input.id == "CommentLine" then
+  elseif input.type == "Comment" then
+  -- elseif input.id == "GroupComment" then
+  -- elseif input.id == "ResourceComment" then
+  elseif not input.id then
+  else D(input); error("what the ast input") -- .. input.type or input.id)
+  end
+
   return ast
 end
 
