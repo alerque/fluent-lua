@@ -21,19 +21,6 @@ local function f4 (s)
 end
 local cont = "\128\191"
 
--- Straight out of SILE.utilities
-local function utf8char (c)
-    if     c < 128 then
-        return string.char(c)
-    elseif c < 2048 then
-        return string.char(math.floor(192 + c/64), 128 + c%64)
-    elseif c < 55296 or 57343 < c and c < 65536 then
-        return  string.char(math.floor(224 + c/4096), math.floor(128 + c/64%64), 128 + c%64)
-    elseif c < 1114112 then
-        return string.char(math.floor(240 + c/262144), math.floor(128 + c/4096%64), math.floor(128 + c/64%64), 128 + c%64)
-    end
-end
-
 -- luacheck: push ignore
 local ftlpeg = epnf.define(function (_ENV)
   local blank_inline = P" "^1
