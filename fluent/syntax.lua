@@ -116,14 +116,6 @@ local parse_by_type = {
   end,
 
   Message = function (self, node)
-    return ast_children(node)
-  end,
-
-  Identifier = function (self, node)
-    return ast_children(node)
-  end,
-
-  Term = function (self, node)
     node = ast_children(node)
     local ast = { id = node.id, value = {}, attributes = {} }
     for key, value in ipairs(node) do
@@ -134,6 +126,14 @@ local parse_by_type = {
       end
     end
     return ast
+  end,
+
+  Identifier = function (self, node)
+    return ast_children(node)
+  end,
+
+  Term = function (self, node)
+    return self:Message(node)
   end,
 
   Pattern = function (self, node)
