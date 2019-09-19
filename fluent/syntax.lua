@@ -76,7 +76,7 @@ local ftlpeg = epnf.define(function (_ENV)
   local junk_line =  (1-line_end)^0 * line_end
   Junk = C(junk_line * (junk_line - P"#" - P"-" - R("az","AZ"))^0)
   local comment_char = any_char - line_end
-  CommentLine = (P"###" + P"##" + P"#") * (" " * comment_char^0)-1 * line_end
+  CommentLine = (P"###" + P"##" + P"#") * (" " * C(comment_char^0))-1 * line_end
   Term = P"-" * V"Identifier" * blank_inline^-1 * "=" * blank_inline^-1 * V"Pattern" * V"Attribute"^0
   Message = V"Identifier" * blank_inline^-1 * P"=" * blank_inline^-1 * ((V"Pattern" * V"Attribute"^0) + V"Attribute"^1)
   Entry = (V"Message" * line_end) + (V"Term" * line_end) + V"CommentLine"
@@ -91,32 +91,35 @@ local function mungeast (input, parent)
   local elements = {}
   local content = ""
   for k, v in pairs(input) do
-    if (type(k) == "number") then
-      if type(v)  == "number" then
-        content = content .. utf8char(v)
-      elseif (type(v) == "table") then
-        elements[k] = mungeast(v, input["id"])
-      elseif (type(v) == "string") then
+    if type(k) == "number" then
+      if k == 1 and type(v) == "string" then
+        d(v)
         content = v
+      elseif type(v) == "table" then
+        elements[k] = mungeast(v, input["id"])
+      elseif #content == 0 and type(v) == "number" then
+        content = content .. utf8char(v)
+      elseif #content > 0 and type(v) == "number" then
+        -- Captured as string
       else error ("what the ast element "..type(v))
       end
-    elseif (type(k) == "string") then
-      if (k == "id") then ast["type"] = v
-      elseif (k == "pos") then
+    elseif type(k) == "string" then
+      if k == "id" then ast["type"] = v
+      elseif k == "pos" then
       else error("what the ast key "..k)
       end
     else error("what the ast datatype "..type(k))
     end
   end
-  if (ast["type"] == "Resource") then
+  if ast["type"] == "Resource" then
     ast.body = elements
-  elseif (ast["type"] == "Junk") then
+  elseif ast["type"] == "Junk" then
     ast.annotations = {}
-  elseif (ast["type"] == "Entry") then
+  elseif ast["type"] == "Entry" then
     ast = elements
-  elseif (ast["type"] == "Message") then
+  elseif ast["type"] == "Message" then
     ast = elements
-  elseif (ast["type"] == "CommentLine") then
+  elseif ast["type"] == "CommentLine" then
     ast["type"] = "Comment"
   -- else error("what the type "..ast["type"])
   end
