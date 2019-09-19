@@ -38,7 +38,7 @@ end
 local ftlpeg = epnf.define(function (_ENV)
   local blank_inline = P" "^1
   local line_end = P"\r\n" + P"\n"
-  blank_block = (blank_inline^-1 * line_end)^1, "blank_block"; local blank_block = V"blank_block"
+  blank_block = C((blank_inline^-1 * line_end)^1); local blank_block = V"blank_block"
   local blank = (blank_inline + line_end)^1
   local digits = R"09"^1
   local special_text_char = P"{" + P"}"
@@ -123,7 +123,8 @@ local parse_by_type = {
   end,
 
   blank_block = function (self, input)
-    return {}
+    local _, count = string.gsub(input[1], "\n", "")
+    return count >= 1 and {} or nil
   end,
 
   Junk = function (self, input)
@@ -178,7 +179,7 @@ setmetatable(parse_by_type, {
     __call = function (self, input)
       local ast = ast_props(input)
       local stuff = self[ast.type](self, input)
-      return tablex.merge(ast, stuff, true)
+      return stuff and tablex.merge(ast, stuff, true) or nil
     end
   })
 
