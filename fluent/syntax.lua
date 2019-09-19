@@ -74,7 +74,7 @@ local ftlpeg = epnf.define(function (_ENV)
   Pattern = V"PatternElement"^1
   Attribute = line_end * blank^-1 * P"." * V"Identifier" * blank_inline^-1 * "=" * blank_inline^-1 * V"Pattern"
   local junk_line =  (1-line_end)^0 * line_end
-  Junk = junk_line * (junk_line - P"#" - P"-" - R("az","AZ"))^0
+  Junk = C(junk_line * (junk_line - P"#" - P"-" - R("az","AZ"))^0)
   local comment_char = any_char - line_end
   CommentLine = (P"###" + P"##" + P"#") * (" " * comment_char^0)-1 * line_end
   Term = P"-" * V"Identifier" * blank_inline^-1 * "=" * blank_inline^-1 * V"Pattern" * V"Attribute"^0
@@ -96,19 +96,29 @@ local function mungeast (input, parent)
         content = content .. utf8char(v)
       elseif (type(v) == "table") then
         elements[k] = mungeast(v, input["id"])
+      elseif (type(v) == "string") then
+        content = v
+      else error ("what the ast element "..type(v))
       end
     elseif (type(k) == "string") then
-      if (k == "id") then
-        ast["type"] = v
+      if (k == "id") then ast["type"] = v
       elseif (k == "pos") then
-      else error("what the ast "..k)
+      else error("what the ast key "..k)
       end
+    else error("what the ast datatype "..type(k))
     end
   end
   if (ast["type"] == "Resource") then
     ast.body = elements
+  elseif (ast["type"] == "Junk") then
+    ast.annotations = {}
   elseif (ast["type"] == "Entry") then
     ast = elements
+  elseif (ast["type"] == "Message") then
+    ast = elements
+  elseif (ast["type"] == "CommentLine") then
+    ast["type"] = "Comment"
+  -- else error("what the type "..ast["type"])
   end
   if #content > 0 then ast.content = content end
   return ast
