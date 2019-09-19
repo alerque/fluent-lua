@@ -58,7 +58,7 @@ local ftlpeg = epnf.define(function (_ENV)
   CallArguments = blank^-1 * P"(" * blank^-1 * argument_list * blank^-1 * P")"
   SelectExpression = V"InlineExpression" * blank^-1 * P"->" * blank_inline^-1 * variant_list
   InlineExpression = V"StringLiteral" + V"NumberLiteral" + V"FunctionReference" + V"MessageReference" + V"TermReference" + V"VariableReference" + inline_placeable
-  PatternElement = inline_text + block_text + inline_placeable + block_placeable
+  PatternElement = Cg(C(inline_text + block_text + inline_placeable + block_placeable), "value")
   Pattern = V"PatternElement"^1
   Attribute = line_end * blank^-1 * P"." * V"Identifier" * blank_inline^-1 * "=" * blank_inline^-1 * V"Pattern"
   local junk_line =  (1-line_end)^0 * line_end
@@ -73,9 +73,9 @@ local ftlpeg = epnf.define(function (_ENV)
 end)
 -- luacheck: pop
 
-local function ast_props (input)
+local function ast_props (node)
   local ast = {}
-  for key, value in pairs(input) do
+  for key, value in pairs(node) do
     if type(key) == "string" then
       if key == "id" and value ~= "CommentLine" then ast.type = value
       elseif value == "CommentLine" then
@@ -90,92 +90,95 @@ local function ast_props (input)
   return ast
 end
 
-local function ast_children (input)
+local function ast_children (node)
   local children = {}
-  for key, value in ipairs(input) do
+  for key, value in ipairs(node) do
     if type(key) == "number" then children[key] = value end
   end
   return children
 end
 
--- elseif #content == 0 and type(v) == "number" then
---   content = content .. utf8char(v)
-
 local parse_by_type = {
 
-  Entry = function (self, input)
-    local ast = ast_props(input[1])
-    tablex.merge(ast, self(input[1]))
-    return ast
+  Entry = function (self, node)
+    return self(node[1])
   end,
 
-  blank_block = function (self, input)
-    local _, count = string.gsub(input[1], "\n", "")
+  blank_block = function (self, node)
+    local _, count = string.gsub(node[1], "\n", "")
     return count >= 1 and {} or nil
   end,
 
-  Junk = function (self, input)
-    local stuff = ast_children(input)
-    stuff.annotations = {}
-    return stuff
+  Junk = function (self, node)
+    node = ast_children(node)
+    node.annotations = {}
+    return node
   end,
 
-  Message = function (self, input)
-    local stuff = ast_children(input)
-    return stuff
+  Message = function (self, node)
+    return ast_children(node)
   end,
 
-  Identifier = function (self, input)
-    local stuff = ast_children(input)
-    return stuff
+  Identifier = function (self, node)
+    return ast_children(node)
   end,
 
-  Term = function (self, input)
-    local stuff = ast_children(input)
-    return stuff
+  Term = function (self, node)
+    node = ast_children(node)
+    local ast = { id = node.id, value = {}, attributes = {} }
+    for key, value in ipairs(node) do
+      if value.id == "Identifier" then
+        ast.id = self(value)
+      elseif value.id == "Pattern" then
+        ast.value = self(value)
+      end
+    end
+    return ast
   end,
 
-  Patterm = function (self, input)
-    local stuff = ast_children(input)
-    return stuff
+  Pattern = function (self, node)
+    local stuff = ast_children(node)
+    local ast = { elements = {} }
+    for key, value in ipairs(stuff) do
+      table.insert(ast.elements, self(value))
+    end
+    return ast
   end,
 
-  PatternElement = function (self, input)
-    local stuff = ast_children(input)
-    return stuff
+  PatternElement = function (self, node)
+    node = ast_children(node)
+    node.type = "TextElement"
+    return node
   end,
 
-  Comment = function (self, input)
-    local stuff = ast_children(input)
-    return stuff
+  Comment = function (self, node)
+    return ast_children(node)
   end,
 
-  GroupComment = function (self, input)
-    local stuff = ast_children(input)
-    return stuff
+  GroupComment = function (self, node)
+    return ast_children(node)
   end,
 
-  ResourceComment = function (self, input)
-    local stuff = ast_children(input)
-    return stuff
+  ResourceComment = function (self, node)
+    return ast_children(node)
   end,
 
 }
 
 setmetatable(parse_by_type, {
-    __call = function (self, input)
-      local ast = ast_props(input)
-      local stuff = self[ast.type](self, input)
+    __call = function (self, node)
+      local ast = ast_props(node)
+      local stuff = self[ast.type](self, node)
       return stuff and tablex.merge(ast, stuff, true) or nil
     end
   })
 
-local function munge_ast (input)
-  local ast = ast_props(input)
+local function munge_ast (node)
+  local ast = ast_props(node)
   local stash = nil
   ast.body = {}
   local entries = {}
-  for key, value in ipairs(input) do
+  for key, value in ipairs(node) do
     if type(key) == "number" then
       table.insert(entries, parse_by_type(value))
     end
@@ -184,14 +187,14 @@ local function munge_ast (input)
     if stash then table.insert(ast.body, stash) end
     stash = nil
   end
-  local stashcomment = function (input)
+  local stashcomment = function (node)
     if not stash then
-      stash = input
-    elseif stash.type == input.type then
-      stash.content = (stash.content or "") .. "\n" .. (input.content or "")
+      stash = node
+    elseif stash.type == node.type then
+      stash.content = (stash.content or "") .. "\n" .. (node.content or "")
     else
       flushcomments()
-      stash = input
+      stash = node
     end
   end
   for key, value in ipairs(entries) do
