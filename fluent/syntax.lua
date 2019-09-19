@@ -38,7 +38,7 @@ end
 local ftlpeg = epnf.define(function (_ENV)
   local blank_inline = P" "^1
   local line_end = P"\r\n" + P"\n"
-  local blank_block = Cg((blank_inline^-1 * line_end)^1, "blank_block")
+  blank_block = (blank_inline^-1 * line_end)^1, "blank_block"; local blank_block = V"blank_block"
   local blank = (blank_inline + line_end)^1
   local digits = R"09"^1
   local special_text_char = P"{" + P"}"
@@ -122,6 +122,10 @@ local parse_by_type = {
     return ast
   end,
 
+  blank_block = function (self, input)
+    return {}
+  end,
+
   Junk = function (self, input)
     local stuff = ast_children(input)
     stuff.annotations = {}
@@ -153,11 +157,6 @@ local parse_by_type = {
     return stuff
   end,
 
-  CommentLine = function (self, input)
-    local stuff = ast_children(input)
-    return stuff
-  end,
-
   Comment = function (self, input)
     local stuff = ast_children(input)
     return stuff
@@ -185,10 +184,36 @@ setmetatable(parse_by_type, {
 
 local function munge_ast (input)
   local ast = ast_props(input)
+  local stash = nil
   ast.body = {}
+  local entries = {}
   for key, value in ipairs(input) do
     if type(key) == "number" then
-      table.insert(ast.body, parse_by_type(value))
+      table.insert(entries, parse_by_type(value))
+    end
+  end
+  local stashcomment = function (input)
+    if not stash then
+      stash = input
+    else
+      -- TODO: merge comment with previous if same type, or flush
+    end
+  end
+  local flushcomments = function ()
+    if stash then table.insert(ast.body, stash) end
+    stash = nil
+  end
+  for key, value in ipairs(entries) do
+    if value.type:match("Comment$") then
+      stashcomment(value)
+    elseif value.type == "blank_block" then
+      flushcomments()
+    elseif value.type == "Message" then
+      -- TODO: flush comment typest that cant merge
+      table.insert(ast.body, value)
+      -- TODO: add comments in stash to message
+    else
+      table.insert(ast.body, value)
     end
   end
   return ast
