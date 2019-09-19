@@ -193,27 +193,37 @@ local function munge_ast (input)
       table.insert(entries, parse_by_type(value))
     end
   end
-  local stashcomment = function (input)
-    if not stash then
-      stash = input
-    else
-      -- TODO: merge comment with previous if same type, or flush
-    end
-  end
   local flushcomments = function ()
     if stash then table.insert(ast.body, stash) end
     stash = nil
+  end
+  local stashcomment = function (input)
+    if not stash then
+      stash = input
+    elseif stash.type == input.type then
+      stash.content = stash.content .. "\n" .. input.content
+    else
+      flushcomments()
+      stash = input
+    end
   end
   for key, value in ipairs(entries) do
     if value.type:match("Comment$") then
       stashcomment(value)
     elseif value.type == "blank_block" then
       flushcomments()
-    elseif value.type == "Message" then
-      -- TODO: flush comment typest that cant merge
+    elseif value.type == "Message" or value.type == "Term" then
+      if stash then
+        if stash.type ~= "Comment" then
+          flushcomments()
+        else
+          value.comment = stash
+          stash = nil
+        end
+      end
       table.insert(ast.body, value)
-      -- TODO: add comments in stash to message
     else
+      flushcomments()
       table.insert(ast.body, value)
     end
   end
