@@ -228,6 +228,7 @@ local function munge_ast (node)
       table.insert(ast.body, value)
     end
   end
+  flushcomments()
   return ast
 end
 
