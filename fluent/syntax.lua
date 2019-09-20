@@ -93,6 +93,9 @@ local function ast_props (node)
       elseif key == "pos" then
       elseif key == "_comment_marker" then
         ast.type = #value == 3 and "ResourceComment" or #value == 2 and "GroupComment" or "Comment"
+      elseif key == "value" then
+        local value = string.gsub(value, "^\n+ +", "")
+        ast[key] = value
       else
         ast[key] = value
       end
