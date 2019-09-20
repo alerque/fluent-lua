@@ -21,10 +21,21 @@ local function f4 (s)
 end
 local cont = "\128\191"
 
+local nulleof = "NULL\000"
+
 -- luacheck: push ignore
+local ftleof = epnf.define(function (_ENV)
+  eol_eof = 1^0 * P(nulleof) * -1
+  START("eol_eof")
+end)
+
+local nl = function ()
+  return "\n"
+end
+
 local ftlpeg = epnf.define(function (_ENV)
   local blank_inline = P" "^1
-  local line_end = P"\r\n" + P"\n"
+  local line_end = P"\r\n" / nl + P"\n" + P(nulleof)
   blank_block = C((blank_inline^-1 * line_end)^1); local blank_block = V"blank_block"
   local blank = (blank_inline + line_end)^1
   local digits = R"09"^1
@@ -61,14 +72,14 @@ local ftlpeg = epnf.define(function (_ENV)
   PatternElement = Cg(C(inline_text + block_text + inline_placeable + block_placeable), "value")
   Pattern = V"PatternElement"^1
   Attribute = line_end * blank^-1 * P"." * V"Identifier" * blank_inline^-1 * "=" * blank_inline^-1 * V"Pattern"
-  local junk_line =  (1-line_end)^0 * line_end
+  local junk_line =  (1-line_end)^0 * (P"\n" + P(nulleof))
   Junk = Cg(junk_line * (junk_line - P"#" - P"-" - R("az","AZ"))^0, "content")
   local comment_char = any_char - line_end
   CommentLine = Cg(P"###" + P"##" + P"#", "_comment_marker") * (" " * Cg(C(comment_char^0), "content"))^-1 * line_end
   Term = P"-" * V"Identifier" * blank_inline^-1 * "=" * blank_inline^-1 * V"Pattern" * V"Attribute"^0
   Message = V"Identifier" * blank_inline^-1 * P"=" * blank_inline^-1 * ((V"Pattern" * V"Attribute"^0) + V"Attribute"^1)
   Entry = (V"Message" * line_end) + (V"Term" * line_end) + V"CommentLine"
-  Resource = (V"Entry" + blank_block + V"Junk")^0 * EOF"unparsable input"
+  Resource = (V"Entry" + blank_block + V"Junk")^0 * (P(nulleof) + EOF"unparsable input")
   START("Resource")
 end)
 -- luacheck: pop
@@ -221,12 +232,18 @@ local function munge_ast (node)
 end
 
 local FluentSyntax = class({
+    addtrailingnewine = function(input)
+      local hasnulleof = epnf.parsestring(ftleof, input)
+      return type(hasnulleof) == "nil" and input..nulleof or input
+    end,
+
     parse = function (self, input)
       if not self or type(self) ~= "table" then
         error("FluentSyntax.parser error: must be invoked as a method")
       elseif not input or type(input) ~= "string" then
         error("FluentSyntax.parser error: input must be a string")
       end
+      input = self.addtrailingnewine(input)
       local ast = epnf.parsestring(ftlpeg, input)
       return munge_ast(ast)
     end
