@@ -92,7 +92,10 @@ local function ast_props (node)
       elseif value == "CommentLine" then
       elseif key == "pos" then
       elseif key == "sigil" then
-        ast.type = #value == 3 and "ResourceComment" or #value == 2 and "GroupComment" or "Comment"
+        ast.type = #value == 1 and "Comment"
+                or #value == 2 and "GroupComment"
+                or #value == 3 and "ResourceComment"
+                or error("Unknown comment sigil: "..value..".")
       elseif key == "value" then
         local value = string.gsub(value, "^\n+ +", "")
         ast[key] = value
