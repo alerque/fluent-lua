@@ -115,6 +115,25 @@ local function ast_children (node)
   return children
 end
 
+local function dedent (content)
+  local min
+  for indent in string.gmatch(content, "\n *%S") do
+    min = min and math.min(min, #indent) or #indent
+  end
+  local common = function(min)
+    local i = 0
+    local s = ""
+    while i < min do
+      s = s .. " "
+      i = i + 1
+    end
+    return s
+  end
+  local sp = common(min-2)
+  local rep = string.gsub(content, "\n"..sp, "\n")
+  return rep
+end
+
 local parse_by_type = {
 
   Entry = function (self, node)
@@ -165,7 +184,11 @@ local parse_by_type = {
         lasttype = value.id
       end
     end
-    d(ast)
+    for key, value in ipairs(ast.elements) do
+      if key == "value" then
+        ast.elements[key] = dedent(value)
+      end
+    end
     return ast
   end,
 
