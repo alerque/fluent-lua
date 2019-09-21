@@ -156,9 +156,16 @@ local parse_by_type = {
   Pattern = function (self, node)
     local stuff = ast_children(node)
     local ast = { elements = {} }
+    local lasttype = "none"
     for key, value in ipairs(stuff) do
-      table.insert(ast.elements, self(value))
+      if lasttype == value.id then
+        ast.elements[#ast.elements] = ast.elements[#ast.elements].value .. value.value
+      else
+        table.insert(ast.elements, self(value))
+        lasttype = value.id
+      end
     end
+    d(ast)
     return ast
   end,
 
