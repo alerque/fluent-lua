@@ -5,192 +5,85 @@
       "type": "Message",
       "id": {
         "type": "Identifier",
-        "name": "foo",
-        "span": {
-          "type": "Span",
-          "start": 0,
-          "end": 3
-        }
+        "name": "foo"
       },
       "value": {
         "type": "Pattern",
         "elements": [
           {
             "type": "TextElement",
-            "value": "Foo",
-            "span": {
-              "type": "Span",
-              "start": 6,
-              "end": 9
-            }
+            "value": "Foo"
           }
-        ],
-        "span": {
-          "type": "Span",
-          "start": 6,
-          "end": 9
-        }
+        ]
       },
       "attributes": [
         {
           "type": "Attribute",
           "id": {
             "type": "Identifier",
-            "name": "attr",
-            "span": {
-              "type": "Span",
-              "start": 11,
-              "end": 15
-            }
+            "name": "attr"
           },
           "value": {
             "type": "Pattern",
             "elements": [
               {
                 "type": "TextElement",
-                "value": "Foo Attr",
-                "span": {
-                  "type": "Span",
-                  "start": 18,
-                  "end": 26
-                }
+                "value": "Foo Attr"
               }
-            ],
-            "span": {
-              "type": "Span",
-              "start": 18,
-              "end": 26
-            }
-          },
-          "span": {
-            "type": "Span",
-            "start": 10,
-            "end": 26
+            ]
           }
         }
-      ],
-      "comment": null,
-      "span": {
-        "type": "Span",
-        "start": 0,
-        "end": 26
-      }
+      ]
     },
     {
       "type": "Message",
       "id": {
         "type": "Identifier",
-        "name": "bar",
-        "span": {
-          "type": "Span",
-          "start": 28,
-          "end": 31
-        }
+        "name": "bar"
       },
       "value": {
         "type": "Pattern",
         "elements": [
           {
             "type": "TextElement",
-            "value": "Bar",
-            "span": {
-              "type": "Span",
-              "start": 34,
-              "end": 37
-            }
+            "value": "Bar"
           }
-        ],
-        "span": {
-          "type": "Span",
-          "start": 34,
-          "end": 37
-        }
+        ]
       },
       "attributes": [
         {
           "type": "Attribute",
           "id": {
             "type": "Identifier",
-            "name": "attr1",
-            "span": {
-              "type": "Span",
-              "start": 43,
-              "end": 48
-            }
+            "name": "attr1"
           },
           "value": {
             "type": "Pattern",
             "elements": [
               {
                 "type": "TextElement",
-                "value": "Bar Attr 1",
-                "span": {
-                  "type": "Span",
-                  "start": 51,
-                  "end": 61
-                }
+                "value": "Bar Attr 1"
               }
-            ],
-            "span": {
-              "type": "Span",
-              "start": 51,
-              "end": 61
-            }
-          },
-          "span": {
-            "type": "Span",
-            "start": 42,
-            "end": 61
+            ]
           }
         },
         {
           "type": "Attribute",
           "id": {
             "type": "Identifier",
-            "name": "attr2",
-            "span": {
-              "type": "Span",
-              "start": 63,
-              "end": 68
-            }
+            "name": "attr2"
           },
           "value": {
             "type": "Pattern",
             "elements": [
               {
                 "type": "TextElement",
-                "value": "Bar Attr 2",
-                "span": {
-                  "type": "Span",
-                  "start": 71,
-                  "end": 81
-                }
+                "value": "Bar Attr 2"
               }
-            ],
-            "span": {
-              "type": "Span",
-              "start": 71,
-              "end": 81
-            }
-          },
-          "span": {
-            "type": "Span",
-            "start": 62,
-            "end": 81
+            ]
           }
         }
-      ],
-      "comment": null,
-      "span": {
-        "type": "Span",
-        "start": 28,
-        "end": 81
-      }
+      ]
     }
-  ],
-  "span": {
-    "type": "Span",
-    "start": 0,
-    "end": 82
-  }
+  ]
 }

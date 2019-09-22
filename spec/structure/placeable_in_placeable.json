@@ -5,12 +5,7 @@
       "type": "Message",
       "id": {
         "type": "Identifier",
-        "name": "key1",
-        "span": {
-          "type": "Span",
-          "start": 0,
-          "end": 4
-        }
+        "name": "key1"
       },
       "value": {
         "type": "Pattern",
@@ -23,57 +18,20 @@
                 "type": "MessageReference",
                 "id": {
                   "type": "Identifier",
-                  "name": "foo",
-                  "span": {
-                    "type": "Span",
-                    "start": 10,
-                    "end": 13
-                  }
-                },
-                "attribute": null,
-                "span": {
-                  "type": "Span",
-                  "start": 10,
-                  "end": 13
+                  "name": "foo"
                 }
-              },
-              "span": {
-                "type": "Span",
-                "start": 8,
-                "end": 15
               }
-            },
-            "span": {
-              "type": "Span",
-              "start": 7,
-              "end": 16
             }
           }
-        ],
-        "span": {
-          "type": "Span",
-          "start": 7,
-          "end": 16
-        }
+        ]
       },
-      "attributes": [],
-      "comment": null,
-      "span": {
-        "type": "Span",
-        "start": 0,
-        "end": 16
-      }
+      "attributes": []
     },
     {
       "type": "Message",
       "id": {
         "type": "Identifier",
-        "name": "key2",
-        "span": {
-          "type": "Span",
-          "start": 18,
-          "end": 22
-        }
+        "name": "key2"
       },
       "value": {
         "type": "Pattern",
@@ -86,57 +44,20 @@
                 "type": "MessageReference",
                 "id": {
                   "type": "Identifier",
-                  "name": "foo",
-                  "span": {
-                    "type": "Span",
-                    "start": 30,
-                    "end": 33
-                  }
-                },
-                "attribute": null,
-                "span": {
-                  "type": "Span",
-                  "start": 30,
-                  "end": 33
+                  "name": "foo"
                 }
-              },
-              "span": {
-                "type": "Span",
-                "start": 28,
-                "end": 35
               }
-            },
-            "span": {
-              "type": "Span",
-              "start": 25,
-              "end": 38
             }
           }
-        ],
-        "span": {
-          "type": "Span",
-          "start": 25,
-          "end": 38
-        }
+        ]
       },
-      "attributes": [],
-      "comment": null,
-      "span": {
-        "type": "Span",
-        "start": 18,
-        "end": 38
-      }
+      "attributes": []
     },
     {
       "type": "Message",
       "id": {
         "type": "Identifier",
-        "name": "key3",
-        "span": {
-          "type": "Span",
-          "start": 40,
-          "end": 44
-        }
+        "name": "key3"
       },
       "value": {
         "type": "Pattern",
@@ -149,97 +70,22 @@
                 "type": "MessageReference",
                 "id": {
                   "type": "Identifier",
-                  "name": "foo",
-                  "span": {
-                    "type": "Span",
-                    "start": 59,
-                    "end": 62
-                  }
-                },
-                "attribute": null,
-                "span": {
-                  "type": "Span",
-                  "start": 59,
-                  "end": 62
+                  "name": "foo"
                 }
-              },
-              "span": {
-                "type": "Span",
-                "start": 57,
-                "end": 64
               }
-            },
-            "span": {
-              "type": "Span",
-              "start": 50,
-              "end": 69
             }
           }
-        ],
-        "span": {
-          "type": "Span",
-          "start": 47,
-          "end": 69
-        }
+        ]
       },
-      "attributes": [],
-      "comment": null,
-      "span": {
-        "type": "Span",
-        "start": 40,
-        "end": 69
-      }
+      "attributes": []
     },
     {
       "type": "Junk",
-      "annotations": [
-        {
-          "type": "Annotation",
-          "code": "E0003",
-          "arguments": [
-            "}"
-          ],
-          "message": "Expected token: \"}\"",
-          "span": {
-            "type": "Span",
-            "start": 90,
-            "end": 90
-          }
-        }
-      ],
-      "content": "err1 = {  { foo }\n\n",
-      "span": {
-        "type": "Span",
-        "start": 71,
-        "end": 90
-      }
+      "content": "err1 = {  { foo }\n\n"
     },
     {
       "type": "Junk",
-      "annotations": [
-        {
-          "type": "Annotation",
-          "code": "E0027",
-          "arguments": [],
-          "message": "Unbalanced closing brace in TextElement.",
-          "span": {
-            "type": "Span",
-            "start": 105,
-            "end": 105
-          }
-        }
-      ],
-      "content": "err2 = { foo } }\n",
-      "span": {
-        "type": "Span",
-        "start": 90,
-        "end": 107
-      }
+      "content": "err2 = { foo } }\n"
     }
-  ],
-  "span": {
-    "type": "Span",
-    "start": 0,
-    "end": 107
-  }
+  ]
 }

@@ -3,30 +3,7 @@
   "body": [
     {
       "type": "Junk",
-      "annotations": [
-        {
-          "type": "Annotation",
-          "code": "E0019",
-          "arguments": [],
-          "message": "Attributes of terms cannot be used as placeables",
-          "span": {
-            "type": "Span",
-            "start": 23,
-            "end": 23
-          }
-        }
-      ],
-      "content": "err1 = { -brand.gender }\n",
-      "span": {
-        "type": "Span",
-        "start": 0,
-        "end": 25
-      }
+      "content": "err1 = { -brand.gender }\n"
     }
-  ],
-  "span": {
-    "type": "Span",
-    "start": 0,
-    "end": 25
-  }
+  ]
 }

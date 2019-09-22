@@ -5,117 +5,51 @@
       "type": "Message",
       "id": {
         "type": "Identifier",
-        "name": "key",
-        "span": {
-          "type": "Span",
-          "start": 0,
-          "end": 3
-        }
+        "name": "key"
       },
       "value": {
         "type": "Pattern",
         "elements": [
           {
             "type": "TextElement",
-            "value": "Value",
-            "span": {
-              "type": "Span",
-              "start": 6,
-              "end": 11
-            }
+            "value": "Value"
           }
-        ],
-        "span": {
-          "type": "Span",
-          "start": 6,
-          "end": 11
-        }
+        ]
       },
       "attributes": [
         {
           "type": "Attribute",
           "id": {
             "type": "Identifier",
-            "name": "label",
-            "span": {
-              "type": "Span",
-              "start": 17,
-              "end": 22
-            }
+            "name": "label"
           },
           "value": {
             "type": "Pattern",
             "elements": [
               {
                 "type": "TextElement",
-                "value": "Value",
-                "span": {
-                  "type": "Span",
-                  "start": 25,
-                  "end": 30
-                }
+                "value": "Value"
               }
-            ],
-            "span": {
-              "type": "Span",
-              "start": 25,
-              "end": 30
-            }
-          },
-          "span": {
-            "type": "Span",
-            "start": 16,
-            "end": 30
+            ]
           }
         },
         {
           "type": "Attribute",
           "id": {
             "type": "Identifier",
-            "name": "accesskey",
-            "span": {
-              "type": "Span",
-              "start": 32,
-              "end": 41
-            }
+            "name": "accesskey"
           },
           "value": {
             "type": "Pattern",
             "elements": [
               {
                 "type": "TextElement",
-                "value": "K",
-                "span": {
-                  "type": "Span",
-                  "start": 44,
-                  "end": 45
-                }
+                "value": "K"
               }
-            ],
-            "span": {
-              "type": "Span",
-              "start": 44,
-              "end": 45
-            }
-          },
-          "span": {
-            "type": "Span",
-            "start": 31,
-            "end": 45
+            ]
           }
         }
-      ],
-      "comment": null,
-      "span": {
-        "type": "Span",
-        "start": 0,
-        "end": 45
-      }
+      ]
     }
-  ],
-  "span": {
-    "type": "Span",
-    "start": 0,
-    "end": 46
-  }
+  ]
 }
