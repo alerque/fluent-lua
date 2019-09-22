@@ -147,7 +147,7 @@ local parse_by_type = {
 
   Junk = function (self, node)
     node = ast_children(node)
-    node.annotations = {}
+    -- node.annotations = {}
     return node
   end,
 
