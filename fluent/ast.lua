@@ -2,28 +2,31 @@
 local class = require("pl.class")
 local tablex = require("pl.tablex")
 
-local function ast_props (node)
-  local ast = {}
-  for key, value in pairs(node) do
-    if type(key) == "string" then
-      if key == "id" and value ~= "CommentLine" then ast.type = value
-      elseif value == "CommentLine" then
-      elseif key == "pos" then
-      elseif key == "sigil" then
-        ast.type = #value == 1 and "Comment"
-                or #value == 2 and "GroupComment"
-                or #value == 3 and "ResourceComment"
-                or error("Unknown comment sigil: "..value..".")
-      elseif key == "value" then
-        local value = string.gsub(value, "^\n+ +", "")
-        ast[key] = value
-      else
-        ast[key] = value
+local FluentNode = class({
+    _init = function (self, node)
+      for key, value in pairs(node) do
+        if type(key) == "string" then
+          if key == "id" then
+            if value == "CommentLine" then
+              self.type =  #node.sigil == 1 and "Comment"
+                        or #node.sigil == 2 and "GroupComment"
+                        or #node.sigil == 3 and "ResourceComment"
+                        or error("Unknown comment sigil: "..node.sigil..".")
+            else
+              self.type = value
+            end
+          elseif key == "pos" then
+          elseif key == "sigil" then
+          elseif key == "value" then
+            local value = string.gsub(value, "^\n+ +", "")
+            self[key] = value
+          else
+            self[key] = value
+          end
+        end
       end
     end
-  end
-  return ast
-end
+  })
 
 local function ast_children (node)
   local children = {}
@@ -132,14 +135,14 @@ local parse_by_type = {
 
 setmetatable(parse_by_type, {
     __call = function (self, node)
-      local ast = ast_props(node)
+      local ast = FluentNode(node)
       local stuff = self[ast.type](self, node)
       return stuff and tablex.merge(ast, stuff, true) or nil
     end
   })
 
 local function munge_ast (node)
-  local ast = ast_props(node)
+  local ast = FluentNode(node)
   local stash = nil
   ast.body = {}
   local entries = {}
