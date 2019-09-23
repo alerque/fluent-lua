@@ -3,12 +3,10 @@ local class = require("pl.class")
 
 -- Internal dependencies
 local FluentParser = require("fluent.parser")
-local FluentAST = require("fluent.ast")
+local FluentResource = require("fluent.resource")
 
+-- TODO: if this doesn't need any state information make in a function not a class
 local FluentSyntax = class({
-    parser = FluentParser(),
-    ast = FluentAST(),
-
     -- TODO: add loader that leverages epnf.parsefile()
     parse = function (self, input)
       if not self or type(self) ~= "table" then
@@ -16,13 +14,10 @@ local FluentSyntax = class({
       elseif not input or type(input) ~= "string" then
         error("FluentSyntax.parse error: input must be a string")
       end
-      local ast = self.parser:parsestring(input)
-      return self:munge(ast)
-    end,
-
-    munge = function (self, ast)
-      return self.ast:munge(ast)
+      local ast = FluentParser(input)
+      return FluentResource(ast)
     end
+
   })
 
 return FluentSyntax

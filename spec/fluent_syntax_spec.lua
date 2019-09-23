@@ -22,9 +22,7 @@ describe('fluent.syntax', function ()
     end)
 
     it('should return an empty AST on no input', function ()
-      local ast = syntax:parse("")
-      assert.equals("Resource", ast.id)
-      assert.equals(0, #ast)
+      assert.equals("Resource", syntax:parse(""):is_a().type)
     end)
 
     it('should handle blank blocks', function ()
