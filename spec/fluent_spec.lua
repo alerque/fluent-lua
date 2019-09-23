@@ -1,42 +1,37 @@
+-- Internal modules
 local FluentBundle = require("fluent")
 
-describe('fluent', function ()
+describe('fluent.bundle', function ()
+
+  it('should instantiate without any locale', function ()
+    local und = FluentBundle()
+    assert.is_true(und:is_a(FluentBundle))
+  end)
 
   it('should instantiate with a locale', function ()
     local locale = "en-US"
     local en = FluentBundle(locale)
-    assert.truthy(en:is_a(FluentBundle))
+    assert.is_true(en:is_a(FluentBundle))
     assert.same(locale, en.locale)
   end)
 
-  it('should parse single simple messages', function ()
-    local en = FluentBundle("en-US")
-    en:add_messages("foo = bar")
-    assert.same("bar", en.messages.foo)
-  end)
-
-  it('should parse multiple simple messages', function ()
-    local en = FluentBundle("en-US")
-    en:add_messages("foo = bar\nbar = baz")
-    assert.same("bar", en.messages.foo)
-    assert.same("baz", en.messages.bar)
-  end)
-
-  it('should return formatted strings', function ()
+  it('should parse and format single simple messages', function ()
     local en = FluentBundle("en-US")
     en:add_messages("foo = bar")
     assert.same("bar", en:format("foo"))
+  end)
+
+  it('should parse and format multiple simple messages', function ()
+    local en = FluentBundle("en-US")
+    en:add_messages("foo = bar\nbar = baz")
+    assert.same("bar", en:format("foo"))
+    assert.same("baz", en:format("bar"))
   end)
 
   it('should keep locale instances separate', function ()
     local en = FluentBundle("en-US")
     local tr = FluentBundle("tr-TR")
     assert.not_same(en, tr)
-  end)
-
-  it('should return locale specific strings', function ()
-    local en = FluentBundle("en-US")
-    local tr = FluentBundle("tr-TR")
     en:add_messages("foo = bar")
     tr:add_messages("foo = baz")
     assert.same("bar", en:format("foo"))

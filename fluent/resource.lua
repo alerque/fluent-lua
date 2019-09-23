@@ -57,7 +57,7 @@ node_types.Message = class({
       self:super(node)
       for key, value in ipairs(self) do
         if value.type == "Identifier" then
-          self.type = value
+          self.id = value
           self[key] = nil
         elseif value.type == "Pattern" then
           -- TODO: can their be more than one of these?
@@ -214,13 +214,32 @@ local FluentResource = class({
               stash = nil
             end
           end
-          table.insert(self, node)
+          local i = table.insert(self, node)
+          if node:is_a(node_types.Message) then
+            self[node.id.name] = node.value
+          end
         else
           flushcomments()
           table.insert(self, node)
         end
       end
       flushcomments()
+    end,
+
+    lookup = function (self, identifier)
+      return self[identifier] or self:search(identifier)
+    end,
+
+    search = function (self, identifier)
+      if true then return nil end
+      local is_identifier = function(node, identifier)
+        return node.id.type == "Identifier"
+            and node.id.name == identifier
+            and node.value
+            or nil
+      end
+      local i, node = tablex.find_if(self, is_identifier, identifier)
+      return node
     end
 
   })
