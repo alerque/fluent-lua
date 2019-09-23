@@ -3,10 +3,7 @@ local class = require("pl.class")
 
 -- Internal modules
 local FluentSyntax = require("fluent.syntax")
-
-
-local FluentMessages = class({
-  })
+local FluentMessages = require("messages.syntax")
 
 local FluentBundle = class({
     locale = nil,
