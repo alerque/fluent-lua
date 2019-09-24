@@ -150,10 +150,10 @@ node_types.Attribute = class({
   })
 
 node_types.CommentLine = function(node)
-  local id = #node.sigil == 1 and "Comment"
+  node.id = #node.sigil == 1 and "Comment"
           or #node.sigil == 2 and "GroupComment"
           or #node.sigil == 3 and "ResourceComment"
-  return node_types[id](node)
+  return node_types[node.id](node)
 end
 
 node_to_class = function (node)
