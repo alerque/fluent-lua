@@ -19,6 +19,20 @@ As of yet this does nothing *usable* (see [lua alternatives](#alternatives)). I'
 
 **Update 2019-09-14**: I've completed a PEG grammar based parser for the entire 1.0 Fluent file format spec. All the pieces are there, but it's only partially tested. It at least parses a few basic types of entries. The AST it returns is straight out of *luaebnf* and probably needs massaging to match the reference ones (via capture groups?), then it needs testing against the upstream fixtures.
 
+**Udate 2019-09-24**: The AST returned by the PEG grammar has been massaged to be usable for some basic cases. A basic Lua API is starting to take shape, modeled most closely to the Python implementation. It is possible to load almost any FTL file, and possible to format any messages that are plain strings (no parameters, attributes, functions, or other jazz yet). Note the usage is *off* because there is no locale handling yet no it's only usable with separate instances per locale. Also `add_messages()` likely only works once, so cram your whole FTL resource in there for now.
+
+## Usage
+
+```lua
+local FluentBundle = require("fluent")
+
+local en = FluentBundle("en-US")
+
+en:add_messages("foo = bar")
+
+en:format("foo")
+```
+
 ## Alternative(s)
 
 If you need something that works in Lua *now*, have a look at the already mature `i18n.lua` project ([Github](https://github.com/kikito/i18n.lua) / [LuaRocks](https://luarocks.org/modules/kikito/i18n)). It implements many of the same features this project will, just without the interoperability with other Fluent based tools. The Lua API it provides is quite nice, but your localization data needs to be provided in Lua tables instead of FTL files. While Fluent has quite a few more tricks up its sleeve the *i18n* module already has working interpolation, pluralization, locale fallbacks, and more.  And it works now, today.
