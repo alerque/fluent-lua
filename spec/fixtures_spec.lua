@@ -39,7 +39,7 @@ describe('upstream reference fixture', function ()
         end)
 
         it('should match the referece result', function ()
-          assert.same(reference, resource)
+          assert.same(reference, resource:dump_ast())
         end)
 
       end)
@@ -75,7 +75,7 @@ describe('upstream structure fixture', function ()
         end)
 
         it('should match the referece result', function ()
-          assert.same(reference, resource)
+          assert.same(reference, resource:dump_ast())
         end)
 
       end)

@@ -25,6 +25,10 @@ local FluentNode = class({
         end
       end
       tablex.insertvalues(self, tablex.imap(node_to_class, node))
+    end,
+
+    dump_ast = function (self)
+      return self
     end
 
   })
@@ -184,49 +188,50 @@ local FluentResource = class({
     type = "Resource",
 
     _init = function (self, ast)
-      local stash = nil
-      local flushcomments = function ()
-        if stash then table.insert(self, stash) end
-        stash = nil
+      local _stash = nil
+      local flush = function ()
+        if _stash then table.insert(self, _stash) end
+        _stash = nil
       end
-      local stashcomment = function (node)
-        if not stash then
-          stash = node
-        elseif stash.type == node.type then
-          stash.content = (stash.content or "") .. "\n" .. (node.content or "")
+      local stash = function (node)
+        if not _stash then
+          _stash = node
+        elseif _stash:is_a(node:is_a()) then
+          -- TODO: move to _add meta method
+          _stash.content = (_stash.content or "") .. "\n" .. (node.content or "")
         else
-          flushcomments()
-          stash = node
+          flush()
+          _stash = node
         end
       end
       -- TODO: eliminate double iteration by looking ahead?
       local elements = tablex.imap(node_to_class, ast)
       for _, node in ipairs(elements) do
         if node.mergable then
-          stashcomment(node)
+          stash(node)
         elseif node:is_a(node_types.blank_block) then
           if not node.discardable then
-            flushcomments()
+            flush()
           end
-        elseif node:is_a(node_types.Message) or node:is_a(Term) then
-          if stash then
-            if stash.type ~= "Comment" then
-              flushcomments()
+        elseif node:is_a(node_types.Message) or node:is_a(node_types.Term) then
+          if _stash then
+            if _stash.type ~= "Comment" then
+              flush()
             else
-              node.comment = stash
-              stash = nil
+              node.comment = _stash
+              _stash = nil
             end
           end
-          local i = table.insert(self, node)
+          table.insert(self, node)
           if node:is_a(node_types.Message) then
             self[node.id.name] = node
           end
         else
-          flushcomments()
+          flush()
           table.insert(self, node)
         end
       end
-      flushcomments()
+      flush()
     end,
 
     lookup = function (self, identifier)
@@ -243,6 +248,14 @@ local FluentResource = class({
       end
       local i, node = tablex.find_if(self, is_identifier, identifier)
       return node
+    end,
+
+    dump_ast = function (self)
+      local ast =  { type = "Resource", body = {}}
+      for key, value in ipairs(self) do
+        ast.body[key] = value:dump_ast()
+      end
+      return ast
     end
 
   })
