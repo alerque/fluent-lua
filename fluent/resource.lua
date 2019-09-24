@@ -185,6 +185,10 @@ local FluentResource = class({
 
     _init = function (self, ast)
       local stash = nil
+      local flushcomments = function ()
+        if stash then table.insert(self, stash) end
+        stash = nil
+      end
       local stashcomment = function (node)
         if not stash then
           stash = node
@@ -192,12 +196,8 @@ local FluentResource = class({
           stash.content = (stash.content or "") .. "\n" .. (node.content or "")
         else
           flushcomments()
-          stashcomment(node)
+          stash = node
         end
-      end
-      local flushcomments = function ()
-        if stash then table.insert(self, stash) end
-        stash = nil
       end
       -- TODO: eliminate double iteration by looking ahead?
       local elements = tablex.imap(node_to_class, ast)
