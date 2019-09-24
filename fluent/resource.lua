@@ -24,11 +24,17 @@ local FluentNode = class({
           end
         end
       end
-      tablex.insertvalues(self, tablex.imap(node_to_class, node))
+      if (node[1] and #node > 0) then
+        self.elements = {}
+        tablex.insertvalues(self.elements, tablex.imap(node_to_class, node))
+      end
     end,
 
     dump_ast = function (self)
-      return self
+      local ast = { type = self.type }
+      for k, v in pairs(self) do ast[k] = v end
+      ast.identifier = nil
+      return ast
     end
 
   })
@@ -59,21 +65,22 @@ node_types.Message = class({
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
-      for key, value in ipairs(self) do
-        if value.type == "Identifier" then
+      for key, value in ipairs(self.elements) do
+        if value:is_a(node_types.Identifier) then
+          self.identifier = value.name
           self.id = value
-          self[key] = nil
-        elseif value.type == "Pattern" then
-          -- TODO: can their be more than one of these?
+          self.elements[key] = nil
+        elseif value:is_a(node_types.Pattern) then
           self.value = value
-          self[key] = nil
+          self.elements[key] = nil
         end
       end
+      if #self.elements == 0 then self.elements = nil end
       self.attributes = {}
     end,
     format = function (self, parameters)
-      return self.value[1].value
-    end
+      return self.value:format(parameters)
+    end,
   })
 
 node_types.Term = function(node)
@@ -91,12 +98,11 @@ node_types.Pattern = class({
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
-      self.elements = {}
-      for key, value in ipairs(node) do
-        self.elements[key] = node_to_class(value)
-        self[key] = nil
-      end
-      -- TODO: merge sequential mergables
+      -- TODO: merge sequential mergables in elements
+    end,
+    format = function (self, parameters)
+      -- Todo parse elements and actually format a value
+      return self.elements[1].value
     end
   })
 --   local lasttype = "none"
@@ -191,11 +197,13 @@ end
 
 local FluentResource = class({
     type = "Resource",
+    idmap = {},
 
     _init = function (self, ast)
+      self.body = {}
       local _stash = nil
       local flush = function ()
-        if _stash then table.insert(self, _stash) end
+        if _stash then table.insert(self.body, _stash) end
         _stash = nil
       end
       local stash = function (node)
@@ -227,39 +235,26 @@ local FluentResource = class({
               _stash = nil
             end
           end
-          table.insert(self, node)
+          table.insert(self.body, node)
           if node:is_a(node_types.Message) then
-            self[node.id.name] = node
+            self.idmap[node.identifier] = #self.body
           end
         else
           flush()
-          table.insert(self, node)
+          table.insert(self.body, node)
         end
       end
       flush()
+      -- self:catch(function (self, identifier) return self:get_message(identifier) end)
     end,
 
-    lookup = function (self, identifier)
-      return self[identifier] or self:search(identifier)
-    end,
-
-    search = function (self, identifier)
-      if true then return nil end
-      local is_identifier = function(node, identifier)
-        return node.id.type == "Identifier"
-            and node.id.name == identifier
-            and node
-            or nil
-      end
-      local i, node = tablex.find_if(self, is_identifier, identifier)
-      return node
+    get_message = function (self, identifier)
+      return self.idmap[identifier] and self.body[self.idmap[identifier]]
     end,
 
     dump_ast = function (self)
-      local ast =  { type = "Resource", body = {}}
-      for key, value in ipairs(self) do
-        ast.body[key] = value:dump_ast()
-      end
+      local ast =  { type = "Resource", body = {} }
+      for _, v in ipairs(self.body) do table.insert(ast.body, v:dump_ast()) end
       return ast
     end
 
