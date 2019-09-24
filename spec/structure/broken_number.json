@@ -1,0 +1,25 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Junk",
+      "content": "err01 = { -2.4.5 }\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err02 = { -2.4. }\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err03 = { -.4 }\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err04 = { -2..4 }\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err05 = { 24d }\n"
+    }
+  ]
+}

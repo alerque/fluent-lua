@@ -1,0 +1,54 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Junk",
+      "content": "err01 = {1xx}\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err02 = {1xx}\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err03 = {1xx}\n1xx\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err04 = {1xx}\n\n1xx\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err05 = {\n\n1xx\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err06 = {1xx\n\n    .attr = Value\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err07 = {\n\n"
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key08"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Value"
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Junk",
+      "content": "err09 = {\n"
+    }
+  ]
+}

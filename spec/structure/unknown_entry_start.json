@@ -1,0 +1,9 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Junk",
+      "content": "8err = Foo\n"
+    }
+  ]
+}

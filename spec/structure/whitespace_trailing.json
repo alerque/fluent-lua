@@ -1,0 +1,102 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key1"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Value"
+          }
+        ]
+      },
+      "attributes": [],
+      "comment": {
+        "type": "Comment",
+        "content": "          < whitespace >"
+      }
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key2"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Value    "
+          }
+        ]
+      },
+      "attributes": [],
+      "comment": {
+        "type": "Comment",
+        "content": "             ↓ nbsp"
+      }
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key3"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Value              "
+          },
+          {
+            "type": "Placeable",
+            "expression": {
+              "type": "MessageReference",
+              "id": {
+                "type": "Identifier",
+                "name": "placeable"
+              }
+            }
+          },
+          {
+            "type": "TextElement",
+            "value": "."
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key4"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Value"
+          },
+          {
+            "type": "Placeable",
+            "expression": {
+              "value": "           ",
+              "type": "StringLiteral"
+            }
+          }
+        ]
+      },
+      "attributes": []
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "ResourceComment",
+      "content": "NOTE: Disable final newline insertion and trimming when editing this file."
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key01"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Value 01"
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key02"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Value 02"
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key03"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Value 03\n\nContinued"
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key04"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Value 04\n\nContinued"
+          }
+        ]
+      },
+      "attributes": [],
+      "comment": {
+        "type": "Comment",
+        "content": "There are four spaces on the line between \"Value 04\" and \"Continued\"."
+      }
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key05"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Value 05"
+          }
+        ]
+      },
+      "attributes": [],
+      "comment": {
+        "type": "Comment",
+        "content": "There are four spaces on the line following \"Value 05\"."
+      }
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key06"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Value 06"
+          }
+        ]
+      },
+      "attributes": [],
+      "comment": {
+        "type": "Comment",
+        "content": "There are four spaces on the line following \"Value 06\"."
+      }
+    }
+  ]
+}

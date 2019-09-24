@@ -1,0 +1,17 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Junk",
+      "content": "err01 = { no-caps-name() }\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err02 = { BUILTIN(2: \"foo\") }\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err03 = { BUILTIN(key: foo) }\n"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Junk",
+      "content": "key = { $foo ->\n    *[\n"
+    },
+    {
+      "type": "Comment",
+      "content": "~ERROR E0013, pos 23"
+    }
+  ]
+}

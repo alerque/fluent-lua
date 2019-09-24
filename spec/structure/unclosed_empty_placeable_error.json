@@ -1,0 +1,30 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Junk",
+      "content": "err01 = {\n"
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key01"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Bar"
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Junk",
+      "content": "err02 = {\n"
+    }
+  ]
+}

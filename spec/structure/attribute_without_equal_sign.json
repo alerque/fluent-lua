@@ -1,0 +1,9 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Junk",
+      "content": "key = Value\n    .label\n"
+    }
+  ]
+}

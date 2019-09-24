@@ -1,0 +1,13 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Junk",
+      "content": "err1 = { foo.23 }\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err2 = { foo. }\n"
+    }
+  ]
+}

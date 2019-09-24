@@ -1,0 +1,90 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key1"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "A multiline message with a "
+          },
+          {
+            "type": "Placeable",
+            "expression": {
+              "type": "MessageReference",
+              "id": {
+                "type": "Identifier",
+                "name": "placeable"
+              }
+            }
+          },
+          {
+            "type": "TextElement",
+            "value": "\nat the end of line.  The message should\nconsist of three lines of text."
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key2"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "A multiline message with a "
+          },
+          {
+            "type": "Placeable",
+            "expression": {
+              "type": "MessageReference",
+              "id": {
+                "type": "Identifier",
+                "name": "placeable"
+              }
+            }
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key3"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "A singleline message with a "
+          },
+          {
+            "type": "Placeable",
+            "expression": {
+              "type": "MessageReference",
+              "id": {
+                "type": "Identifier",
+                "name": "placeable"
+              }
+            }
+          }
+        ]
+      },
+      "attributes": []
+    }
+  ]
+}

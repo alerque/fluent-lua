@@ -1,0 +1,17 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Junk",
+      "content": "-foo =\n    .attr = Attribute\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "-bar =\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "-baz\n"
+    }
+  ]
+}

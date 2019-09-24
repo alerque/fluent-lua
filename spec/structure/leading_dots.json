@@ -1,0 +1,380 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key01"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": ".Value"
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key02"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "…Value"
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key03"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "Placeable",
+            "expression": {
+              "value": ".",
+              "type": "StringLiteral"
+            }
+          },
+          {
+            "type": "TextElement",
+            "value": "Value"
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key04"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "Placeable",
+            "expression": {
+              "value": ".",
+              "type": "StringLiteral"
+            }
+          },
+          {
+            "type": "TextElement",
+            "value": "Value"
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key05"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Value\n"
+          },
+          {
+            "type": "Placeable",
+            "expression": {
+              "value": ".",
+              "type": "StringLiteral"
+            }
+          },
+          {
+            "type": "TextElement",
+            "value": "Continued"
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key06"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": ".Value\n"
+          },
+          {
+            "type": "Placeable",
+            "expression": {
+              "value": ".",
+              "type": "StringLiteral"
+            }
+          },
+          {
+            "type": "TextElement",
+            "value": "Continued"
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Comment",
+      "content": "ERROR (attr .Continued must have a value)"
+    },
+    {
+      "type": "Junk",
+      "content": "key07 = Value\n    .Continued\n\n"
+    },
+    {
+      "type": "Comment",
+      "content": "ERROR (attr .Value must have a value)"
+    },
+    {
+      "type": "Junk",
+      "content": "key08 =\n    .Value\n\n"
+    },
+    {
+      "type": "Comment",
+      "content": "ERROR (attr .Value must have a value)"
+    },
+    {
+      "type": "Junk",
+      "content": "key09 =\n    .Value\n    Continued\n\n"
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key10"
+      },
+      "attributes": [
+        {
+          "type": "Attribute",
+          "id": {
+            "type": "Identifier",
+            "name": "Value"
+          },
+          "value": {
+            "type": "Pattern",
+            "elements": [
+              {
+                "type": "TextElement",
+                "value": "which looks like an attribute\nContinued"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key11"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "Placeable",
+            "expression": {
+              "value": ".",
+              "type": "StringLiteral"
+            }
+          },
+          {
+            "type": "TextElement",
+            "value": "Value = which looks like an attribute\nContinued"
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key12"
+      },
+      "attributes": [
+        {
+          "type": "Attribute",
+          "id": {
+            "type": "Identifier",
+            "name": "accesskey"
+          },
+          "value": {
+            "type": "Pattern",
+            "elements": [
+              {
+                "type": "TextElement",
+                "value": "A"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key13"
+      },
+      "attributes": [
+        {
+          "type": "Attribute",
+          "id": {
+            "type": "Identifier",
+            "name": "attribute"
+          },
+          "value": {
+            "type": "Pattern",
+            "elements": [
+              {
+                "type": "TextElement",
+                "value": ".Value"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key14"
+      },
+      "attributes": [
+        {
+          "type": "Attribute",
+          "id": {
+            "type": "Identifier",
+            "name": "attribute"
+          },
+          "value": {
+            "type": "Pattern",
+            "elements": [
+              {
+                "type": "Placeable",
+                "expression": {
+                  "value": ".",
+                  "type": "StringLiteral"
+                }
+              },
+              {
+                "type": "TextElement",
+                "value": "Value"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key15"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "Placeable",
+            "expression": {
+              "type": "SelectExpression",
+              "selector": {
+                "value": "1",
+                "type": "NumberLiteral"
+              },
+              "variants": [
+                {
+                  "type": "Variant",
+                  "key": {
+                    "type": "Identifier",
+                    "name": "one"
+                  },
+                  "value": {
+                    "type": "Pattern",
+                    "elements": [
+                      {
+                        "type": "TextElement",
+                        "value": ".Value"
+                      }
+                    ]
+                  },
+                  "default": false
+                },
+                {
+                  "type": "Variant",
+                  "key": {
+                    "type": "Identifier",
+                    "name": "other"
+                  },
+                  "value": {
+                    "type": "Pattern",
+                    "elements": [
+                      {
+                        "type": "Placeable",
+                        "expression": {
+                          "value": ".",
+                          "type": "StringLiteral"
+                        }
+                      },
+                      {
+                        "type": "TextElement",
+                        "value": "Value"
+                      }
+                    ]
+                  },
+                  "default": true
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Comment",
+      "content": "ERROR (variant must have a value)"
+    },
+    {
+      "type": "Junk",
+      "content": "key16 =\n    { 1 ->\n       *[one]\n           .Value\n    }\n\n"
+    },
+    {
+      "type": "Comment",
+      "content": "ERROR (unclosed placeable)"
+    },
+    {
+      "type": "Junk",
+      "content": "key17 =\n    { 1 ->\n       *[one] Value\n           .Continued\n    }\n"
+    }
+  ]
+}

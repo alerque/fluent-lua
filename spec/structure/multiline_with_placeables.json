@@ -1,0 +1,36 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Foo "
+          },
+          {
+            "type": "Placeable",
+            "expression": {
+              "type": "MessageReference",
+              "id": {
+                "type": "Identifier",
+                "name": "bar"
+              }
+            }
+          },
+          {
+            "type": "TextElement",
+            "value": "\nBaz"
+          }
+        ]
+      },
+      "attributes": []
+    }
+  ]
+}

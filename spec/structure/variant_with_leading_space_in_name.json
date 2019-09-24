@@ -1,0 +1,50 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Term",
+      "id": {
+        "type": "Identifier",
+        "name": "term"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "Placeable",
+            "expression": {
+              "type": "SelectExpression",
+              "selector": {
+                "type": "VariableReference",
+                "id": {
+                  "type": "Identifier",
+                  "name": "sel"
+                }
+              },
+              "variants": [
+                {
+                  "type": "Variant",
+                  "key": {
+                    "type": "Identifier",
+                    "name": "one"
+                  },
+                  "value": {
+                    "type": "Pattern",
+                    "elements": [
+                      {
+                        "type": "TextElement",
+                        "value": "Foo"
+                      }
+                    ]
+                  },
+                  "default": true
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "attributes": []
+    }
+  ]
+}

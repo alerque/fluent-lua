@@ -1,0 +1,13 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "ResourceComment",
+      "content": "BE CAREFUL WHEN EDITING THIS FILE\n\nThe last character in this file is the dash (\"-\") on line 8.\nWe want to test a literal which starts like a negative number.\nMost editors automatically add a trailing newline at EOF.\nIf you edit this file make sure to turn this behavior off."
+    },
+    {
+      "type": "Junk",
+      "content": "key1 = {-"
+    }
+  ]
+}

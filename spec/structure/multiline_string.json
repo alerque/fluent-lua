@@ -1,0 +1,9 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Junk",
+      "content": "err01 = { BUILTIN(key: \"\n text\n    \") }\n"
+    }
+  ]
+}

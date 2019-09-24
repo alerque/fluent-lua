@@ -1,0 +1,22 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "foo"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Foo"
+          }
+        ]
+      },
+      "attributes": []
+    }
+  ]
+}

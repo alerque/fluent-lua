@@ -1,0 +1,17 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Junk",
+      "content": "err01 = { $foo -> }\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err02 = { $foo ->\n    }\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err03 = { $foo ->\n"
+    }
+  ]
+}

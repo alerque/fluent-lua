@@ -1,0 +1,9 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Junk",
+      "content": "err1 =\n    { foo ->\n       *[1] One\n    }\n"
+    }
+  ]
+}

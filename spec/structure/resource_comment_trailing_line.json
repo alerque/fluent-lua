@@ -1,0 +1,9 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "ResourceComment",
+      "content": "This is a comment\nThis comment is multiline\n"
+    }
+  ]
+}

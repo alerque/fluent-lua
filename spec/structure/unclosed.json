@@ -1,0 +1,51 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Junk",
+      "content": "err01 = {\n"
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key02"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Value 02"
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Junk",
+      "content": "err03 = {\nFUNC(\narg\n,\nnamedArg: \"Value\"\n,\n"
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key04"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Value 04"
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Junk",
+      "content": ")\n}\n"
+    }
+  ]
+}

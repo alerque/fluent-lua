@@ -1,0 +1,25 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Junk",
+      "content": "key1 = Value 1\n    .attr =\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "key2 =\n    .attr =\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "key3 =\n    .attr1 = Attr 1\n    .attr2 =\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "key4 =\n    .attr1 =\n    .attr2 = Attr 2\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "key5 =\n    .attr1 =\n    .attr2 =\n"
+    }
+  ]
+}

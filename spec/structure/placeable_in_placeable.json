@@ -1,0 +1,91 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key1"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "Placeable",
+            "expression": {
+              "type": "Placeable",
+              "expression": {
+                "type": "MessageReference",
+                "id": {
+                  "type": "Identifier",
+                  "name": "foo"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key2"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "Placeable",
+            "expression": {
+              "type": "Placeable",
+              "expression": {
+                "type": "MessageReference",
+                "id": {
+                  "type": "Identifier",
+                  "name": "foo"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key3"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "Placeable",
+            "expression": {
+              "type": "Placeable",
+              "expression": {
+                "type": "MessageReference",
+                "id": {
+                  "type": "Identifier",
+                  "name": "foo"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Junk",
+      "content": "err1 = {  { foo }\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err2 = { foo } }\n"
+    }
+  ]
+}

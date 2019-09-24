@@ -1,0 +1,13 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Junk",
+      "content": "foo\n"
+    },
+    {
+      "type": "Comment",
+      "content": "~ERROR E0003, pos 3, args \"=\""
+    }
+  ]
+}

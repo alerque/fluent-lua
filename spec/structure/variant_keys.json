@@ -1,0 +1,143 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key01"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "Placeable",
+            "expression": {
+              "type": "SelectExpression",
+              "selector": {
+                "type": "VariableReference",
+                "id": {
+                  "type": "Identifier",
+                  "name": "sel"
+                }
+              },
+              "variants": [
+                {
+                  "type": "Variant",
+                  "key": {
+                    "type": "Identifier",
+                    "name": "key"
+                  },
+                  "value": {
+                    "type": "Pattern",
+                    "elements": [
+                      {
+                        "type": "TextElement",
+                        "value": "Value"
+                      }
+                    ]
+                  },
+                  "default": true
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key02"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "Placeable",
+            "expression": {
+              "type": "SelectExpression",
+              "selector": {
+                "type": "VariableReference",
+                "id": {
+                  "type": "Identifier",
+                  "name": "sel"
+                }
+              },
+              "variants": [
+                {
+                  "type": "Variant",
+                  "key": {
+                    "type": "Identifier",
+                    "name": "key"
+                  },
+                  "value": {
+                    "type": "Pattern",
+                    "elements": [
+                      {
+                        "type": "TextElement",
+                        "value": "Value"
+                      }
+                    ]
+                  },
+                  "default": true
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Junk",
+      "content": "err01 = { $sel ->\n    *[\"key\"] Value\n}\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err02 = { $sel ->\n    *[-key] Value\n}\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err03 = { $sel ->\n    *[-key.attr] Value\n}\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err04 = { $sel ->\n    *[-key()] Value\n}\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err05 = { $sel ->\n    *[-key.attr()] Value\n}\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err06 = { $sel ->\n    *[key.attr] Value\n}\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err07 = { $sel ->\n    *[$key] Value\n}\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err08 = { $sel ->\n    *[FUNC()] Value\n}\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err09 = { $sel ->\n    *[{key}] Value\n}\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err10 = { $sel ->\n    *[{\"key\"}] Value\n}\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err11 = { $sel ->\n    *[{3.14}] Value\n}\n\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err12 = { $sel ->\n    *[{$key}] Value\n}\n"
+    }
+  ]
+}

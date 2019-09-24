@@ -1,0 +1,93 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key01"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Value\nContinued here."
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key02"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Value\nContinued here."
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key03"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Value"
+          }
+        ]
+      },
+      "attributes": [],
+      "comment": {
+        "type": "Comment",
+        "content": "ERROR \"Continued\" looks like a new message.\nkey03 parses fine with just \"Value\"."
+      }
+    },
+    {
+      "type": "Junk",
+      "content": "Continued here\n    and here.\n\n"
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key04"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Value"
+          }
+        ]
+      },
+      "attributes": [],
+      "comment": {
+        "type": "Comment",
+        "content": "ERROR \"Continued\" and \"and\" look like new messages\nkey04 parses fine with just \"Value\"."
+      }
+    },
+    {
+      "type": "Junk",
+      "content": "Continued here\n"
+    },
+    {
+      "type": "Junk",
+      "content": "and even here.\n"
+    }
+  ]
+}

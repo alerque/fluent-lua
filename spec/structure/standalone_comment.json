@@ -1,0 +1,26 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "foo"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "TextElement",
+            "value": "Value"
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Comment",
+      "content": "This is a standalone comment"
+    }
+  ]
+}

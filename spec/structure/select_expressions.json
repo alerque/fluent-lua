@@ -1,0 +1,21 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Comment",
+      "content": "ERROR No blanks are allowed between * and [."
+    },
+    {
+      "type": "Junk",
+      "content": "err01 = { $sel ->\n    *  [key] Value\n}\n\n"
+    },
+    {
+      "type": "Comment",
+      "content": "ERROR Missing default variant."
+    },
+    {
+      "type": "Junk",
+      "content": "err02 = { $sel ->\n    [key] Value\n}\n"
+    }
+  ]
+}

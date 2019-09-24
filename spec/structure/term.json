@@ -1,0 +1,299 @@
+{
+  "type": "Resource",
+  "body": [
+    {
+      "type": "Term",
+      "id": {
+        "type": "Identifier",
+        "name": "term"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "Placeable",
+            "expression": {
+              "type": "SelectExpression",
+              "selector": {
+                "type": "VariableReference",
+                "id": {
+                  "type": "Identifier",
+                  "name": "case"
+                }
+              },
+              "variants": [
+                {
+                  "type": "Variant",
+                  "key": {
+                    "type": "Identifier",
+                    "name": "uppercase"
+                  },
+                  "value": {
+                    "type": "Pattern",
+                    "elements": [
+                      {
+                        "type": "TextElement",
+                        "value": "Term"
+                      }
+                    ]
+                  },
+                  "default": true
+                },
+                {
+                  "type": "Variant",
+                  "key": {
+                    "type": "Identifier",
+                    "name": "lowercase"
+                  },
+                  "value": {
+                    "type": "Pattern",
+                    "elements": [
+                      {
+                        "type": "TextElement",
+                        "value": "term"
+                      }
+                    ]
+                  },
+                  "default": false
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "attributes": [
+        {
+          "type": "Attribute",
+          "id": {
+            "type": "Identifier",
+            "name": "attr"
+          },
+          "value": {
+            "type": "Pattern",
+            "elements": [
+              {
+                "type": "TextElement",
+                "value": "a"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key01"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "Placeable",
+            "expression": {
+              "type": "TermReference",
+              "id": {
+                "type": "Identifier",
+                "name": "term"
+              }
+            }
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key02"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "Placeable",
+            "expression": {
+              "type": "TermReference",
+              "id": {
+                "type": "Identifier",
+                "name": "term"
+              },
+              "arguments": {
+                "type": "CallArguments",
+                "positional": [],
+                "named": []
+              }
+            }
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key03"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "Placeable",
+            "expression": {
+              "type": "TermReference",
+              "id": {
+                "type": "Identifier",
+                "name": "term"
+              },
+              "arguments": {
+                "type": "CallArguments",
+                "positional": [],
+                "named": [
+                  {
+                    "type": "NamedArgument",
+                    "name": {
+                      "type": "Identifier",
+                      "name": "case"
+                    },
+                    "value": {
+                      "value": "uppercase",
+                      "type": "StringLiteral"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Message",
+      "id": {
+        "type": "Identifier",
+        "name": "key04"
+      },
+      "value": {
+        "type": "Pattern",
+        "elements": [
+          {
+            "type": "Placeable",
+            "expression": {
+              "type": "SelectExpression",
+              "selector": {
+                "type": "TermReference",
+                "id": {
+                  "type": "Identifier",
+                  "name": "term"
+                },
+                "attribute": {
+                  "type": "Identifier",
+                  "name": "attr"
+                }
+              },
+              "variants": [
+                {
+                  "type": "Variant",
+                  "key": {
+                    "type": "Identifier",
+                    "name": "a"
+                  },
+                  "value": {
+                    "type": "Pattern",
+                    "elements": [
+                      {
+                        "type": "Placeable",
+                        "expression": {
+                          "type": "TermReference",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "term"
+                          }
+                        }
+                      },
+                      {
+                        "type": "TextElement",
+                        "value": " A"
+                      }
+                    ]
+                  },
+                  "default": false
+                },
+                {
+                  "type": "Variant",
+                  "key": {
+                    "type": "Identifier",
+                    "name": "b"
+                  },
+                  "value": {
+                    "type": "Pattern",
+                    "elements": [
+                      {
+                        "type": "Placeable",
+                        "expression": {
+                          "type": "TermReference",
+                          "id": {
+                            "type": "Identifier",
+                            "name": "term"
+                          },
+                          "arguments": {
+                            "type": "CallArguments",
+                            "positional": [],
+                            "named": []
+                          }
+                        }
+                      },
+                      {
+                        "type": "TextElement",
+                        "value": " B"
+                      }
+                    ]
+                  },
+                  "default": false
+                },
+                {
+                  "type": "Variant",
+                  "key": {
+                    "type": "Identifier",
+                    "name": "x"
+                  },
+                  "value": {
+                    "type": "Pattern",
+                    "elements": [
+                      {
+                        "type": "TextElement",
+                        "value": "X"
+                      }
+                    ]
+                  },
+                  "default": true
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "attributes": []
+    },
+    {
+      "type": "Junk",
+      "content": "-err1 =\n"
+    },
+    {
+      "type": "Junk",
+      "content": "-err2 =\n    .attr = Attribute\n"
+    },
+    {
+      "type": "Junk",
+      "content": "--err3 = Error\n"
+    },
+    {
+      "type": "Junk",
+      "content": "err4 = { --err4 }\n"
+    }
+  ]
+}
