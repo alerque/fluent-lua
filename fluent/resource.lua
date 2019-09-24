@@ -69,6 +69,7 @@ node_types.Message = class({
           self[key] = nil
         end
       end
+      self.attributes = {}
     end,
     format = function (self, parameters)
       return self.value[1].value
@@ -90,10 +91,14 @@ node_types.Pattern = class({
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
+      self.elements = {}
+      for key, value in ipairs(node) do
+        self.elements[key] = node_to_class(value)
+        self[key] = nil
+      end
+      -- TODO: merge sequential mergables
     end
   })
--- function (self, node)
---   local ast = { elements = {} }
 --   local lasttype = "none"
 --   for key, value in ipairs(stuff) do
 --     if lasttype == value.id then
@@ -108,10 +113,9 @@ node_types.Pattern = class({
 --       ast.elements[key] = dedent(value)
 --     end
 --   end
---   return ast
--- end,
 
 node_types.TextElement = class({
+    mergable = true,
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
@@ -119,6 +123,7 @@ node_types.TextElement = class({
   })
 
 node_types.PatternElement = function (node)
+  node.id = "TextElement"
   return node_types.TextElement(node)
 end
 
