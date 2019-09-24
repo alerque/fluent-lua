@@ -21,10 +21,10 @@ local FluentBundle = class({
       self.locales[self.locale] = res
     end,
 
-    format = function (self, identifier)
+    format = function (self, identifier, parameters)
       local res = self.locales[self.locale]
       local msg = res:lookup(identifier)
-      return msg[1].value
+      return msg:format(parameters)
     end
   })
 

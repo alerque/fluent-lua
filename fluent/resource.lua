@@ -65,6 +65,9 @@ node_types.Message = class({
           self[key] = nil
         end
       end
+    end,
+    format = function (self, parameters)
+      return self.value[1].value
     end
   })
 
@@ -216,7 +219,7 @@ local FluentResource = class({
           end
           local i = table.insert(self, node)
           if node:is_a(node_types.Message) then
-            self[node.id.name] = node.value
+            self[node.id.name] = node
           end
         else
           flushcomments()
@@ -235,7 +238,7 @@ local FluentResource = class({
       local is_identifier = function(node, identifier)
         return node.id.type == "Identifier"
             and node.id.name == identifier
-            and node.value
+            and node
             or nil
       end
       local i, node = tablex.find_if(self, is_identifier, identifier)
