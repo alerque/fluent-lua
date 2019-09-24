@@ -24,22 +24,22 @@ describe('upstream reference fixture', function ()
         local jsonref = filetostring(fname:gsub(".ftl$", ".json"))
         local reference = json.decode(jsonref)
 
-        local ast
+        local resource
 
-        it('should have a reference', function()
+        it('test should have a reference', function()
           assert.equal("table", type(reference))
         end)
 
         it('should parse without blowing up', function ()
-          assert.no.error(function () ast = syntax:parse(ftl) end)
+          assert.no.error(function () resource = syntax:parsestring(ftl) end)
         end)
 
-        it('should have a Reference as the AST root', function ()
-          assert.equal("Resource", ast.type)
+        it('should have a Resource as the AST root', function ()
+          assert.equal("Resource", resource.type)
         end)
 
-        it('should matach the referece result', function ()
-          assert.same(reference, ast)
+        it('should match the referece result', function ()
+          assert.same(reference, resource)
         end)
 
       end)
@@ -60,22 +60,22 @@ describe('upstream structure fixture', function ()
         local jsonref = filetostring(fname:gsub(".ftl$", ".json"))
         local reference = json.decode(jsonref)
 
-        local ast
+        local resource
 
         it('should have a reference', function()
           assert.equal("table", type(reference))
         end)
 
-        it('should parse without blowing up', function ()
-          assert.no.error(function () ast = syntax:parse(ftl) end)
+        it('should parsestring without blowing up', function ()
+          assert.no.error(function () resource = syntax:parsestring(ftl) end)
         end)
 
         it('should have a Reference as the AST root', function ()
-          assert.equal("Resource", ast.type)
+          assert.equal("Resource", resource.type)
         end)
 
-        it('should matach the referece result', function ()
-          assert.same(reference, ast)
+        it('should match the referece result', function ()
+          assert.same(reference, resource)
         end)
 
       end)
