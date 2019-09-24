@@ -11,6 +11,7 @@ local FluentSyntax = class({
 
     _init = function (self, input)
       -- TODO: handle file pointers, filnames, tables of pointers?
+      if input then self:parsestring(input) end
     end,
 
     parsestring = function (self, input)
@@ -23,9 +24,19 @@ local FluentSyntax = class({
       return FluentResource(ast)
     end,
 
-    parsefile = function (self, input)
+    parsefile = function (self, fname)
+      -- TODO: check if filename or file handle
+      if not self or type(self) ~= "table" then
+        error("FluentSyntax.parse error: must be invoked as a method")
+      elseif not fname or type(fname) ~= "string" then
+        error("FluentSyntax.parse error: fname must be a string")
+      end
     -- TODO: add loader that leverages epnf.parsefile()
-      error("unimplemented")
+      local f = assert(io.open(fname, "rb"))
+      local content = f:read("*all")
+      f:close()
+      local ast = FluentParser(content)
+      return FluentResource(ast)
     end
 
   })

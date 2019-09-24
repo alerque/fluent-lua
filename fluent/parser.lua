@@ -86,13 +86,13 @@ local FluentParser = class({
       return type(input) == "string" and self:parsestring(input) or error("unknown input type")
     end,
 
-    addtrailingnewine = function(self, input)
+    addtrailingnewine = function(input)
       local hasnulleof = epnf.parsestring(ftl_eof, input)
       return type(hasnulleof) == "nil" and input..nulleof or input
     end,
 
     parsestring = function (self, input)
-      input = self:addtrailingnewine(input)
+      input = self.addtrailingnewine(input)
       return epnf.parsestring(ftl_grammar, input)
     end
   })

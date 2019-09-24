@@ -17,8 +17,8 @@ local FluentBundle = class({
     add_messages = function (self, input)
       if type(input) == "string" then input = { input } end
       -- TODO: add way to add two resources together, then reduce instead of unpacking this
-      local resource = table.unpack(tablex.imap(function (v) return self.syntax:parsestring(v) end, input))
-      self.locales[self.locale] = resource
+      local resource = tablex.imap(function (v) return self.syntax:parsestring(v) end, input)
+      self.locales[self.locale] = resource[1]
     end,
 
     format = function (self, identifier, parameters)

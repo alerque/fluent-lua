@@ -3,6 +3,8 @@ local class = require("pl.class")
 local tablex = require("pl.tablex")
 
 local node_types = {}
+local node_to_class
+local dedent
 
 local FluentNode = class({
     discardable = false,
@@ -13,13 +15,9 @@ local FluentNode = class({
         if type(key) == "string" then
           if key == "id" then
             self.type = value
-          elseif key == "pos" then
-          elseif key == "sigil" then
-            -- drop unused keys
           elseif key == "value" then
-            local value = string.gsub(value, "^\n+ +", "")
-            self[key] = value
-          else
+            self[key] = string.gsub(value, "^\n+ +", "")
+          elseif key ~= "pos" and key ~= "sigil" then
             self[key] = value
           end
         end
@@ -99,10 +97,12 @@ node_types.Pattern = class({
     _init = function (self, node)
       self:super(node)
       -- TODO: merge sequential mergables in elements
+      -- TODO: move dedent to here after merge?
     end,
     format = function (self, parameters)
+      local value = #self.elements >= 2 and dedent() or self.elements[1].value
       -- Todo parse elements and actually format a value
-      return self.elements[1].value
+      return value, parameters
     end
   })
 --   local lasttype = "none"
@@ -181,10 +181,10 @@ dedent = function (content)
   for indent in string.gmatch(content, "\n *%S") do
     min = min and math.min(min, #indent) or #indent
   end
-  local common = function(min)
+  local common = function(shortest)
     local i = 0
     local s = ""
-    while i < min do
+    while i < shortest do
       s = s .. " "
       i = i + 1
     end
