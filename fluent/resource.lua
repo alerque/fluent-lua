@@ -8,7 +8,8 @@ local dedent
 
 local FluentNode = class({
     discardable = false,
-    mergable = false,
+    appendable = false,
+    commentable = false,
 
     _init = function (self, node)
       for key, value in pairs(node) do
@@ -33,6 +34,22 @@ local FluentNode = class({
       for k, v in pairs(self) do ast[k] = v end
       ast.identifier = nil
       return ast
+    end,
+
+    append = function (self, node)
+      if type(self.__add) == "function"
+          and self.appendable
+          and node.appendable
+          and self:is_a(node:is_a())
+        then
+        return self + node
+      else
+        return false
+      end
+    end,
+
+    attachcomment = function (self, node)
+      -- if 
     end
 
   })
@@ -60,6 +77,7 @@ node_types.Junk = class({
   })
 
 node_types.Message = class({
+    commentable = true,
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
@@ -121,7 +139,7 @@ node_types.Pattern = class({
 --   end
 
 node_types.TextElement = class({
-    mergable = true,
+    appendable = true,
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
@@ -134,27 +152,32 @@ node_types.PatternElement = function (node)
 end
 
 node_types.Comment = class({
-    mergable = true,
+    appendable = true,
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
+    end,
+    __add = function (self, node)
+      self.content = (self.content or "") .. "\n" .. (node.content or "")
     end
   })
 
 node_types.GroupComment = class({
-    mergable = true,
+    appendable = true,
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
-    end
+    end,
+    __add = node_types.Comment.__add
   })
 
 node_types.ResourceComment = class({
-    mergable = true,
+    appendable = true,
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
-    end
+    end,
+    __add = node_types.Comment.__add
   })
 
 node_types.Attribute = class({
@@ -209,10 +232,7 @@ local FluentResource = class({
       local stash = function (node)
         if not _stash then
           _stash = node
-        elseif _stash:is_a(node:is_a()) then
-          -- TODO: move to _add meta method
-          _stash.content = (_stash.content or "") .. "\n" .. (node.content or "")
-        else
+        elseif not _stash:append(node) then
           flush()
           _stash = node
         end
@@ -220,13 +240,13 @@ local FluentResource = class({
       -- TODO: eliminate double iteration by looking ahead?
       local elements = tablex.imap(node_to_class, ast)
       for _, node in ipairs(elements) do
-        if node.mergable then
+        if node.appendable then
           stash(node)
         elseif node:is_a(node_types.blank_block) then
           if not node.discardable then
             flush()
           end
-        elseif node:is_a(node_types.Message) or node:is_a(node_types.Term) then
+        elseif node.commentable then
           if _stash then
             if _stash.type ~= "Comment" then
               flush()
