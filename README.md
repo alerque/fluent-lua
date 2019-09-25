@@ -15,11 +15,19 @@ Other implementations already exist in [Rust][fluent-rs], [Javascript][fluent.js
 
 ## Status
 
-As of yet this does nothing *usable* (see [lua alternatives](#alternatives)). I'm actively soliciting feedback on how the API should look and work in Lua from several projects that might use it. If this is of interest to you please join the project chat and/or open [issues](https://github.com/alerque/fluent-lua/issues) for points of discussion.
+As of now it is possible to use this for simple string localization (without parameter substitution) but it is not feature complete nor is the API stable (see [lua alternatives](#alternatives). If you have ideas about how the Lua API should work or wish to contribute, please join the project chat and/or open [issues](https://github.com/alerque/fluent-lua/issues) for points of discussion.
 
-**Update 2019-09-14**: I've completed a PEG grammar based parser for the entire 1.0 Fluent file format spec. All the pieces are there, but it's only partially tested. It at least parses a few basic types of entries. The AST it returns is straight out of *luaebnf* and probably needs massaging to match the reference ones (via capture groups?), then it needs testing against the upstream fixtures.
+### 0.0.2
 
-**Udate 2019-09-24**: The AST returned by the PEG grammar has been massaged to be usable for some basic cases. A basic Lua API is starting to take shape, modeled most closely to the Python implementation. It is possible to load almost any FTL file, and possible to format any messages that are plain strings (no parameters, attributes, functions, or other jazz yet). Note the usage is *off* because there is no locale handling yet no it's only usable with separate instances per locale. Also `add_messages()` likely only works once, so cram your whole FTL resource in there for now.
+Massaged the AST returned by the PEG grammar so that about 1/3 of the possible types look like the reference Fluent spec. A basic Lua API is starting to take shape, modeled most closely to the Python implementation. It is possible to load and parse almost any FTL file, and possible to format any messages that are plain strings (no parameters, attributes, functions, or other jazz yet). Note there is no locale handling yet so it's only usable with separate instances per locale. Also `add_messages()` likely only works once, so cram your whole FTL resource in there for now.
+
+### 0.0.1
+
+Completed a PEG grammar based parser for the entire 1.0 Fluent file format spec. All the pieces are there, but it's only partially tested. It at least parses a few basic types of entries. The AST it returns is straight out of *luaebnf* and probably needs massaging to match the reference ones (via capture groups?), then it needs testing against the upstream fixtures.
+
+### 0.0.0
+
+Initialized project with some boiler plate Lua aparatus.
 
 ## Usage
 
