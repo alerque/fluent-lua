@@ -9,7 +9,6 @@ local dedent
 local FluentNode = class({
     discardable = false,
     appendable = false,
-    commentable = false,
 
     _init = function (self, node)
       for key, value in pairs(node) do
@@ -48,8 +47,14 @@ local FluentNode = class({
       end
     end,
 
-    attachcomment = function (self, node)
-      -- if 
+    attach = function (self, node)
+      if node and
+        type(node.__mul) == "function"
+        then
+        return self * node
+      else
+        return false
+      end
     end
 
   })
@@ -77,7 +82,6 @@ node_types.Junk = class({
   })
 
 node_types.Message = class({
-    commentable = true,
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
@@ -159,6 +163,10 @@ node_types.Comment = class({
     end,
     __add = function (self, node)
       self.content = (self.content or "") .. "\n" .. (node.content or "")
+    end,
+    __mul = function (self, node)
+      self.comment = node
+      return self
     end
   })
 
@@ -220,14 +228,17 @@ end
 
 local FluentResource = class({
     type = "Resource",
-    idmap = {},
+    index = {},
 
     _init = function (self, ast)
       self.body = {}
       local _stash = nil
       local flush = function ()
-        if _stash then table.insert(self.body, _stash) end
+        if _stash then
+          self:insert(_stash)
+        end
         _stash = nil
+        return #self.body
       end
       local stash = function (node)
         if not _stash then
@@ -246,30 +257,26 @@ local FluentResource = class({
           if not node.discardable then
             flush()
           end
-        elseif node.commentable then
-          if _stash then
-            if _stash.type ~= "Comment" then
-              flush()
-            else
-              node.comment = _stash
-              _stash = nil
-            end
-          end
-          table.insert(self.body, node)
-          if node:is_a(node_types.Message) then
-            self.idmap[node.identifier] = #self.body
-          end
+        elseif node:attach(_stash) and flush() then
+          self:insert(node)
         else
           flush()
-          table.insert(self.body, node)
+          self:insert(node)
         end
       end
       flush()
       -- self:catch(function (self, identifier) return self:get_message(identifier) end)
     end,
 
+    insert = function (self, node)
+      table.insert(self.body, node)
+      if node:is_a(node_types.Message) then
+        self.index[node.identifier] = #self.body
+      end
+    end,
+
     get_message = function (self, identifier)
-      return self.idmap[identifier] and self.body[self.idmap[identifier]]
+      return self.index[identifier] and self.body[self.index[identifier]]
     end,
 
     dump_ast = function (self)
