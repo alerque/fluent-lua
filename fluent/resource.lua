@@ -281,6 +281,13 @@ local FluentResource = class({
       local ast =  { type = "Resource", body = {} }
       for _, v in ipairs(self.body) do table.insert(ast.body, v:dump_ast()) end
       return ast
+    end,
+
+    __add = function (self, resource)
+      for _, node in ipairs(resource.body) do
+        self:insert(node)
+      end
+      return self
     end
 
   })
