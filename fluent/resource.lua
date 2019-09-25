@@ -69,7 +69,6 @@ node_types.blank_block = class({
     end
   })
 
--- TODO: can their ever be more than 1 entry?
 node_types.Entry = function(node)
   return node_to_class(node[1])
 end
@@ -248,9 +247,8 @@ local FluentResource = class({
           _stash = node
         end
       end
-      -- TODO: eliminate double iteration by looking ahead?
-      local elements = tablex.imap(node_to_class, ast)
-      for _, node in ipairs(elements) do
+      for _, ast in ipairs(ast) do
+        local node = node_to_class(ast)
         if node.appendable then
           stash(node)
         elseif node:is_a(node_types.blank_block) then
