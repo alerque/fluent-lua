@@ -129,8 +129,9 @@ node_types.Pattern = class({
           if len >= 1 then
             value = string.gsub(value, strippref, "\n\n")
           end
-          value = string.gsub(value, "^[\n ]+", "")
-          value = string.gsub(value, "[\n ]+$", "")
+          -- local function next_is_text
+          value = key == 1 and string.gsub(value, "^[\n ]+", "") or value
+          value = key == #self.elements and string.gsub(value, "[\n ]+$", "") or value
           self.elements[key].value = value
         end
       end
@@ -138,7 +139,7 @@ node_types.Pattern = class({
     end,
     format = function (self, parameters)
       local function evaluate (node) return node:format(parameters) end
-      local value = table.concat(tablex.map(evaluate, self.elements), " ")
+      local value = table.concat(tablex.map(evaluate, self.elements))
       return value, parameters
     end
   })
