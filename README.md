@@ -17,6 +17,10 @@ Other implementations already exist in [Rust][fluent-rs], [Javascript][fluent.js
 
 As of now it is possible to use this for simple string localization (without parameter substitution) but it is not feature complete nor is the API stable (see [lua alternatives](#alternatives). If you have ideas about how the Lua API should work or wish to contribute, please join the project chat and/or open [issues](https://github.com/alerque/fluent-lua/issues) for points of discussion.
 
+### 0.0.3
+
+Added support for more types including format support for TextElement, StringLiteral, NumberLiteral, and VariableReference. Variable sutstitions can be done by passing a parameters table to `format()`. Internally manipulating nodes in the API is now easier with meta methods. For example merge comments with `Comment + Comment`, attach childred with `Message * Comment`, etc.
+
 ### 0.0.2
 
 Massaged the AST returned by the PEG grammar so that about 1/3 of the possible types look like the reference Fluent spec. A basic Lua API is starting to take shape, modeled most closely to the Python implementation. It is possible to load and parse almost any FTL file, and possible to format any messages that are plain strings (no parameters, attributes, functions, or other jazz yet). Note there is no locale handling yet so it's only usable with separate instances per locale. Also `add_messages()` likely only works once, so cram your whole FTL resource in there for now.
@@ -31,14 +35,24 @@ Initialized project with some boiler plate Lua aparatus.
 
 ## Usage
 
+Lua code `demo.lua`:
+
 ```lua
 local FluentBundle = require("fluent")
-
 local en = FluentBundle("en-US")
+en:add_messages({
+    "foo = bar",
+    "hello = Hello { $name }!"
+  })
+print(en:format("foo"))
+print(en:format("hello", { name = "World" }))
+```
 
-en:add_messages("foo = bar")
+Output of `lua demo.lua`:
 
-en:format("foo")
+```txt
+bar
+Hello World!
 ```
 
 ## Alternative(s)
