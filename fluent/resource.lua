@@ -4,7 +4,6 @@ local tablex = require("pl.tablex")
 
 local node_types = {}
 local node_to_type
-local dedent
 
 local FluentNode = class({
     discardable = false,
@@ -33,7 +32,13 @@ local FluentNode = class({
         self.value = node
       else
         if not self.elements then self.elements = {} end
-        table.insert(self.elements, node)
+        if #self.elements >= 1 then
+          if not self.elements[#self.elements]:append(node) then
+            table.insert(self.elements, node)
+          end
+        else
+          table.insert(self.elements, node)
+        end
       end
     end,
 
@@ -100,29 +105,41 @@ node_types.Pattern = class({
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
-      -- TODO: merge sequential mergables in elements
-      -- TODO: move dedent to here after merge?
+      -- D(self.elements)
+      self:dedent()
+    end,
+    dedent = function (self)
+      local mindent = function(node)
+        local indents = {}
+        if type(node.value) == "string" then
+          for indent in string.gmatch(node.value, "\n *%S") do
+            table.insert(indents, #indent-2)
+          end
+        end
+        return tablex.reduce(math.min, indents) or 0
+      end
+      local striplen = tablex.reduce(math.min, tablex.imap(mindent, self.elements)) or 0
+      local i, strippref = 0, "\n"
+      while i < striplen do
+        strippref = strippref .. " "
+        i = i + 1
+      end
+      local strip = function(node, key, len)
+        if type(node.value) == "string" then
+          local value = string.gsub(node.value, "\r\n", "\n")
+          if len >= 1 then
+            self.elements[key].value = string.gsub(value, strippref, "\n")
+          end
+        end
+      end
+      tablex.foreachi(self.elements, strip, striplen)
     end,
     format = function (self, parameters)
-      local value = #self.elements >= 2 and dedent() or self.elements[1].value
-      -- Todo parse elements and actually format a value
+      local value = #self.elements >= 2 and "TODO" or self.elements[1].value
+      -- TODO: parse elements and actually format a value
       return value, parameters
     end
   })
---   local lasttype = "none"
---   for key, value in ipairs(stuff) do
---     if lasttype == value.id then
---       ast.elements[#ast.elements] = ast.elements[#ast.elements].value .. value.value
---     else
---       table.insert(ast.elements, self(value))
---       lasttype = value.id
---     end
---   end
---   for key, value in ipairs(ast.elements) do
---     if key == "value" then
---       ast.elements[key] = dedent(value)
---     end
---   end
 
 node_types.TextElement = class({
     appendable = true,
@@ -130,6 +147,12 @@ node_types.TextElement = class({
     _init = function (self, node)
       node.id = "TextElement"
       self:super(node)
+    end,
+    __add = function (self, node)
+      if self:is_a(node:is_a()) and self.appendable and node.appendable then
+        self.value = (self.value or "") .. "\n" .. (node.value or "")
+        return self
+      end
     end
   })
 
@@ -233,25 +256,6 @@ node_to_type = function (node)
   if type(node) == "table" and type(node.id) == "string" then
     return node_types[node.id](node)
   end
-end
-
-dedent = function (content)
-  local min
-  for indent in string.gmatch(content, "\n *%S") do
-    min = min and math.min(min, #indent) or #indent
-  end
-  local common = function(shortest)
-    local i = 0
-    local s = ""
-    while i < shortest do
-      s = s .. " "
-      i = i + 1
-    end
-    return s
-  end
-  local sp = common(min-2)
-  local rep = string.gsub(content, "\n"..sp, "\n")
-  return rep
 end
 
 local FluentResource = class({
