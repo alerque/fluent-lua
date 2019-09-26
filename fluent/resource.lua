@@ -140,7 +140,7 @@ node_types.Pattern = class({
     format = function (self, parameters)
       local function evaluate (node) return node:format(parameters) end
       local value = table.concat(tablex.map(evaluate, self.elements))
-      return value, parameters
+      return value
     end
   })
 
