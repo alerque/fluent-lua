@@ -36,25 +36,11 @@ local FluentNode = class({
     end,
 
     append = function (self, node)
-      if type(self.__add) == "function"
-          and self.appendable
-          and node.appendable
-          and self:is_a(node:is_a())
-        then
-        return self + node
-      else
-        return false
-      end
+      return node and type(node.__add) == "function" and self + node
     end,
 
     attach = function (self, node)
-      if node and
-          type(node.__mul) == "function"
-        then
-        return node * self
-      else
-        return false
-      end
+      return node and type(node.__mul) == "function" and self * node
     end
 
   })
@@ -161,8 +147,10 @@ node_types.Comment = class({
       self:super(node)
     end,
     __add = function (self, node)
-      self.content = (self.content or "") .. "\n" .. (node.content or "")
-      return self
+      if self:is_a(node:is_a()) and self.appendable and node.appendable then
+        self.content = (self.content or "") .. "\n" .. (node.content or "")
+        return self
+      end
     end,
     __mul = function (self, node)
       if self:is_a(node_types.Message) then
@@ -288,6 +276,7 @@ local FluentResource = class({
     end,
 
     __add = function (self, resource)
+      if not self:is_a(resource:is_a()) then error("Cannot merge unlike types") end
       for _, node in ipairs(resource.body) do
         self:insert(node)
       end
