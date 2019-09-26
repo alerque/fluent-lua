@@ -3,7 +3,7 @@ local class = require("pl.class")
 local tablex = require("pl.tablex")
 
 local node_types = {}
-local node_to_class
+local node_to_type
 local dedent
 
 local FluentNode = class({
@@ -24,7 +24,7 @@ local FluentNode = class({
       end
       if (node[1] and #node > 0) then
         self.elements = {}
-        tablex.insertvalues(self.elements, tablex.imap(node_to_class, node))
+        tablex.insertvalues(self.elements, tablex.imap(node_to_type, node))
       end
     end,
 
@@ -70,7 +70,7 @@ node_types.blank_block = class({
   })
 
 node_types.Entry = function(node)
-  return node_to_class(node[1])
+  return node_to_type(node[1])
 end
 
 node_types.Junk = class({
@@ -207,7 +207,7 @@ node_types.CommentLine = function(node)
   return node_types[node.id](node)
 end
 
-node_to_class = function (node)
+node_to_type = function (node)
   if type(node.id) ~= "string" then return nil end
   return node_types[node.id](node)
 end
@@ -253,8 +253,8 @@ local FluentResource = class({
           _stash = node
         end
       end
-      for _, ast in ipairs(ast) do
-        local node = node_to_class(ast)
+      for _, leaf in ipairs(ast) do
+        local node = node_to_type(leaf)
         if node:is_a(node_types.blank_block) then
           if not node.discardable then
             flush()
