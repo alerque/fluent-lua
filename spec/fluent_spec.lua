@@ -28,6 +28,18 @@ describe('fluent.bundle', function ()
     assert.same("baz", en:format("bar"))
   end)
 
+  it('should parse and format literals', function ()
+    local en = FluentBundle("en-US")
+    en:add_messages('foo = bar {"baz"} quz {-3.14}')
+    assert.same("bar baz quz -3.14", en:format("foo"))
+  end)
+
+  it('should parse and format a variable substitution', function ()
+    local en = FluentBundle("en-US")
+    en:add_messages('foo = bar { $baz }')
+    assert.same("bar qux", en:format("foo", { baz = "qux" }))
+  end)
+
   it('should keep locale instances separate', function ()
     local en = FluentBundle("en-US")
     local tr = FluentBundle("tr-TR")
