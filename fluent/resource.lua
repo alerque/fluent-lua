@@ -105,7 +105,6 @@ node_types.Pattern = class({
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
-      -- D(self.elements)
       self:dedent()
     end,
     dedent = function (self)
@@ -138,8 +137,8 @@ node_types.Pattern = class({
       tablex.foreachi(self.elements, strip, striplen)
     end,
     format = function (self, parameters)
-      local value = #self.elements >= 2 and "TODO" or self.elements[1].value
-      -- TODO: parse elements and actually format a value
+      local function evaluate (node) return node:format(parameters) end
+      local value = table.concat(tablex.map(evaluate, self.elements), " ")
       return value, parameters
     end
   })
@@ -156,6 +155,9 @@ node_types.TextElement = class({
         self.value = (self.value or "") .. "\n" .. (node.value or "")
         return self
       end
+    end,
+    format = function (self)
+      return self.value
     end
   })
 
@@ -168,6 +170,9 @@ node_types.Placeable = class({
       if node.expression then
         self.expression = node_to_type(node.expression[1])
       end
+    end,
+    format = function (self)
+      return self.expression.value
     end
   })
 
@@ -183,6 +188,9 @@ node_types.StringLiteral = class({
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
+    end,
+    format = function (self)
+      return self.value
     end
   })
 
@@ -190,6 +198,9 @@ node_types.NumberLiteral = class({
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
+    end,
+    format = function (self)
+      return self.value
     end
   })
 
@@ -197,6 +208,9 @@ node_types.VariableReference = class({
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
+    end,
+    format = function (self)
+      return self.value
     end
   })
 
