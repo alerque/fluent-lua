@@ -53,7 +53,7 @@ describe('upstream reference fixture', function ()
         -- or fname:match("/terms.ftl$")
         or fname:match("/variables.ftl$")
         -- or fname:match("/variant_keys.ftl$")
-        -- or fname:match("/whitespace_in_value.ftl$")
+        or fname:match("/whitespace_in_value.ftl$")
         or fname:match("/zero_length.ftl$")
       ) then
       describe(object, function ()

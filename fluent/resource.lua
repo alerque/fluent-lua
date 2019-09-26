@@ -118,7 +118,7 @@ node_types.Pattern = class({
         return tablex.reduce(math.min, indents) or 0
       end
       local striplen = tablex.reduce(math.min, tablex.imap(mindent, self.elements)) or 0
-      local i, strippref = 1, "\n\n"
+      local i, strippref = 1, "\n"
       while i <= striplen do
         strippref = strippref .. " "
         i = i + 1
@@ -127,7 +127,7 @@ node_types.Pattern = class({
         if type(node.value) == "string" then
           local value = string.gsub(node.value, "\r\n", "\n")
           if len >= 1 then
-            value = string.gsub(value, strippref, "\n")
+            value = string.gsub(value, strippref, "\n\n")
           end
           value = string.gsub(value, "^[\n ]+", "")
           value = string.gsub(value, "[\n ]+$", "")
