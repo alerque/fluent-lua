@@ -172,8 +172,8 @@ node_types.Placeable = class({
         self.expression = node_to_type(node.expression[1])
       end
     end,
-    format = function (self)
-      return self.expression.value
+    format = function (self, parameters)
+      return self.expression:format(parameters)
     end
   })
 
@@ -206,6 +206,16 @@ node_types.NumberLiteral = class({
   })
 
 node_types.VariableReference = class({
+    _base = FluentNode,
+    _init = function (self, node)
+      self:super(node)
+    end,
+    format = function (self, parameters)
+      return parameters[self.id.name]
+    end
+  })
+
+node_types.MessageReference = class({
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
