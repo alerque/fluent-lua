@@ -15,7 +15,18 @@ Other implementations already exist in [Rust][fluent-rs], [Javascript][fluent.js
 
 ## Status
 
-As of now it is possible to use this for simple string localization (without parameter substitution) but it is not feature complete nor is the API stable (see [lua alternatives](#alternatives). If you have ideas about how the Lua API should work or wish to contribute, please join the project chat and/or open [issues](https://github.com/alerque/fluent-lua/issues) for points of discussion.
+It is possible to use this for simple string localization with basic parameter substitution but it is not feature complete nor is the API stable (see [Lua alternatives](#alternatives)). If you have ideas about how the Lua API should work or wish to contribute, please join the project chat and/or open [issues](https://github.com/alerque/fluent-lua/issues) for points of discussion.
+
+- [x] Parse FTL input strings
+- [x] Format Basic messages
+- [x] Format String and Number literals
+- [x] Substitute VariableReferences
+- [ ] Handle Attributes
+- [ ] Handle Terms
+- [ ] Handle MessageReferences
+- [ ] Setup Locale fallbacks in Bundle
+- [ ] Localize number formatting
+- [ ] Functions
 
 ### 0.0.3
 
