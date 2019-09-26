@@ -49,9 +49,9 @@ local FluentNode = class({
 
     attach = function (self, node)
       if node and
-        type(node.__mul) == "function"
+          type(node.__mul) == "function"
         then
-        return self * node
+        return node * self
       else
         return false
       end
@@ -162,10 +162,16 @@ node_types.Comment = class({
     end,
     __add = function (self, node)
       self.content = (self.content or "") .. "\n" .. (node.content or "")
+      return self
     end,
     __mul = function (self, node)
-      self.comment = node
-      return self
+      if self:is_a(node_types.Message) then
+        self.comment = node
+        return self
+      elseif node:is_a(node_types.Message) then
+        node.comment = self
+        return node
+      end
     end
   })
 
@@ -235,8 +241,8 @@ local FluentResource = class({
       local flush = function ()
         if _stash then
           self:insert(_stash)
+          _stash = nil
         end
-        _stash = nil
         return #self.body
       end
       local stash = function (node)
@@ -249,17 +255,15 @@ local FluentResource = class({
       end
       for _, ast in ipairs(ast) do
         local node = node_to_class(ast)
-        if node.appendable then
-          stash(node)
-        elseif node:is_a(node_types.blank_block) then
+        if node:is_a(node_types.blank_block) then
           if not node.discardable then
             flush()
           end
-        elseif node:attach(_stash) and flush() then
-          self:insert(node)
+        elseif node:attach(_stash) then
+          _stash = nil
+          stash(node)
         else
-          flush()
-          self:insert(node)
+          stash(node)
         end
       end
       flush()
