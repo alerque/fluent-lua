@@ -68,7 +68,7 @@ local ftl_grammar = epnf.define(function (_ENV)
   PatternElement = Cg(C(inline_text + block_text + inline_placeable + block_placeable), "value")
   Pattern = V"PatternElement"^1
   Attribute = line_end * blank^-1 * P"." * V"Identifier" * blank_inline^-1 * "=" * blank_inline^-1 * V"Pattern"
-  local junk_line =  (1-line_end)^0 * (P"\n" + P(nulleof))
+  local junk_line = (1-line_end)^0 * (P"\n" + P(nulleof))
   Junk = Cg(junk_line * (junk_line - P"#" - P"-" - R("az","AZ"))^0, "content")
   local comment_char = any_char - line_end
   CommentLine = Cg(P"###" + P"##" + P"#", "sigil") * (" " * Cg(C(comment_char^0), "content"))^-1 * line_end

@@ -143,7 +143,7 @@ describe('upstream structure fixture', function ()
         -- or fname:match("/term.ftl")
         or fname:match("/term_with_empty_pattern.ftl")
         or fname:match("/unclosed_empty_placeable_error.ftl")
-        -- or fname:match("/unclosed.ftl")
+        -- -- or fname:match("/unclosed.ftl") -- see https://github.com/projectfluent/fluent/issues/296
         or fname:match("/unknown_entry_start.ftl")
         or fname:match("/variant_ends_abruptly.ftl")
         -- or fname:match("/variant_keys.ftl")
