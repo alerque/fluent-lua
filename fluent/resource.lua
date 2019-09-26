@@ -30,6 +30,8 @@ local FluentNode = class({
         self.id = node
       elseif node:is_a(node_types.Pattern) then
         self.value = node
+      elseif node:is_a(node_types.Attribute) then
+        local x = self * node
       else
         if not self.elements then self.elements = {} end
         if #self.elements >= 1 then
@@ -82,8 +84,8 @@ node_types.Junk = class({
 node_types.Message = class({
     _base = FluentNode,
     _init = function (self, node)
-      self:super(node)
       self.attributes = {}
+      self:super(node)
     end,
     format = function (self, parameters)
       return self.value:format(parameters)
@@ -270,6 +272,15 @@ node_types.Attribute = class({
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
+    end,
+    __mul = function (self, node)
+      if self:is_a(node_types.Message) then
+        table.insert(self.attributes, node)
+        return self
+      elseif node:is_a(node_types.Message) then
+        table.insert(node.attributes, self)
+        return node
+      end
     end
   })
 
