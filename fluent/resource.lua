@@ -22,16 +22,24 @@ local FluentNode = class({
           end
         end
       end
-      if (node[1] and #node > 0) then
-        self.elements = {}
-        tablex.insertvalues(self.elements, tablex.imap(node_to_type, node))
+      tablex.foreachi(node, function (n) self:insert(node_to_type(n)) end)
+    end,
+
+    insert = function (self, node)
+      if type(node) ~= "table" then return nil end
+      if node:is_a(node_types.Identifier) then
+        self.id = node
+      elseif node:is_a(node_types.Pattern) then
+        self.value = node
+      else
+        if not self.elements then self.elements = {} end
+        table.insert(self.elements, node)
       end
     end,
 
     dump_ast = function (self)
       local ast = { type = self.type }
       for k, v in pairs(self) do ast[k] = v end
-      ast.identifier = nil
       return ast
     end,
 
@@ -70,17 +78,6 @@ node_types.Message = class({
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
-      for key, value in ipairs(self.elements) do
-        if value:is_a(node_types.Identifier) then
-          self.identifier = value.name
-          self.id = value
-          self.elements[key] = nil
-        elseif value:is_a(node_types.Pattern) then
-          self.value = value
-          self.elements[key] = nil
-        end
-      end
-      if #self.elements == 0 then self.elements = nil end
       self.attributes = {}
     end,
     format = function (self, parameters)
@@ -164,6 +161,13 @@ node_types.StringLiteral = class({
   })
 
 node_types.NumberLiteral = class({
+    _base = FluentNode,
+    _init = function (self, node)
+      self:super(node)
+    end
+  })
+
+node_types.VariableReference = class({
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
@@ -292,7 +296,7 @@ local FluentResource = class({
     insert = function (self, node)
       table.insert(self.body, node)
       if node:is_a(node_types.Message) then
-        self.index[node.identifier] = #self.body
+        self.index[node.id.name] = #self.body
       end
     end,
 
