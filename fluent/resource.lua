@@ -22,39 +22,33 @@ local FluentNode = class({
           end
         end
       end
-      if (node[1] and #node > 0) then
-        self.elements = {}
-        tablex.insertvalues(self.elements, tablex.imap(node_to_type, node))
+      tablex.foreachi(node, function (n) self:insert(node_to_type(n)) end)
+    end,
+
+    insert = function (self, node)
+      if type(node) ~= "table" then return nil end
+      if node:is_a(node_types.Identifier) then
+        self.id = node
+      elseif node:is_a(node_types.Pattern) then
+        self.value = node
+      else
+        if not self.elements then self.elements = {} end
+        table.insert(self.elements, node)
       end
     end,
 
     dump_ast = function (self)
       local ast = { type = self.type }
       for k, v in pairs(self) do ast[k] = v end
-      ast.identifier = nil
       return ast
     end,
 
     append = function (self, node)
-      if type(self.__add) == "function"
-          and self.appendable
-          and node.appendable
-          and self:is_a(node:is_a())
-        then
-        return self + node
-      else
-        return false
-      end
+      return node and type(node.__add) == "function" and self + node
     end,
 
     attach = function (self, node)
-      if node and
-          type(node.__mul) == "function"
-        then
-        return node * self
-      else
-        return false
-      end
+      return node and type(node.__mul) == "function" and self * node
     end
 
   })
@@ -84,17 +78,6 @@ node_types.Message = class({
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
-      for key, value in ipairs(self.elements) do
-        if value:is_a(node_types.Identifier) then
-          self.identifier = value.name
-          self.id = value
-          self.elements[key] = nil
-        elseif value:is_a(node_types.Pattern) then
-          self.value = value
-          self.elements[key] = nil
-        end
-      end
-      if #self.elements == 0 then self.elements = nil end
       self.attributes = {}
     end,
     format = function (self, parameters)
@@ -145,14 +128,51 @@ node_types.TextElement = class({
     appendable = true,
     _base = FluentNode,
     _init = function (self, node)
+      node.id = "TextElement"
       self:super(node)
     end
   })
 
+node_types.Placeable = class({
+    appendable = true,
+    _base = FluentNode,
+    _init = function (self, node)
+      node.id = "Placeable"
+      self:super(node)
+      if node.expression then
+        self.expression = node_to_type(node.expression[1])
+      end
+    end
+  })
+
 node_types.PatternElement = function (node)
-  node.id = "TextElement"
-  return node_types.TextElement(node)
+  if node.value then
+    return node_types.TextElement(node)
+  else
+    return node_types.Placeable(node)
+  end
 end
+
+node_types.StringLiteral = class({
+    _base = FluentNode,
+    _init = function (self, node)
+      self:super(node)
+    end
+  })
+
+node_types.NumberLiteral = class({
+    _base = FluentNode,
+    _init = function (self, node)
+      self:super(node)
+    end
+  })
+
+node_types.VariableReference = class({
+    _base = FluentNode,
+    _init = function (self, node)
+      self:super(node)
+    end
+  })
 
 node_types.Comment = class({
     appendable = true,
@@ -161,8 +181,10 @@ node_types.Comment = class({
       self:super(node)
     end,
     __add = function (self, node)
-      self.content = (self.content or "") .. "\n" .. (node.content or "")
-      return self
+      if self:is_a(node:is_a()) and self.appendable and node.appendable then
+        self.content = (self.content or "") .. "\n" .. (node.content or "")
+        return self
+      end
     end,
     __mul = function (self, node)
       if self:is_a(node_types.Message) then
@@ -208,8 +230,9 @@ node_types.CommentLine = function(node)
 end
 
 node_to_type = function (node)
-  if type(node.id) ~= "string" then return nil end
-  return node_types[node.id](node)
+  if type(node) == "table" and type(node.id) == "string" then
+    return node_types[node.id](node)
+  end
 end
 
 dedent = function (content)
@@ -273,7 +296,7 @@ local FluentResource = class({
     insert = function (self, node)
       table.insert(self.body, node)
       if node:is_a(node_types.Message) then
-        self.index[node.identifier] = #self.body
+        self.index[node.id.name] = #self.body
       end
     end,
 
@@ -288,6 +311,7 @@ local FluentResource = class({
     end,
 
     __add = function (self, resource)
+      if not self:is_a(resource:is_a()) then error("Cannot merge unlike types") end
       for _, node in ipairs(resource.body) do
         self:insert(node)
       end
