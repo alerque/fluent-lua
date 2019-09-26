@@ -53,7 +53,7 @@ local ftl_grammar = epnf.define(function (_ENV)
   local block_placeable = blank_block * blank_inline^-1 * inline_placeable
   local inline_text = text_char^1
   local block_text = blank_block * blank_inline * indented_char * inline_text^-1
-  StringLiteral = P'"' * quoted_char^0 * P'"'
+  StringLiteral = P'"' * Cg(C(quoted_char^0), "content") * P'"'
   FunctionReference = V"Identifier" * V"CallArguments"
   MessageReference = V"Identifier" * V"AttributeAccessor"^-1
   TermReference = P"-" * V"Identifier" * V"AttributeAccessor"^-1 * V"CallArguments"^-1
@@ -65,7 +65,7 @@ local ftl_grammar = epnf.define(function (_ENV)
   CallArguments = blank^-1 * P"(" * blank^-1 * argument_list * blank^-1 * P")"
   SelectExpression = V"InlineExpression" * blank^-1 * P"->" * blank_inline^-1 * variant_list
   InlineExpression = V"StringLiteral" + V"NumberLiteral" + V"FunctionReference" + V"MessageReference" + V"TermReference" + V"VariableReference" + inline_placeable
-  PatternElement = Cg(C(inline_text + block_text + inline_placeable + block_placeable), "value")
+  PatternElement = Cg(C(inline_text + block_text), "value") + Cg(inline_placeable + block_placeable, "expression")
   Pattern = V"PatternElement"^1
   Attribute = line_end * blank^-1 * P"." * V"Identifier" * blank_inline^-1 * "=" * blank_inline^-1 * V"Pattern"
   local junk_line = (1-line_end)^0 * (P"\n" + P(nulleof))

@@ -131,14 +131,37 @@ node_types.TextElement = class({
     appendable = true,
     _base = FluentNode,
     _init = function (self, node)
+      node.id = "TextElement"
       self:super(node)
     end
   })
 
+node_types.Placeable = class({
+    appendable = true,
+    _base = FluentNode,
+    _init = function (self, node)
+      node.id = "Placeable"
+      self:super(node)
+      if node.expression then
+        self.expression = node_to_type(node.expression[1])
+      end
+    end
+  })
+
 node_types.PatternElement = function (node)
-  node.id = "TextElement"
-  return node_types.TextElement(node)
+  if node.value then
+    return node_types.TextElement(node)
+  else
+    return node_types.Placeable(node)
+  end
 end
+
+node_types.StringLiteral = class({
+    _base = FluentNode,
+    _init = function (self, node)
+      self:super(node)
+    end
+  })
 
 node_types.Comment = class({
     appendable = true,
@@ -196,8 +219,9 @@ node_types.CommentLine = function(node)
 end
 
 node_to_type = function (node)
-  if type(node.id) ~= "string" then return nil end
-  return node_types[node.id](node)
+  if type(node) == "table" and type(node.id) == "string" then
+    return node_types[node.id](node)
+  end
 end
 
 dedent = function (content)
