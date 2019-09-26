@@ -3,12 +3,12 @@ local class = require("pl.class")
 local tablex = require("pl.tablex")
 
 local node_types = {}
-local node_to_class
+local node_to_type
 local dedent
 
 local FluentNode = class({
     discardable = false,
-    mergable = false,
+    appendable = false,
 
     _init = function (self, node)
       for key, value in pairs(node) do
@@ -24,7 +24,7 @@ local FluentNode = class({
       end
       if (node[1] and #node > 0) then
         self.elements = {}
-        tablex.insertvalues(self.elements, tablex.imap(node_to_class, node))
+        tablex.insertvalues(self.elements, tablex.imap(node_to_type, node))
       end
     end,
 
@@ -33,6 +33,28 @@ local FluentNode = class({
       for k, v in pairs(self) do ast[k] = v end
       ast.identifier = nil
       return ast
+    end,
+
+    append = function (self, node)
+      if type(self.__add) == "function"
+          and self.appendable
+          and node.appendable
+          and self:is_a(node:is_a())
+        then
+        return self + node
+      else
+        return false
+      end
+    end,
+
+    attach = function (self, node)
+      if node and
+          type(node.__mul) == "function"
+        then
+        return node * self
+      else
+        return false
+      end
     end
 
   })
@@ -47,9 +69,8 @@ node_types.blank_block = class({
     end
   })
 
--- TODO: can their ever be more than 1 entry?
 node_types.Entry = function(node)
-  return node_to_class(node[1])
+  return node_to_type(node[1])
 end
 
 node_types.Junk = class({
@@ -121,7 +142,7 @@ node_types.Pattern = class({
 --   end
 
 node_types.TextElement = class({
-    mergable = true,
+    appendable = true,
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
@@ -134,27 +155,42 @@ node_types.PatternElement = function (node)
 end
 
 node_types.Comment = class({
-    mergable = true,
+    appendable = true,
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
+    end,
+    __add = function (self, node)
+      self.content = (self.content or "") .. "\n" .. (node.content or "")
+      return self
+    end,
+    __mul = function (self, node)
+      if self:is_a(node_types.Message) then
+        self.comment = node
+        return self
+      elseif node:is_a(node_types.Message) then
+        node.comment = self
+        return node
+      end
     end
   })
 
 node_types.GroupComment = class({
-    mergable = true,
+    appendable = true,
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
-    end
+    end,
+    __add = node_types.Comment.__add
   })
 
 node_types.ResourceComment = class({
-    mergable = true,
+    appendable = true,
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
-    end
+    end,
+    __add = node_types.Comment.__add
   })
 
 node_types.Attribute = class({
@@ -171,7 +207,7 @@ node_types.CommentLine = function(node)
   return node_types[node.id](node)
 end
 
-node_to_class = function (node)
+node_to_type = function (node)
   if type(node.id) ~= "string" then return nil end
   return node_types[node.id](node)
 end
@@ -197,65 +233,65 @@ end
 
 local FluentResource = class({
     type = "Resource",
-    idmap = {},
+    index = {},
 
     _init = function (self, ast)
       self.body = {}
       local _stash = nil
       local flush = function ()
-        if _stash then table.insert(self.body, _stash) end
-        _stash = nil
+        if _stash then
+          self:insert(_stash)
+          _stash = nil
+        end
+        return #self.body
       end
       local stash = function (node)
         if not _stash then
           _stash = node
-        elseif _stash:is_a(node:is_a()) then
-          -- TODO: move to _add meta method
-          _stash.content = (_stash.content or "") .. "\n" .. (node.content or "")
-        else
+        elseif not _stash:append(node) then
           flush()
           _stash = node
         end
       end
-      -- TODO: eliminate double iteration by looking ahead?
-      local elements = tablex.imap(node_to_class, ast)
-      for _, node in ipairs(elements) do
-        if node.mergable then
-          stash(node)
-        elseif node:is_a(node_types.blank_block) then
+      for _, leaf in ipairs(ast) do
+        local node = node_to_type(leaf)
+        if node:is_a(node_types.blank_block) then
           if not node.discardable then
             flush()
           end
-        elseif node:is_a(node_types.Message) or node:is_a(node_types.Term) then
-          if _stash then
-            if _stash.type ~= "Comment" then
-              flush()
-            else
-              node.comment = _stash
-              _stash = nil
-            end
-          end
-          table.insert(self.body, node)
-          if node:is_a(node_types.Message) then
-            self.idmap[node.identifier] = #self.body
-          end
+        elseif node:attach(_stash) then
+          _stash = nil
+          stash(node)
         else
-          flush()
-          table.insert(self.body, node)
+          stash(node)
         end
       end
       flush()
       -- self:catch(function (self, identifier) return self:get_message(identifier) end)
     end,
 
+    insert = function (self, node)
+      table.insert(self.body, node)
+      if node:is_a(node_types.Message) then
+        self.index[node.identifier] = #self.body
+      end
+    end,
+
     get_message = function (self, identifier)
-      return self.idmap[identifier] and self.body[self.idmap[identifier]]
+      return self.index[identifier] and self.body[self.index[identifier]]
     end,
 
     dump_ast = function (self)
       local ast =  { type = "Resource", body = {} }
       for _, v in ipairs(self.body) do table.insert(ast.body, v:dump_ast()) end
       return ast
+    end,
+
+    __add = function (self, resource)
+      for _, node in ipairs(resource.body) do
+        self:insert(node)
+      end
+      return self
     end
 
   })
