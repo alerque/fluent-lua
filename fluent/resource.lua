@@ -26,12 +26,13 @@ local FluentNode = class({
 
     insert = function (self, node)
       if type(node) ~= "table" then return nil end
-      if not self:attach(node) then
+      if not self:modify(node) and not self:attach(node) then
         if self.elements and #self.elements >= 1 then
           if not self.elements[#self.elements]:append(node) then
             table.insert(self.elements, node)
           end
         else
+          if not self.elements then self.elements = {} end
           table.insert(self.elements, node)
         end
       end
@@ -44,11 +45,15 @@ local FluentNode = class({
     end,
 
     append = function (self, node)
-      return node and type(node.__add) == "function" and self + node
+      return node and type(node.__add) == "function" and node + self
+    end,
+
+    modify = function (self, node)
+      return node and type(node.__mod) == "function" and node % self
     end,
 
     attach = function (self, node)
-      return node and type(node.__mul) == "function" and self * node
+      return node and type(node.__mul) == "function" and node * self
     end,
 
     __call = function (self, ...)
@@ -75,7 +80,7 @@ node_types.blank_block = class({
     end
   })
 
-node_types.Entry = function(node)
+node_types.Entry = function (node)
   return node_to_type(node[1])
 end
 
@@ -93,9 +98,9 @@ node_types.Message = class({
       self.attributes = {}
       self:super(node)
       -- Penlight bug #307, should be — self:catch(self.get_attribute)
-      self:catch(function(_, k) return self:get_attribute(k) end)
+      self:catch(function (_, k) return self:get_attribute(k) end)
     end,
-    get_attribute = function(self, attribute)
+    get_attribute = function (self, attribute)
       return self.index[attribute] and self.attributes[self.index[attribute]] or nil
     end,
     format = function (self, parameters)
@@ -103,7 +108,7 @@ node_types.Message = class({
     end,
   })
 
-node_types.Term = function(node)
+node_types.Term = function (node)
   return node_types.Message(node)
 end
 
@@ -112,9 +117,9 @@ node_types.Identifier = class({
     _init = function (self, node)
       self:super(node)
     end,
-    __mul = function (self, node)
-      self.id = node
-      return self
+    __mod = function (self, node)
+      node.id = self
+      return node
     end
   })
 
@@ -126,7 +131,7 @@ node_types.Pattern = class({
       self:dedent()
     end,
     dedent = function (self)
-      local mindent = function(node)
+      local mindent = function (node)
         local indents = {}
         if type(node.value) == "string" then
           for indent in string.gmatch(node.value, "\n *%S") do
@@ -141,13 +146,12 @@ node_types.Pattern = class({
         strippref = strippref .. " "
         i = i + 1
       end
-      local strip = function(node, key, len)
+      local strip = function (node, key, len)
         if type(node.value) == "string" then
           local value = string.gsub(node.value, "\r\n", "\n")
           if len >= 1 then
             value = string.gsub(value, strippref, "\n\n")
           end
-          -- local function next_is_text
           value = key == 1 and string.gsub(value, "^[\n ]+", "") or value
           value = key == #self.elements and string.gsub(value, "[\n ]+$", "") or value
           self.elements[key].value = value
@@ -156,9 +160,9 @@ node_types.Pattern = class({
       tablex.foreachi(self.elements, strip, striplen)
     end,
     __mul = function (self, node)
-      if self:is_a(node_types.Message) or self:is_a(node_types.Attribute) then
-        self.value = node
-        return self
+      if node:is_a(node_types.Message) or node:is_a(node_types.Attribute) or node:is_a(node_types.Variant) then
+        node.value = self
+        return node
       end
     end,
     format = function (self, parameters)
@@ -177,8 +181,8 @@ node_types.TextElement = class({
     end,
     __add = function (self, node)
       if self:is_a(node:is_a()) and self.appendable and node.appendable then
-        self.value = (self.value or "") .. "\n" .. (node.value or "")
-        return self
+        node.value = (node.value or "") .. "\n" .. (self.value or "")
+        return node
       end
     end,
     format = function (self)
@@ -191,10 +195,8 @@ node_types.Placeable = class({
     _base = FluentNode,
     _init = function (self, node)
       node.id = "Placeable"
+      node.expression = tablex.reduce('+', tablex.map(node_to_type, node.expression))
       self:super(node)
-      if node.expression then
-        self.expression = node_to_type(node.expression[1])
-      end
     end,
     format = function (self, parameters)
       return self.expression:format(parameters)
@@ -236,6 +238,12 @@ node_types.VariableReference = class({
     end,
     format = function (self, parameters)
       return parameters[self.id.name]
+    end,
+    __mod = function (self, node)
+      if node:is_a(node_types.SelectExpression) then
+        node.selector = self
+        return node
+      end
     end
   })
 
@@ -249,6 +257,84 @@ node_types.MessageReference = class({
     end
   })
 
+node_types.TermReference = function (node)
+  return node_types.MessageReference(node)
+end
+
+node_types.FunctionReference = class({
+    _base = FluentNode,
+    _init = function (self, node)
+      self:super(node)
+    end
+  })
+
+node_types.SelectExpression = class({
+    selector = {},
+    variants = {},
+    _base = FluentNode,
+    _init = function (self, node)
+      node.id = "SelectExpression"
+      self.selector = {}
+      self.variants = {}
+      self:super(node)
+    end,
+    __add = function (self, node)
+      if node:is_a(node_types.variant_list) then
+        self.variants = node.elements
+        return self
+      end
+    end
+  })
+
+node_types.InlineExpression = function(node)
+  return node_types.SelectExpression(node)
+end
+
+node_types.variant_list = class({
+    _base = FluentNode,
+    _init = function (self, node)
+      self:super(node)
+    end,
+  })
+
+node_types.Variant = class({
+    _base = FluentNode,
+    _init = function (self, node)
+      node.id = "Variant"
+      self:super(node)
+    end,
+  })
+
+node_types.VariantKey = class({
+    _base = FluentNode,
+    _init = function (self, node)
+      self:super(node)
+    end,
+    __mod = function (self, node)
+      node.key = self.id
+      return node
+    end
+  })
+
+node_types.DefaultVariant = function (node)
+  node.default = true
+  return node_types.Variant(node)
+end
+
+node_types.CallArguments = class({
+    _base = FluentNode,
+    _init = function (self, node)
+      self:super(node)
+    end
+  })
+
+node_types.NamedArgument = class({
+    _base = FluentNode,
+    _init = function (self, node)
+      self:super(node)
+    end
+  })
+
 node_types.Comment = class({
     appendable = true,
     _base = FluentNode,
@@ -256,15 +342,15 @@ node_types.Comment = class({
       self:super(node)
     end,
     __add = function (self, node)
-      if self:is_a(node:is_a()) and self.appendable and node.appendable then
-        self.content = (self.content or "") .. "\n" .. (node.content or "")
-        return self
+      if node:is_a(self:is_a()) and node.appendable and self.appendable then
+        node.content = (node.content or "") .. "\n" .. (self.content or "")
+        return node
       end
     end,
     __mul = function (self, node)
-      if self:is_a(node_types.Message) then
-        self.comment = node
-        return self
+      if node:is_a(node_types.Message) then
+        node.comment = self
+        return node
       end
     end
   })
@@ -293,16 +379,13 @@ node_types.Attribute = class({
       self:super(node)
     end,
     __mul = function (self, node)
-      if self:is_a(node_types.Message) then
-        table.insert(self.attributes, node)
-        self.index[node.id.name] = #self.attributes
-        return self
-      elseif node:is_a(node_types.Pattern) then
-        self.value = node
-        return self
-      elseif node:is_a(node_types.Identifier) then
-        self.id = node
-        return self
+      if node:is_a(node_types.Message) then
+        table.insert(node.attributes, self)
+        node.index[self.id.name] = #node.attributes
+        return node
+      elseif self:is_a(node_types.Pattern) then
+        node.value = self
+        return node
       end
     end,
     format = function (self, parameters)
@@ -310,7 +393,7 @@ node_types.Attribute = class({
     end
   })
 
-node_types.CommentLine = function(node)
+node_types.CommentLine = function (node)
   node.id = #node.sigil == 1 and "Comment"
           or #node.sigil == 2 and "GroupComment"
           or #node.sigil == 3 and "ResourceComment"
@@ -360,7 +443,7 @@ local FluentResource = class({
       end
       flush()
       -- Penlight bug #307, should be — self:catch(self.get_message)
-      self:catch(function(_, k) return self:get_message(k) end)
+      self:catch(function (_, k) return self:get_message(k) end)
     end,
 
     insert = function (self, node)
