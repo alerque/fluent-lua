@@ -160,9 +160,6 @@ node_types.Pattern = class({
       if self:is_a(node_types.Message) or self:is_a(node_types.Attribute) then
         self.value = node
         return self
-      elseif node:is_a(node_types.Message) or node:is_a(node_types.Attribute) then
-        node.value = self
-        return node
       end
     end,
     format = function (self, parameters)
@@ -269,9 +266,6 @@ node_types.Comment = class({
       if self:is_a(node_types.Message) then
         self.comment = node
         return self
-      elseif node:is_a(node_types.Message) then
-        node.comment = self
-        return node
       end
     end
   })
@@ -304,13 +298,6 @@ node_types.Attribute = class({
         table.insert(self.attributes, node)
         self.index[node.id.name] = #self.attributes
         return self
-      elseif node:is_a(node_types.Message) then
-        table.insert(node.attributes, self)
-        node.index[self.id.name] = #node.attributes
-        return node
-      elseif self:is_a(node_types.Pattern) then
-        node.value = self
-        return node
       elseif node:is_a(node_types.Pattern) then
         self.value = node
         return self
