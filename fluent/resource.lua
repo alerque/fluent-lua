@@ -10,6 +10,11 @@ local tablex = require("pl.tablex")
 local nulleof = "NULL\000"
 
 local FTL = {}
+setmetatable(FTL, {
+    __index = function (_, key)
+      D("UNKNOWN NODE: "..key)
+    end
+})
 local node_to_type
 
 local FluentNode = class({
