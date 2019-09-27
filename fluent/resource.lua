@@ -55,6 +55,18 @@ local FluentNode = class({
 
     attach = function (self, node)
       return node and type(node.__mul) == "function" and self * node
+    end,
+
+    __call = function (self, ...)
+      return self:format(...)
+    end,
+
+    __tostring = function (self)
+      return self:format({})
+    end,
+
+    __concat = function (a, b)
+      return tostring(a) .. tostring(b)
     end
 
   })
@@ -86,6 +98,11 @@ node_types.Message = class({
     _init = function (self, node)
       self.attributes = {}
       self:super(node)
+      -- Penlight bug #307, should be — self:catch(self.get_attribute)
+      self:catch(function(_, k) return self:get_attribute(k) end)
+    end,
+    get_attribute = function(self, attribute)
+      return self.index[attribute] and self.attributes[self.index[attribute]] or nil
     end,
     format = function (self, parameters)
       return self.value:format(parameters)
@@ -298,6 +315,9 @@ node_types.Attribute = class({
         self.value = node
         return self
       end
+    end,
+    format = function (self, parameters)
+      return self.value:format(parameters)
     end
   })
 
@@ -350,7 +370,8 @@ local FluentResource = class({
         end
       end
       flush()
-      -- self:catch(function (self, identifier) return self:get_message(identifier) end)
+      -- Penlight bug #307, should be — self:catch(self.get_message)
+      self:catch(function(_, k) return self:get_message(k) end)
     end,
 
     insert = function (self, node)
@@ -361,15 +382,12 @@ local FluentResource = class({
     end,
 
     get_message = function (self, identifier)
+      local key = rawget(self.index, string.match(identifier, "^(%a[-_%a%d]+)"))
+      if not key then return end
+      local entry = rawget(self, "body")[key]
+      if not entry then return end
       local attr = string.match(identifier, "%.([(%a[-_%a%d]+)$")
-      local id = string.match(identifier, "^(%a[-_%a%d]+)")
-      if not self.index[id] then error("No such entry") end
-      local entry = self.body[self.index[id]]
-      if attr then
-        return entry.attributes[entry.index[attr]].value
-      else
-        return entry.value
-      end
+      return attr and entry.attributes[entry.index[attr]] or entry
     end,
 
     dump_ast = function (self)
