@@ -160,7 +160,7 @@ node_types.Pattern = class({
       tablex.foreachi(self.elements, strip, striplen)
     end,
     __mul = function (self, node)
-      if node:is_a(node_types.Message) or node:is_a(node_types.Attribute) then
+      if node:is_a(node_types.Message) or node:is_a(node_types.Attribute) or node:is_a(node_types.Variant) then
         node.value = self
         return node
       end
@@ -300,6 +300,7 @@ node_types.variant_list = class({
 node_types.Variant = class({
     _base = FluentNode,
     _init = function (self, node)
+      node.id = "Variant"
       self:super(node)
     end,
   })
@@ -309,6 +310,10 @@ node_types.VariantKey = class({
     _init = function (self, node)
       self:super(node)
     end,
+    __mod = function (self, node)
+      node.key = self.id
+      return node
+    end
   })
 
 node_types.DefaultVariant = function (node)
