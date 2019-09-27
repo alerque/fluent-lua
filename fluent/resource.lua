@@ -195,10 +195,8 @@ node_types.Placeable = class({
     _base = FluentNode,
     _init = function (self, node)
       node.id = "Placeable"
+      node.expression = tablex.reduce('+', tablex.map(node_to_type, node.expression))
       self:super(node)
-      if node.expression then
-        self.expression = node_to_type(node.expression[1])
-      end
     end,
     format = function (self, parameters)
       return self.expression:format(parameters)
@@ -271,25 +269,52 @@ node_types.FunctionReference = class({
   })
 
 node_types.SelectExpression = class({
+    selector = {},
+    variants = {},
     _base = FluentNode,
     _init = function (self, node)
+      node.id = "SelectExpression"
+      self.selector = {}
+      self.variants = {}
       self:super(node)
+    end,
+    __add = function (self, node)
+      if node:is_a(node_types.variant_list) then
+        self.variants = node.elements
+        return self
+      end
     end
   })
 
-node_types.InlineExpression = class({
+node_types.InlineExpression = function(node)
+  return node_types.SelectExpression(node)
+end
+
+node_types.variant_list = class({
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
-    end
+    end,
   })
 
 node_types.Variant = class({
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
-    end
+    end,
   })
+
+node_types.VariantKey = class({
+    _base = FluentNode,
+    _init = function (self, node)
+      self:super(node)
+    end,
+  })
+
+node_types.DefaultVariant = function (node)
+  node.default = true
+  return node_types.Variant(node)
+end
 
 node_types.CallArguments = class({
     _base = FluentNode,
