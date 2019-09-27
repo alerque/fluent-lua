@@ -40,6 +40,12 @@ describe('fluent.bundle', function ()
     assert.same("bar qux", en:format("foo", { baz = "qux" }))
   end)
 
+  it('should parse and format a message reference', function ()
+    local en = FluentBundle("en-US")
+    en:add_messages('foo = bar\nbaz = { foo }')
+    assert.same("bar", en:format("baz"))
+  end)
+
   it('should parse and format an attribute', function ()
     local en = FluentBundle("en-US")
     en:add_messages('foo = bar\n    .baz = qux')
