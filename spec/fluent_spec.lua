@@ -40,6 +40,12 @@ describe('fluent.bundle', function ()
     assert.same("bar qux", en:format("foo", { baz = "qux" }))
   end)
 
+  it('should parse and format an attribute', function ()
+    local en = FluentBundle("en-US")
+    en:add_messages('foo = bar\n    .baz = qux')
+    assert.equals("qux", en:format("foo.baz"))
+  end)
+
   it('should keep locale instances separate', function ()
     local en = FluentBundle("en-US")
     local tr = FluentBundle("tr-TR")

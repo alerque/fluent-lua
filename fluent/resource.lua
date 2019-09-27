@@ -81,6 +81,7 @@ node_types.Junk = class({
   })
 
 node_types.Message = class({
+    index = {},
     _base = FluentNode,
     _init = function (self, node)
       self.attributes = {}
@@ -284,9 +285,11 @@ node_types.Attribute = class({
     __mul = function (self, node)
       if self:is_a(node_types.Message) then
         table.insert(self.attributes, node)
+        self.index[node.id.name] = #self.attributes
         return self
       elseif node:is_a(node_types.Message) then
         table.insert(node.attributes, self)
+        node.index[self.id.name] = #node.attributes
         return node
       elseif self:is_a(node_types.Pattern) then
         node.value = self
@@ -358,7 +361,15 @@ local FluentResource = class({
     end,
 
     get_message = function (self, identifier)
-      return self.index[identifier] and self.body[self.index[identifier]]
+      local attr = string.match(identifier, "%.([(%a[-_%a%d]+)$")
+      local id = string.match(identifier, "^(%a[-_%a%d]+)")
+      if not self.index[id] then error("No such entry") end
+      local entry = self.body[self.index[id]]
+      if attr then
+        return entry.attributes[entry.index[attr]].value
+      else
+        return entry.value
+      end
     end,
 
     dump_ast = function (self)
