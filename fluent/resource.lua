@@ -26,14 +26,8 @@ local FluentNode = class({
 
     insert = function (self, node)
       if type(node) ~= "table" then return nil end
-      if node:is_a(node_types.Identifier) then
-        self.id = node
-      elseif node:is_a(node_types.Pattern)
-          or node:is_a(node_types.Attribute) then
-        return self:attach(node)
-      else
-        if not self.elements then self.elements = {} end
-        if #self.elements >= 1 then
+      if not self:attach(node) then
+        if self.elements and #self.elements >= 1 then
           if not self.elements[#self.elements]:append(node) then
             table.insert(self.elements, node)
           end
@@ -117,12 +111,17 @@ node_types.Identifier = class({
     _base = FluentNode,
     _init = function (self, node)
       self:super(node)
+    end,
+    __mul = function (self, node)
+      self.id = node
+      return self
     end
   })
 
 node_types.Pattern = class({
     _base = FluentNode,
     _init = function (self, node)
+      self.elements = {}
       self:super(node)
       self:dedent()
     end,
@@ -300,6 +299,9 @@ node_types.Attribute = class({
         return self
       elseif node:is_a(node_types.Pattern) then
         self.value = node
+        return self
+      elseif node:is_a(node_types.Identifier) then
+        self.id = node
         return self
       end
     end,
