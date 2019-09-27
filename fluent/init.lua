@@ -11,14 +11,25 @@ local FluentBundle = class({
     syntax = FluentSyntax(),
 
     _init = function (self, locale)
-      self.locale = locale
+      self.locale = locale or "und"
+      self.locales = {}
+      -- Penlight bug #307, should be — self:catch(self.get_message)
+      self:catch(function(_, k) return self:get_message(k) end)
     end,
 
-    add_messages = function (self, input)
+    get_message = function (self, identifier)
+      local locale = rawget(self, "locale")
+      local locales = rawget(self, "locales")
+      local default = rawget(locales, locale)
+      -- TODO iterate over fallback locales if not found in default
+      return default and default[identifier] or nil
+    end,
+
+    add_messages = function (self, input, locale)
       if type(input) == "string" then input = { input } end
       local resources = tablex.imap(function (v) return self.syntax:parsestring(v) end, input)
       local resource = tablex.reduce('+', resources)
-      self.locales[self.locale] = resource
+      self.locales[locale or self.locale] = resource
     end,
 
     format = function (self, identifier, parameters)
