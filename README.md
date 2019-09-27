@@ -21,12 +21,16 @@ It is possible to use this for simple string localization with basic parameter s
 - [x] Format Basic messages
 - [x] Format String and Number literals
 - [x] Substitute VariableReferences
-- [ ] Handle Attributes
+- [x] Handle Attributes
 - [ ] Handle Terms
 - [ ] Handle MessageReferences
 - [ ] Setup Locale fallbacks in Bundle
 - [ ] Localize number formatting
 - [ ] Functions
+
+### 0.0.4
+
+Add support for attributes plus access to messages using idomatic Lua (table properties).
 
 ### 0.0.3
 
@@ -55,16 +59,19 @@ local bundle = FluentBundle()
 
 -- Load some messages (can be a string or table of strings)
 bundle:add_messages([[
-foo = bar
 hello = Hello { $name }!
+foo = bar
+    .attr = baz
 ]])
 
 -- Access methods like other Fluent implementations
 print(bundle:format("foo"))
+print(bundle:format("foo.attr"))
 print(bundle:format("hello", { name = "World" }))
 
 -- Alternate idomatic Lua access methods
 print(bundle["foo"]) -- access property, implicit cast to string, cannot pass parammeters
+print("Attr: " .. bundle.foo.attr) -- access attributes as property, allow contatenation
 print(bundle.hello({ name = "World" })) -- access as property is callable, parameters passed to format()
 ```
 
@@ -72,8 +79,10 @@ Output of `lua demo.lua`:
 
 ```txt
 bar
+baz
 Hello World!
 bar
+Attr: baz
 Hello World!
 ```
 
