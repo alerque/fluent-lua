@@ -80,7 +80,7 @@ node_types.blank_block = class({
     end
   })
 
-node_types.Entry = function(node)
+node_types.Entry = function (node)
   return node_to_type(node[1])
 end
 
@@ -98,9 +98,9 @@ node_types.Message = class({
       self.attributes = {}
       self:super(node)
       -- Penlight bug #307, should be — self:catch(self.get_attribute)
-      self:catch(function(_, k) return self:get_attribute(k) end)
+      self:catch(function (_, k) return self:get_attribute(k) end)
     end,
-    get_attribute = function(self, attribute)
+    get_attribute = function (self, attribute)
       return self.index[attribute] and self.attributes[self.index[attribute]] or nil
     end,
     format = function (self, parameters)
@@ -108,7 +108,7 @@ node_types.Message = class({
     end,
   })
 
-node_types.Term = function(node)
+node_types.Term = function (node)
   return node_types.Message(node)
 end
 
@@ -131,7 +131,7 @@ node_types.Pattern = class({
       self:dedent()
     end,
     dedent = function (self)
-      local mindent = function(node)
+      local mindent = function (node)
         local indents = {}
         if type(node.value) == "string" then
           for indent in string.gmatch(node.value, "\n *%S") do
@@ -146,7 +146,7 @@ node_types.Pattern = class({
         strippref = strippref .. " "
         i = i + 1
       end
-      local strip = function(node, key, len)
+      local strip = function (node, key, len)
         if type(node.value) == "string" then
           local value = string.gsub(node.value, "\r\n", "\n")
           if len >= 1 then
@@ -259,7 +259,7 @@ node_types.MessageReference = class({
     end
   })
 
-node_types.TermReference = function(node)
+node_types.TermReference = function (node)
   return node_types.MessageReference(node)
 end
 
@@ -363,7 +363,7 @@ node_types.Attribute = class({
     end
   })
 
-node_types.CommentLine = function(node)
+node_types.CommentLine = function (node)
   node.id = #node.sigil == 1 and "Comment"
           or #node.sigil == 2 and "GroupComment"
           or #node.sigil == 3 and "ResourceComment"
@@ -413,7 +413,7 @@ local FluentResource = class({
       end
       flush()
       -- Penlight bug #307, should be — self:catch(self.get_message)
-      self:catch(function(_, k) return self:get_message(k) end)
+      self:catch(function (_, k) return self:get_message(k) end)
     end,
 
     insert = function (self, node)
