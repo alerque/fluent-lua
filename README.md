@@ -49,19 +49,30 @@ Initialized project with some boiler plate Lua aparatus.
 Lua code `demo.lua`:
 
 ```lua
+-- Import and start a new instance
 local FluentBundle = require("fluent")
-local en = FluentBundle("en-US")
-en:add_messages({
-    "foo = bar",
-    "hello = Hello { $name }!"
-  })
-print(en:format("foo"))
-print(en:format("hello", { name = "World" }))
+local bundle = FluentBundle()
+
+-- Load some messages (can be a string or table of strings)
+bundle:add_messages([[
+foo = bar
+hello = Hello { $name }!
+]])
+
+-- Access methods like other Fluent implementations
+print(bundle:format("foo"))
+print(bundle:format("hello", { name = "World" }))
+
+-- Alternate idomatic Lua access methods
+print(bundle["foo"]) -- access property, implicit cast to string, cannot pass parammeters
+print(bundle.hello({ name = "World" })) -- access as property is callable, parameters passed to format()
 ```
 
 Output of `lua demo.lua`:
 
 ```txt
+bar
+Hello World!
 bar
 Hello World!
 ```
