@@ -260,6 +260,41 @@ node_types.FunctionReference = class({
     end
   })
 
+node_types.SelectExpression = class({
+    _base = FluentNode,
+    _init = function (self, node)
+      self:super(node)
+    end
+  })
+
+node_types.InlineExpression = class({
+    _base = FluentNode,
+    _init = function (self, node)
+      self:super(node)
+    end
+  })
+
+node_types.Variant = class({
+    _base = FluentNode,
+    _init = function (self, node)
+      self:super(node)
+    end
+  })
+
+node_types.CallArguments = class({
+    _base = FluentNode,
+    _init = function (self, node)
+      self:super(node)
+    end
+  })
+
+node_types.NamedArgument = class({
+    _base = FluentNode,
+    _init = function (self, node)
+      self:super(node)
+    end
+  })
+
 node_types.Comment = class({
     appendable = true,
     _base = FluentNode,
