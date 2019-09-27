@@ -28,10 +28,9 @@ local FluentNode = class({
       if type(node) ~= "table" then return nil end
       if node:is_a(node_types.Identifier) then
         self.id = node
-      elseif node:is_a(node_types.Pattern) then
-        self.value = node
-      elseif node:is_a(node_types.Attribute) then
-        local x = self * node
+      elseif node:is_a(node_types.Pattern)
+          or node:is_a(node_types.Attribute) then
+        return self:attach(node)
       else
         if not self.elements then self.elements = {} end
         if #self.elements >= 1 then
@@ -138,6 +137,15 @@ node_types.Pattern = class({
         end
       end
       tablex.foreachi(self.elements, strip, striplen)
+    end,
+    __mul = function (self, node)
+      if self:is_a(node_types.Message) or self:is_a(node_types.Attribute) then
+        self.value = node
+        return self
+      elseif node:is_a(node_types.Message) or node:is_a(node_types.Attribute) then
+        node.value = self
+        return node
+      end
     end,
     format = function (self, parameters)
       local function evaluate (node) return node:format(parameters) end
@@ -280,6 +288,12 @@ node_types.Attribute = class({
       elseif node:is_a(node_types.Message) then
         table.insert(node.attributes, self)
         return node
+      elseif self:is_a(node_types.Pattern) then
+        node.value = self
+        return node
+      elseif node:is_a(node_types.Pattern) then
+        self.value = node
+        return self
       end
     end
   })
