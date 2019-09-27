@@ -26,12 +26,13 @@ local FluentNode = class({
 
     insert = function (self, node)
       if type(node) ~= "table" then return nil end
-      if not self:attach(node) then
+      if not self:modify(node) and not self:attach(node) then
         if self.elements and #self.elements >= 1 then
           if not self.elements[#self.elements]:append(node) then
             table.insert(self.elements, node)
           end
         else
+          if not self.elements then self.elements = {} end
           table.insert(self.elements, node)
         end
       end
@@ -44,11 +45,15 @@ local FluentNode = class({
     end,
 
     append = function (self, node)
-      return node and type(node.__add) == "function" and self + node
+      return node and type(node.__add) == "function" and node + self
+    end,
+
+    modify = function (self, node)
+      return node and type(node.__mod) == "function" and node % self
     end,
 
     attach = function (self, node)
-      return node and type(node.__mul) == "function" and self * node
+      return node and type(node.__mul) == "function" and node * self
     end,
 
     __call = function (self, ...)
@@ -112,9 +117,9 @@ node_types.Identifier = class({
     _init = function (self, node)
       self:super(node)
     end,
-    __mul = function (self, node)
-      self.id = node
-      return self
+    __mod = function (self, node)
+      node.id = self
+      return node
     end
   })
 
@@ -147,7 +152,6 @@ node_types.Pattern = class({
           if len >= 1 then
             value = string.gsub(value, strippref, "\n\n")
           end
-          -- local function next_is_text
           value = key == 1 and string.gsub(value, "^[\n ]+", "") or value
           value = key == #self.elements and string.gsub(value, "[\n ]+$", "") or value
           self.elements[key].value = value
@@ -156,9 +160,9 @@ node_types.Pattern = class({
       tablex.foreachi(self.elements, strip, striplen)
     end,
     __mul = function (self, node)
-      if self:is_a(node_types.Message) or self:is_a(node_types.Attribute) then
-        self.value = node
-        return self
+      if node:is_a(node_types.Message) or node:is_a(node_types.Attribute) then
+        node.value = self
+        return node
       end
     end,
     format = function (self, parameters)
@@ -177,8 +181,8 @@ node_types.TextElement = class({
     end,
     __add = function (self, node)
       if self:is_a(node:is_a()) and self.appendable and node.appendable then
-        self.value = (self.value or "") .. "\n" .. (node.value or "")
-        return self
+        node.value = (node.value or "") .. "\n" .. (self.value or "")
+        return node
       end
     end,
     format = function (self)
@@ -236,6 +240,12 @@ node_types.VariableReference = class({
     end,
     format = function (self, parameters)
       return parameters[self.id.name]
+    end,
+    __mod = function (self, node)
+      if node:is_a(node_types.SelectExpression) then
+        node.selector = self
+        return node
+      end
     end
   })
 
@@ -302,15 +312,15 @@ node_types.Comment = class({
       self:super(node)
     end,
     __add = function (self, node)
-      if self:is_a(node:is_a()) and self.appendable and node.appendable then
-        self.content = (self.content or "") .. "\n" .. (node.content or "")
-        return self
+      if node:is_a(self:is_a()) and node.appendable and self.appendable then
+        node.content = (node.content or "") .. "\n" .. (self.content or "")
+        return node
       end
     end,
     __mul = function (self, node)
-      if self:is_a(node_types.Message) then
-        self.comment = node
-        return self
+      if node:is_a(node_types.Message) then
+        node.comment = self
+        return node
       end
     end
   })
@@ -339,16 +349,13 @@ node_types.Attribute = class({
       self:super(node)
     end,
     __mul = function (self, node)
-      if self:is_a(node_types.Message) then
-        table.insert(self.attributes, node)
-        self.index[node.id.name] = #self.attributes
-        return self
-      elseif node:is_a(node_types.Pattern) then
-        self.value = node
-        return self
-      elseif node:is_a(node_types.Identifier) then
-        self.id = node
-        return self
+      if node:is_a(node_types.Message) then
+        table.insert(node.attributes, self)
+        node.index[self.id.name] = #node.attributes
+        return node
+      elseif self:is_a(node_types.Pattern) then
+        node.value = self
+        return node
       end
     end,
     format = function (self, parameters)
