@@ -249,6 +249,10 @@ node_types.MessageReference = class({
     end
   })
 
+node_types.TermReference = function(node)
+  return node_types.MessageReference(node)
+end
+
 node_types.Comment = class({
     appendable = true,
     _base = FluentNode,
