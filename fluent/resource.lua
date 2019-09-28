@@ -27,13 +27,10 @@ local FluentNode = class({
 
     insert = function (self, node)
       if type(node) ~= "table" then return nil end
-      if not self:modify(node) and not self:attach(node) then
-        if not self.elements then self.elements = {}; D(self.type.." needed elements") end
-        if #self.elements == 0
-          or not self.elements[#self.elements]:append(node)
-          then
-          table.insert(self.elements, node)
-        end
+      if not (self.elements and #self.elements >= 1 and self.elements[#self.elements]:append(node))
+        and not self:modify(node)
+        and not self:attach(node) then
+        table.insert(self.elements, node)
       end
     end,
 
@@ -165,9 +162,8 @@ FTL.Pattern = class({
       end
     end,
     format = function (self, parameters)
-      local function evaluate (node) return node:format(parameters) end
-      local value = table.concat(tablex.map(evaluate, self.elements))
-      return value
+      local values = tablex.map_named_method('format', self.elements, parameters)
+      return table.concat(values)
     end
   })
 
@@ -181,12 +177,6 @@ FTL.TextElement = class({
     __add = function (self, node)
       if self:is_a(node:is_a()) and self.appendable and node.appendable then
         node.value = (node.value or "") .. "\n" .. (self.value or "")
-        return node
-      end
-    end,
-    __mod = function (self, node)
-      if node:is_a(FTL.Pattern) then
-        table.insert(node.elements, self)
         return node
       end
     end,
@@ -243,9 +233,7 @@ FTL.NumberLiteral = class({
     _init = function (self, node, resource)
       self:super(node, resource)
     end,
-    format = function (self)
-      return self.value
-    end,
+    format = FTL.StringLiteral.format,
     __mod = FTL.StringLiteral.__mod
   })
 
