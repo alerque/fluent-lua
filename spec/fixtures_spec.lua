@@ -16,6 +16,16 @@ local function filetostring (fname)
   return content
 end
 
+local function stringtofile (fname, string)
+  local f = assert(io.open(fname, "w"))
+  f:write(string)
+  f:close()
+end
+
+local J = function (out, tbl)
+  stringtofile(out, json.encode(tbl, { indent = true}))
+end
+
 describe('upstream reference fixture', function ()
   local syntax = FluentSyntax()
 
@@ -80,7 +90,10 @@ describe('upstream reference fixture', function ()
         end)
 
         it('should match the referece result', function ()
-          assert.same(reference, resource:dump_ast())
+          local dump = resource:dump_ast()
+          -- Dump to json for external comparison with fixtures
+          J(fname:gsub(".ftl$", ".json.actual"), dump)
+          assert.same(reference, dump)
         end)
 
       end)
@@ -180,7 +193,10 @@ describe('upstream structure fixture', function ()
         end)
 
         it('should match the referece result', function ()
-          assert.same(reference, resource:dump_ast())
+          local dump = resource:dump_ast()
+          -- Dump to json for external comparison with fixtures
+          J(fname:gsub(".ftl$", ".json.actual"), dump)
+          assert.same(reference, dump)
         end)
 
       end)
