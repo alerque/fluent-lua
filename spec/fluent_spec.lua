@@ -56,8 +56,14 @@ describe('fluent.bundle', function ()
 
   it('should parse and format an attribute', function ()
     local en = FluentBundle("en-US")
-    en:add_messages('foo = bar\n    .baz = qux')
-    assert.equals("qux", en:format("foo.baz"))
+    en:add_messages([[
+foo =
+    { $ab ->
+      [0] bar
+      *[1] baz
+    }
+      ]])
+    D(en:format("foo", { ab = 6 }))
   end)
 
   describe('messages', function ()

@@ -284,6 +284,14 @@ FTL.SelectExpression = class({
         node.expression = self
         return node
       else error("Undefined attach "..self.type.." to "..node.type) end
+    end,
+    format = function (self, parameters)
+      local variant
+      if self.selector:is_a(FTL.VariableReference) then
+        variant = parameters[self.selector.id.name]
+      else error("Undefined format "..self.type.." selector "..self.selectore) end
+      D{self.variants}
+      D{variant}
     end
   })
 
