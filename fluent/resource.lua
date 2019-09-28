@@ -254,8 +254,8 @@ node_types.MessageReference = class({
     _init = function (self, node, resource)
       self:super(node, resource)
     end,
-    format = function (self)
-      return self.value
+    format = function (self, parameters)
+      return self.resource[self.id.name]:format(parameters)
     end
   })
 
