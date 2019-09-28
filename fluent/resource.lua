@@ -184,6 +184,12 @@ FTL.TextElement = class({
         return node
       end
     end,
+    __mod = function (self, node)
+      if node:is_a(FTL.Pattern) then
+        table.insert(node.elements, self)
+        return node
+      end
+    end,
     format = function (self)
       return self.value
     end
@@ -194,9 +200,14 @@ FTL.Placeable = class({
     _base = FluentNode,
     _init = function (self, node, resource)
       node.id = "Placeable"
-      local expressions = tablex.map(node_to_type, node.expression, resource)
-      node.expression = tablex.reduce('+', expressions)
+      node.expression = node_to_type(node.expression, resource)
       self:super(node, resource)
+    end,
+    __mod = function (self, node)
+      if node:is_a(FTL.Pattern) then
+        table.insert(node.elements, self)
+        return node
+      end
     end,
     format = function (self, parameters)
       return self.expression:format(parameters)
@@ -218,6 +229,12 @@ FTL.StringLiteral = class({
     end,
     format = function (self)
       return self.value
+    end,
+    __mod = function (self, node)
+      if node:is_a(FTL.SelectExpression) then
+        node.selector = self
+        return node
+      end
     end
   })
 
@@ -228,7 +245,8 @@ FTL.NumberLiteral = class({
     end,
     format = function (self)
       return self.value
-    end
+    end,
+    __mod = FTL.StringLiteral.__mod
   })
 
 FTL.VariableReference = class({
@@ -239,12 +257,7 @@ FTL.VariableReference = class({
     format = function (self, parameters)
       return parameters[self.id.name]
     end,
-    __mod = function (self, node)
-      if node:is_a(FTL.SelectExpression) then
-        node.selector = self
-        return node
-      end
-    end
+    __mod = FTL.StringLiteral.__mod
   })
 
 FTL.MessageReference = class({
@@ -269,7 +282,8 @@ FTL.FunctionReference = class({
     _base = FluentNode,
     _init = function (self, node, resource)
       self:super(node, resource)
-    end
+    end,
+    __mod = FTL.StringLiteral.__mod
   })
 
 FTL.SelectExpression = class({
@@ -282,23 +296,34 @@ FTL.SelectExpression = class({
       self.variants = {}
       self:super(node, resource)
     end,
-    __add = function (self, node)
-      if node:is_a(FTL.variant_list) then
-        self.variants = node.elements
-        return self
+    __mod = function (self, node)
+      if node:is_a(FTL.Placeable) then
+        node.expression = self
+        return node
       end
     end
   })
 
+FTL._InlineExpression = function(node, resource)
+  return FTL.InlineExpression(node, resource)
+end
+
 FTL.InlineExpression = function(node, resource)
-  return FTL.SelectExpression(node, resource)
+  return node_to_type(node[1], resource)
 end
 
 FTL.variant_list = class({
     _base = FluentNode,
     _init = function (self, node, resource)
+      self.elements = {}
       self:super(node, resource)
     end,
+    __mod = function (self, node)
+      if node:is_a(FTL.SelectExpression) then
+        tablex.insertvalues(node.variants, self.elements)
+        return node
+      end
+    end
   })
 
 FTL.Variant = class({
@@ -306,7 +331,7 @@ FTL.Variant = class({
     _init = function (self, node, resource)
       node.id = "Variant"
       self:super(node, resource)
-    end,
+    end
   })
 
 FTL.VariantKey = class({
