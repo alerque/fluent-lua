@@ -8,8 +8,10 @@ local node_to_type
 local FluentNode = class({
     discardable = false,
     appendable = false,
+    resource = {},
 
-    _init = function (self, node)
+    _init = function (self, node, resource)
+      self.resource = resource
       for key, value in pairs(node) do
         if type(key) == "string" then
           if key == "id" then
@@ -21,7 +23,7 @@ local FluentNode = class({
           end
         end
       end
-      tablex.foreachi(node, function (n) self:insert(node_to_type(n)) end)
+      tablex.foreachi(node, function (n) self:insert(node_to_type(n, resource)) end)
     end,
 
     insert = function (self, node)
@@ -73,30 +75,30 @@ local FluentNode = class({
 node_types.blank_block = class({
     discardable = true,
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
       local _, count = string.gsub(node[1], "\n", "")
       self.discardable = count == 0
     end
   })
 
-node_types.Entry = function (node)
-  return node_to_type(node[1])
+node_types.Entry = function (node, resource)
+  return node_to_type(node[1], resource)
 end
 
 node_types.Junk = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end
   })
 
 node_types.Message = class({
     index = {},
     _base = FluentNode,
-    _init = function (self, node)
+    _init = function (self, node, resource)
       self.attributes = {}
-      self:super(node)
+      self:super(node, resource)
       -- Penlight bug #307, should be — self:catch(self.get_attribute)
       self:catch(function (_, k) return self:get_attribute(k) end)
     end,
@@ -104,18 +106,18 @@ node_types.Message = class({
       return self.index[attribute] and self.attributes[self.index[attribute]] or nil
     end,
     format = function (self, parameters)
-      return self.value:format(parameters)
+      return self.value:format(parameters, self.resource)
     end,
   })
 
-node_types.Term = function (node)
-  return node_types.Message(node)
+node_types.Term = function (node, resource)
+  return node_types.Message(node, resource)
 end
 
 node_types.Identifier = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
     __mod = function (self, node)
       node.id = self
@@ -125,9 +127,9 @@ node_types.Identifier = class({
 
 node_types.Pattern = class({
     _base = FluentNode,
-    _init = function (self, node)
+    _init = function (self, node, resource)
       self.elements = {}
-      self:super(node)
+      self:super(node, resource)
       self:dedent()
     end,
     dedent = function (self)
@@ -175,9 +177,9 @@ node_types.Pattern = class({
 node_types.TextElement = class({
     appendable = true,
     _base = FluentNode,
-    _init = function (self, node)
+    _init = function (self, node, resource)
       node.id = "TextElement"
-      self:super(node)
+      self:super(node, resource)
     end,
     __add = function (self, node)
       if self:is_a(node:is_a()) and self.appendable and node.appendable then
@@ -193,28 +195,28 @@ node_types.TextElement = class({
 node_types.Placeable = class({
     appendable = true,
     _base = FluentNode,
-    _init = function (self, node)
+    _init = function (self, node, resource)
       node.id = "Placeable"
-      node.expression = tablex.reduce('+', tablex.map(node_to_type, node.expression))
-      self:super(node)
+      node.expression = tablex.reduce('+', tablex.map(node_to_type, node.expression, resource))
+      self:super(node, resource)
     end,
     format = function (self, parameters)
       return self.expression:format(parameters)
     end
   })
 
-node_types.PatternElement = function (node)
+node_types.PatternElement = function (node, resource)
   if node.value then
-    return node_types.TextElement(node)
+    return node_types.TextElement(node, resource)
   else
-    return node_types.Placeable(node)
+    return node_types.Placeable(node, resource)
   end
 end
 
 node_types.StringLiteral = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
     format = function (self)
       return self.value
@@ -223,8 +225,8 @@ node_types.StringLiteral = class({
 
 node_types.NumberLiteral = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
     format = function (self)
       return self.value
@@ -233,8 +235,8 @@ node_types.NumberLiteral = class({
 
 node_types.VariableReference = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
     format = function (self, parameters)
       return parameters[self.id.name]
@@ -249,22 +251,22 @@ node_types.VariableReference = class({
 
 node_types.MessageReference = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
     format = function (self)
       return self.value
     end
   })
 
-node_types.TermReference = function (node)
-  return node_types.MessageReference(node)
+node_types.TermReference = function (node, resource)
+  return node_types.MessageReference(node, resource)
 end
 
 node_types.FunctionReference = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end
   })
 
@@ -272,11 +274,11 @@ node_types.SelectExpression = class({
     selector = {},
     variants = {},
     _base = FluentNode,
-    _init = function (self, node)
+    _init = function (self, node, resource)
       node.id = "SelectExpression"
       self.selector = {}
       self.variants = {}
-      self:super(node)
+      self:super(node, resource)
     end,
     __add = function (self, node)
       if node:is_a(node_types.variant_list) then
@@ -286,29 +288,29 @@ node_types.SelectExpression = class({
     end
   })
 
-node_types.InlineExpression = function(node)
-  return node_types.SelectExpression(node)
+node_types.InlineExpression = function(node, resource)
+  return node_types.SelectExpression(node, resource)
 end
 
 node_types.variant_list = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
   })
 
 node_types.Variant = class({
     _base = FluentNode,
-    _init = function (self, node)
+    _init = function (self, node, resource)
       node.id = "Variant"
-      self:super(node)
+      self:super(node, resource)
     end,
   })
 
 node_types.VariantKey = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
     __mod = function (self, node)
       node.key = self.id
@@ -316,30 +318,30 @@ node_types.VariantKey = class({
     end
   })
 
-node_types.DefaultVariant = function (node)
+node_types.DefaultVariant = function (node, resource)
   node.default = true
-  return node_types.Variant(node)
+  return node_types.Variant(node, resource)
 end
 
 node_types.CallArguments = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end
   })
 
 node_types.NamedArgument = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end
   })
 
 node_types.Comment = class({
     appendable = true,
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
     __add = function (self, node)
       if node:is_a(self:is_a()) and node.appendable and self.appendable then
@@ -358,8 +360,8 @@ node_types.Comment = class({
 node_types.GroupComment = class({
     appendable = true,
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
     __add = node_types.Comment.__add
   })
@@ -367,16 +369,16 @@ node_types.GroupComment = class({
 node_types.ResourceComment = class({
     appendable = true,
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
     __add = node_types.Comment.__add
   })
 
 node_types.Attribute = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
     __mul = function (self, node)
       if node:is_a(node_types.Message) then
@@ -393,16 +395,16 @@ node_types.Attribute = class({
     end
   })
 
-node_types.CommentLine = function (node)
+node_types.CommentLine = function (node, resource)
   node.id = #node.sigil == 1 and "Comment"
           or #node.sigil == 2 and "GroupComment"
           or #node.sigil == 3 and "ResourceComment"
-  return node_types[node.id](node)
+  return node_types[node.id](node, resource)
 end
 
-node_to_type = function (node)
+node_to_type = function (node, resource)
   if type(node) == "table" and type(node.id) == "string" then
-    return node_types[node.id](node)
+    return node_types[node.id](node, resource)
   end
 end
 
@@ -429,7 +431,7 @@ local FluentResource = class({
         end
       end
       for _, leaf in ipairs(ast) do
-        local node = node_to_type(leaf)
+        local node = node_to_type(leaf, self)
         if node:is_a(node_types.blank_block) then
           if not node.discardable then
             flush()
