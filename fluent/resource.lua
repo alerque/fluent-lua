@@ -79,9 +79,6 @@ end
 
 FTL.Junk = class({
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end
   })
 
 FTL.Message = class({
@@ -107,9 +104,6 @@ end
 
 FTL.Identifier = class({
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end,
     __mod = function (self, node)
       node.id = self
       return node
@@ -211,9 +205,6 @@ end
 
 FTL.StringLiteral = class({
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end,
     format = function (self)
       return self.value
     end,
@@ -230,18 +221,12 @@ FTL.StringLiteral = class({
 
 FTL.NumberLiteral = class({
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end,
     format = FTL.StringLiteral.format,
     __mod = FTL.StringLiteral.__mod
   })
 
 FTL.VariableReference = class({
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end,
     format = function (self, parameters)
       return parameters[self.id.name]
     end,
@@ -250,27 +235,25 @@ FTL.VariableReference = class({
 
 FTL.MessageReference = class({
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end,
     format = function (self, parameters)
-      if self.type == "MessageReference" then
-        return self._resource:get_message(self.id.name):format(parameters)
-      elseif self.type == "TermReference" then
-        return self._resource:get_term(self.id.name):format(parameters)
-      end
+      return self._resource:get_message(self.id.name):format(parameters)
     end
   })
 
-FTL.TermReference = function (node, resource)
-  return FTL.MessageReference(node, resource)
-end
+FTL.TermReference = class({
+    _base = FluentNode,
+    _init = function (self, node, resource)
+      node.id = "TermReference"
+      self:super(node, resource)
+    end,
+    format = function (self, parameters)
+      return self._resource:get_term(self.id.name):format(parameters)
+    end
+  })
+
 
 FTL.FunctionReference = class({
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end,
     __mod = FTL.StringLiteral.__mod
   })
 
@@ -324,9 +307,6 @@ FTL.Variant = class({
 
 FTL.VariantKey = class({
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end,
     __mod = function (self, node)
       node.key = self.id
       return node
@@ -340,9 +320,6 @@ end
 
 FTL.CallArguments = class({
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end,
     __mul = function (self, node)
       if node:is_a(FTL.FunctionReference) then
         node.arguments = self
@@ -353,9 +330,6 @@ FTL.CallArguments = class({
 
 FTL.NamedArgument = class({
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end
   })
 
 FTL.Comment = class({
@@ -392,9 +366,6 @@ FTL.ResourceComment = class({
 
 FTL.Attribute = class({
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end,
     __mul = function (self, node)
       if node:is_a(FTL.Message) then
         table.insert(node.attributes, self)
