@@ -28,6 +28,7 @@ local FluentNode = class({
       if not (self.elements and #self.elements >= 1 and self.elements[#self.elements]:append(node))
         and not self:modify(node)
         and not self:attach(node) then
+        if not self.elements then error("Undefined insert "..node.type .. " into " .. self.type) end
         table.insert(self.elements, node)
       end
     end,
@@ -192,7 +193,7 @@ FTL.Placeable = class({
       if node:is_a(FTL.Pattern) then
         table.insert(node.elements, self)
         return node
-      end
+      else error("Undefined attach "..self.type.." to "..node.type) end
     end,
     format = function (self, parameters)
       return self.expression:format(parameters)
@@ -219,7 +220,7 @@ FTL.StringLiteral = class({
       elseif node:is_a(FTL.VariantKey) then
         node.key = self
         return node
-      end
+      else error("Undefined attach "..self.type.." to "..node.type) end
     end
   })
 
@@ -282,7 +283,7 @@ FTL.SelectExpression = class({
       if node:is_a(FTL.Placeable) then
         node.expression = self
         return node
-      end
+      else error("Undefined attach "..self.type.." to "..node.type) end
     end
   })
 
@@ -304,7 +305,7 @@ FTL.variant_list = class({
       if node:is_a(FTL.SelectExpression) then
         tablex.insertvalues(node.variants, self.elements)
         return node
-      end
+      else error("Undefined attach "..self.type.." to "..node.type) end
     end
   })
 
@@ -323,7 +324,7 @@ FTL.VariantKey = class({
       if node:is_a(FTL.Variant) then
         node.key = self.key
         return node
-      end
+      else error("Undefined attach "..self.type.." to "..node.type) end
     end
   })
 
