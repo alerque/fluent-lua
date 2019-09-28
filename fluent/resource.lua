@@ -28,12 +28,10 @@ local FluentNode = class({
     insert = function (self, node)
       if type(node) ~= "table" then return nil end
       if not self:modify(node) and not self:attach(node) then
-        if self.elements and #self.elements >= 1 then
-          if not self.elements[#self.elements]:append(node) then
-            table.insert(self.elements, node)
-          end
-        else
-          if not self.elements then self.elements = {} end
+        if not self.elements then self.elements = {}; D(self.type.." needed elements") end
+        if #self.elements == 0
+          or not self.elements[#self.elements]:append(node)
+          then
           table.insert(self.elements, node)
         end
       end
