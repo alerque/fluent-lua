@@ -94,7 +94,7 @@ node_types.Junk = class({
   })
 
 node_types.Message = class({
-    index = {},
+    attributeindex = {},
     _base = FluentNode,
     _init = function (self, node, resource)
       self.attributes = {}
@@ -103,7 +103,7 @@ node_types.Message = class({
       self:catch(function (_, k) return self:get_attribute(k) end)
     end,
     get_attribute = function (self, attribute)
-      return self.index[attribute] and self.attributes[self.index[attribute]] or nil
+      return self.attributeindex[attribute] and self.attributes[self.attributeindex[attribute]] or nil
     end,
     format = function (self, parameters)
       return self.value:format(parameters, self.resource)
@@ -255,7 +255,11 @@ node_types.MessageReference = class({
       self:super(node, resource)
     end,
     format = function (self, parameters)
-      return self.resource[self.id.name]:format(parameters)
+      if self.type == "MessageReference" then
+        return self.resource:get_message(self.id.name):format(parameters)
+      elseif self.type == "TermReference" then
+        return self.resource:get_term(self.id.name):format(parameters)
+      end
     end
   })
 
@@ -383,7 +387,7 @@ node_types.Attribute = class({
     __mul = function (self, node)
       if node:is_a(node_types.Message) then
         table.insert(node.attributes, self)
-        node.index[self.id.name] = #node.attributes
+        node.attributeindex[self.id.name] = #node.attributes
         return node
       elseif self:is_a(node_types.Pattern) then
         node.value = self
@@ -410,7 +414,8 @@ end
 
 local FluentResource = class({
     type = "Resource",
-    index = {},
+    messageindex = {},
+    termindex = {},
 
     _init = function (self, ast)
       self.body = {}
@@ -451,17 +456,22 @@ local FluentResource = class({
     insert = function (self, node)
       table.insert(self.body, node)
       if node:is_a(node_types.Message) then
-        self.index[node.id.name] = #self.body
+        local relevantindex = node.type == "Message" and self.messageindex or self.termindex
+        relevantindex[node.id.name] = #self.body
       end
     end,
 
-    get_message = function (self, identifier)
-      local key = rawget(self.index, string.match(identifier, "^(%a[-_%a%d]+)"))
+    get_message = function (self, identifier, isterm)
+      local key = rawget(isterm and self.termindex or self.messageindex, string.match(identifier, "^(%a[-_%a%d]+)"))
       if not key then return end
       local entry = rawget(self, "body")[key]
       if not entry then return end
       local attr = string.match(identifier, "%.([(%a[-_%a%d]+)$")
-      return attr and entry.attributes[entry.index[attr]] or entry
+      return attr and entry.attributes[entry.attributeindex[attr]] or entry
+    end,
+
+    get_term = function (self, identifier)
+      return self:get_message(identifier, true)
     end,
 
     dump_ast = function (self)
