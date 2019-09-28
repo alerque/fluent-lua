@@ -8,10 +8,9 @@ local node_to_type
 local FluentNode = class({
     discardable = false,
     appendable = false,
-    resource = {},
 
     _init = function (self, node, resource)
-      self.resource = resource
+      getmetatable(self)._resource = resource
       for key, value in pairs(node) do
         if type(key) == "string" then
           if key == "id" then
@@ -106,7 +105,7 @@ FTL.Message = class({
       return self.attributeindex[attribute] and self.attributes[self.attributeindex[attribute]] or nil
     end,
     format = function (self, parameters)
-      return self.value:format(parameters, self.resource)
+      return self.value:format(parameters)
     end,
   })
 
@@ -256,9 +255,9 @@ FTL.MessageReference = class({
     end,
     format = function (self, parameters)
       if self.type == "MessageReference" then
-        return self.resource:get_message(self.id.name):format(parameters)
+        return self._resource:get_message(self.id.name):format(parameters)
       elseif self.type == "TermReference" then
-        return self.resource:get_term(self.id.name):format(parameters)
+        return self._resource:get_term(self.id.name):format(parameters)
       end
     end
   })
