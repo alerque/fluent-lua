@@ -42,8 +42,16 @@ describe('fluent.bundle', function ()
 
   it('should parse and format a message reference', function ()
     local en = FluentBundle("en-US")
-    en:add_messages('foo = bar\nbaz = { foo }')
-    assert.same("bar", en:format("baz"))
+    en:add_messages('foo = bar\nbaz = a { foo }')
+    assert.same("bar", en:format("foo"))
+    assert.same("a bar", en:format("baz"))
+  end)
+
+  it('should parse and format a term reference', function ()
+    local en = FluentBundle("en-US")
+    en:add_messages('-foo = bar\nfoo = public\nbaz = a { -foo }')
+    assert.same("public", en:format("foo"))
+    assert.same("a bar", en:format("baz"))
   end)
 
   it('should parse and format an attribute', function ()
