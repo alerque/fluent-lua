@@ -196,7 +196,8 @@ FTL.Placeable = class({
     _base = FluentNode,
     _init = function (self, node, resource)
       node.id = "Placeable"
-      node.expression = tablex.reduce('+', tablex.map(node_to_type, node.expression, resource))
+      local expressions = tablex.map(node_to_type, node.expression, resource)
+      node.expression = tablex.reduce('+', expressions)
       self:super(node, resource)
     end,
     format = function (self, parameters)
