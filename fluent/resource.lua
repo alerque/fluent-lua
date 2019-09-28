@@ -6,8 +6,6 @@ local FTL = {}
 local node_to_type
 
 local FluentNode = class({
-    discardable = false,
-    appendable = false,
 
     _init = function (self, node, resource)
       getmetatable(self)._resource = resource
@@ -67,12 +65,11 @@ local FluentNode = class({
   })
 
 FTL.blank_block = class({
-    discardable = true,
     _base = FluentNode,
     _init = function (self, node, resource)
       self:super(node, resource)
       local _, count = string.gsub(node[1], "\n", "")
-      self.discardable = count == 0
+      getmetatable(self).discardable = count == 0
     end
   })
 
@@ -168,9 +165,9 @@ FTL.Pattern = class({
   })
 
 FTL.TextElement = class({
-    appendable = true,
     _base = FluentNode,
     _init = function (self, node, resource)
+      getmetatable(self).appendable = true
       node.id = "TextElement"
       self:super(node, resource)
     end,
@@ -353,9 +350,9 @@ FTL.NamedArgument = class({
   })
 
 FTL.Comment = class({
-    appendable = true,
     _base = FluentNode,
     _init = function (self, node, resource)
+      getmetatable(self).appendable = true
       self:super(node, resource)
     end,
     __add = function (self, node)
@@ -373,20 +370,14 @@ FTL.Comment = class({
   })
 
 FTL.GroupComment = class({
-    appendable = true,
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end,
+    _init = FTL.Comment._init,
     __add = FTL.Comment.__add
   })
 
 FTL.ResourceComment = class({
-    appendable = true,
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end,
+    _init = FTL.Comment._init,
     __add = FTL.Comment.__add
   })
 
