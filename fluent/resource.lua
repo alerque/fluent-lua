@@ -105,7 +105,11 @@ end
 FTL.Identifier = class({
     _base = FluentNode,
     __mod = function (self, node)
-      node.id = self
+      if node:is_a(FTL.VariantKey) then
+        node.key = self
+      else
+        node.id = self
+      end
       return node
     end
   })
@@ -246,11 +250,18 @@ FTL.TermReference = class({
       node.id = "TermReference"
       self:super(node, resource)
     end,
+    __mul = function (self, node)
+      if node:is_a(FTL.SelectExpression) then
+        node.selector = self
+        return node
+      end
+    end,
     format = function (self, parameters)
       return self._resource:get_term(self.id.name):format(parameters)
     end
   })
 
+FTL._TermReference = FTL.TermReference
 
 FTL.FunctionReference = class({
     _base = FluentNode,
@@ -301,6 +312,7 @@ FTL.Variant = class({
     _base = FluentNode,
     _init = function (self, node, resource)
       node.id = "Variant"
+      node.default = node.default or false
       self:super(node, resource)
     end
   })
@@ -308,8 +320,10 @@ FTL.Variant = class({
 FTL.VariantKey = class({
     _base = FluentNode,
     __mod = function (self, node)
-      node.key = self.id
-      return node
+      if node:is_a(FTL.Variant) then
+        node.key = self.key
+        return node
+      end
     end
   })
 
@@ -320,6 +334,11 @@ end
 
 FTL.CallArguments = class({
     _base = FluentNode,
+    _init = function (self, node, resource)
+      self.named = {}
+      self.positional = {}
+      self:super(node, resource)
+    end,
     __mul = function (self, node)
       if node:is_a(FTL.FunctionReference) then
         node.arguments = self
@@ -378,6 +397,16 @@ FTL.Attribute = class({
     end,
     format = function (self, parameters)
       return self.value:format(parameters)
+    end
+  })
+
+FTL.AttributeAccessor = class({
+    _base = FluentNode,
+    __mul = function (self, node)
+      if node:is_a(FTL.TermReference) then
+        node.attribute = self.id
+        return node
+      else error("Undefined attach "..self.type.." to "..node.type) end
     end
   })
 
