@@ -2,14 +2,15 @@
 local class = require("pl.class")
 local tablex = require("pl.tablex")
 
-local node_types = {}
+local FTL = {}
 local node_to_type
 
 local FluentNode = class({
     discardable = false,
     appendable = false,
 
-    _init = function (self, node)
+    _init = function (self, node, resource)
+      getmetatable(self)._resource = resource
       for key, value in pairs(node) do
         if type(key) == "string" then
           if key == "id" then
@@ -21,7 +22,7 @@ local FluentNode = class({
           end
         end
       end
-      tablex.foreachi(node, function (n) self:insert(node_to_type(n)) end)
+      tablex.foreachi(node, function (n) self:insert(node_to_type(n, resource)) end)
     end,
 
     insert = function (self, node)
@@ -70,52 +71,52 @@ local FluentNode = class({
 
   })
 
-node_types.blank_block = class({
+FTL.blank_block = class({
     discardable = true,
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
       local _, count = string.gsub(node[1], "\n", "")
       self.discardable = count == 0
     end
   })
 
-node_types.Entry = function (node)
-  return node_to_type(node[1])
+FTL.Entry = function (node, resource)
+  return node_to_type(node[1], resource)
 end
 
-node_types.Junk = class({
+FTL.Junk = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end
   })
 
-node_types.Message = class({
-    index = {},
+FTL.Message = class({
+    attributeindex = {},
     _base = FluentNode,
-    _init = function (self, node)
+    _init = function (self, node, resource)
       self.attributes = {}
-      self:super(node)
+      self:super(node, resource)
       -- Penlight bug #307, should be — self:catch(self.get_attribute)
       self:catch(function (_, k) return self:get_attribute(k) end)
     end,
     get_attribute = function (self, attribute)
-      return self.index[attribute] and self.attributes[self.index[attribute]] or nil
+      return self.attributeindex[attribute] and self.attributes[self.attributeindex[attribute]] or nil
     end,
     format = function (self, parameters)
       return self.value:format(parameters)
     end,
   })
 
-node_types.Term = function (node)
-  return node_types.Message(node)
+FTL.Term = function (node, resource)
+  return FTL.Message(node, resource)
 end
 
-node_types.Identifier = class({
+FTL.Identifier = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
     __mod = function (self, node)
       node.id = self
@@ -123,11 +124,11 @@ node_types.Identifier = class({
     end
   })
 
-node_types.Pattern = class({
+FTL.Pattern = class({
     _base = FluentNode,
-    _init = function (self, node)
+    _init = function (self, node, resource)
       self.elements = {}
-      self:super(node)
+      self:super(node, resource)
       self:dedent()
     end,
     dedent = function (self)
@@ -160,7 +161,7 @@ node_types.Pattern = class({
       tablex.foreachi(self.elements, strip, striplen)
     end,
     __mul = function (self, node)
-      if node:is_a(node_types.Message) or node:is_a(node_types.Attribute) or node:is_a(node_types.Variant) then
+      if node:is_a(FTL.Message) or node:is_a(FTL.Attribute) or node:is_a(FTL.Variant) then
         node.value = self
         return node
       end
@@ -172,12 +173,12 @@ node_types.Pattern = class({
     end
   })
 
-node_types.TextElement = class({
+FTL.TextElement = class({
     appendable = true,
     _base = FluentNode,
-    _init = function (self, node)
+    _init = function (self, node, resource)
       node.id = "TextElement"
-      self:super(node)
+      self:super(node, resource)
     end,
     __add = function (self, node)
       if self:is_a(node:is_a()) and self.appendable and node.appendable then
@@ -190,125 +191,129 @@ node_types.TextElement = class({
     end
   })
 
-node_types.Placeable = class({
+FTL.Placeable = class({
     appendable = true,
     _base = FluentNode,
-    _init = function (self, node)
+    _init = function (self, node, resource)
       node.id = "Placeable"
-      node.expression = tablex.reduce('+', tablex.map(node_to_type, node.expression))
-      self:super(node)
+      node.expression = tablex.reduce('+', tablex.map(node_to_type, node.expression, resource))
+      self:super(node, resource)
     end,
     format = function (self, parameters)
       return self.expression:format(parameters)
     end
   })
 
-node_types.PatternElement = function (node)
+FTL.PatternElement = function (node, resource)
   if node.value then
-    return node_types.TextElement(node)
+    return FTL.TextElement(node, resource)
   else
-    return node_types.Placeable(node)
+    return FTL.Placeable(node, resource)
   end
 end
 
-node_types.StringLiteral = class({
+FTL.StringLiteral = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
     format = function (self)
       return self.value
     end
   })
 
-node_types.NumberLiteral = class({
+FTL.NumberLiteral = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
     format = function (self)
       return self.value
     end
   })
 
-node_types.VariableReference = class({
+FTL.VariableReference = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
     format = function (self, parameters)
       return parameters[self.id.name]
     end,
     __mod = function (self, node)
-      if node:is_a(node_types.SelectExpression) then
+      if node:is_a(FTL.SelectExpression) then
         node.selector = self
         return node
       end
     end
   })
 
-node_types.MessageReference = class({
+FTL.MessageReference = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
-    format = function (self)
-      return self.value
+    format = function (self, parameters)
+      if self.type == "MessageReference" then
+        return self._resource:get_message(self.id.name):format(parameters)
+      elseif self.type == "TermReference" then
+        return self._resource:get_term(self.id.name):format(parameters)
+      end
     end
   })
 
-node_types.TermReference = function (node)
-  return node_types.MessageReference(node)
+FTL.TermReference = function (node, resource)
+  return FTL.MessageReference(node, resource)
 end
 
-node_types.FunctionReference = class({
+FTL.FunctionReference = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end
   })
 
-node_types.SelectExpression = class({
+FTL.SelectExpression = class({
     selector = {},
     variants = {},
     _base = FluentNode,
-    _init = function (self, node)
+    _init = function (self, node, resource)
       node.id = "SelectExpression"
       self.selector = {}
       self.variants = {}
-      self:super(node)
+      self:super(node, resource)
     end,
     __add = function (self, node)
-      if node:is_a(node_types.variant_list) then
+      if node:is_a(FTL.variant_list) then
         self.variants = node.elements
         return self
       end
     end
   })
 
-node_types.InlineExpression = function(node)
-  return node_types.SelectExpression(node)
+FTL.InlineExpression = function(node, resource)
+  return FTL.SelectExpression(node, resource)
 end
 
-node_types.variant_list = class({
+FTL.variant_list = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
   })
 
-node_types.Variant = class({
+FTL.Variant = class({
     _base = FluentNode,
-    _init = function (self, node)
+    _init = function (self, node, resource)
       node.id = "Variant"
-      self:super(node)
+      self:super(node, resource)
     end,
   })
 
-node_types.VariantKey = class({
+FTL.VariantKey = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
     __mod = function (self, node)
       node.key = self.id
@@ -316,30 +321,30 @@ node_types.VariantKey = class({
     end
   })
 
-node_types.DefaultVariant = function (node)
+FTL.DefaultVariant = function (node, resource)
   node.default = true
-  return node_types.Variant(node)
+  return FTL.Variant(node, resource)
 end
 
-node_types.CallArguments = class({
+FTL.CallArguments = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end
   })
 
-node_types.NamedArgument = class({
+FTL.NamedArgument = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end
   })
 
-node_types.Comment = class({
+FTL.Comment = class({
     appendable = true,
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
     __add = function (self, node)
       if node:is_a(self:is_a()) and node.appendable and self.appendable then
@@ -348,42 +353,42 @@ node_types.Comment = class({
       end
     end,
     __mul = function (self, node)
-      if node:is_a(node_types.Message) then
+      if node:is_a(FTL.Message) then
         node.comment = self
         return node
       end
     end
   })
 
-node_types.GroupComment = class({
+FTL.GroupComment = class({
     appendable = true,
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
-    __add = node_types.Comment.__add
+    __add = FTL.Comment.__add
   })
 
-node_types.ResourceComment = class({
+FTL.ResourceComment = class({
     appendable = true,
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
-    __add = node_types.Comment.__add
+    __add = FTL.Comment.__add
   })
 
-node_types.Attribute = class({
+FTL.Attribute = class({
     _base = FluentNode,
-    _init = function (self, node)
-      self:super(node)
+    _init = function (self, node, resource)
+      self:super(node, resource)
     end,
     __mul = function (self, node)
-      if node:is_a(node_types.Message) then
+      if node:is_a(FTL.Message) then
         table.insert(node.attributes, self)
-        node.index[self.id.name] = #node.attributes
+        node.attributeindex[self.id.name] = #node.attributes
         return node
-      elseif self:is_a(node_types.Pattern) then
+      elseif self:is_a(FTL.Pattern) then
         node.value = self
         return node
       end
@@ -393,22 +398,23 @@ node_types.Attribute = class({
     end
   })
 
-node_types.CommentLine = function (node)
+FTL.CommentLine = function (node, resource)
   node.id = #node.sigil == 1 and "Comment"
           or #node.sigil == 2 and "GroupComment"
           or #node.sigil == 3 and "ResourceComment"
-  return node_types[node.id](node)
+  return FTL[node.id](node, resource)
 end
 
-node_to_type = function (node)
+node_to_type = function (node, resource)
   if type(node) == "table" and type(node.id) == "string" then
-    return node_types[node.id](node)
+    return FTL[node.id](node, resource)
   end
 end
 
 local FluentResource = class({
     type = "Resource",
-    index = {},
+    messageindex = {},
+    termindex = {},
 
     _init = function (self, ast)
       self.body = {}
@@ -429,8 +435,8 @@ local FluentResource = class({
         end
       end
       for _, leaf in ipairs(ast) do
-        local node = node_to_type(leaf)
-        if node:is_a(node_types.blank_block) then
+        local node = node_to_type(leaf, self)
+        if node:is_a(FTL.blank_block) then
           if not node.discardable then
             flush()
           end
@@ -448,18 +454,23 @@ local FluentResource = class({
 
     insert = function (self, node)
       table.insert(self.body, node)
-      if node:is_a(node_types.Message) then
-        self.index[node.id.name] = #self.body
+      if node:is_a(FTL.Message) then
+        local relevantindex = node.type == "Message" and self.messageindex or self.termindex
+        relevantindex[node.id.name] = #self.body
       end
     end,
 
-    get_message = function (self, identifier)
-      local key = rawget(self.index, string.match(identifier, "^(%a[-_%a%d]+)"))
+    get_message = function (self, identifier, isterm)
+      local key = rawget(isterm and self.termindex or self.messageindex, string.match(identifier, "^(%a[-_%a%d]+)"))
       if not key then return end
       local entry = rawget(self, "body")[key]
       if not entry then return end
       local attr = string.match(identifier, "%.([(%a[-_%a%d]+)$")
-      return attr and entry.attributes[entry.index[attr]] or entry
+      return attr and entry.attributes[entry.attributeindex[attr]] or entry
+    end,
+
+    get_term = function (self, identifier)
+      return self:get_message(identifier, true)
     end,
 
     dump_ast = function (self)

@@ -23,8 +23,8 @@ It is possible to use this for simple string localization with basic parameter s
 - [x] Substitute VariableReferences
 - [x] Handle Attributes
 - [x] Handle Variants using SelectExpressions
-- [ ] Handle TermsReferences
-- [ ] Handle MessageReferences
+- [x] Handle TermsReferences
+- [x] Handle MessageReferences
 - [ ] Setup Locale fallbacks in Bundle
 - [ ] Localize number formatting
 - [ ] Functions
