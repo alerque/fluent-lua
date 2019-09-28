@@ -6,8 +6,6 @@ local FTL = {}
 local node_to_type
 
 local FluentNode = class({
-    discardable = false,
-    appendable = false,
 
     _init = function (self, node, resource)
       getmetatable(self)._resource = resource
@@ -27,15 +25,11 @@ local FluentNode = class({
 
     insert = function (self, node)
       if type(node) ~= "table" then return nil end
-      if not self:modify(node) and not self:attach(node) then
-        if self.elements and #self.elements >= 1 then
-          if not self.elements[#self.elements]:append(node) then
-            table.insert(self.elements, node)
-          end
-        else
-          if not self.elements then self.elements = {} end
-          table.insert(self.elements, node)
-        end
+      if not (self.elements and #self.elements >= 1 and self.elements[#self.elements]:append(node))
+        and not self:modify(node)
+        and not self:attach(node) then
+        if not self.elements then error("Undefined insert "..node.type .. " into " .. self.type) end
+        table.insert(self.elements, node)
       end
     end,
 
@@ -72,12 +66,11 @@ local FluentNode = class({
   })
 
 FTL.blank_block = class({
-    discardable = true,
     _base = FluentNode,
     _init = function (self, node, resource)
       self:super(node, resource)
       local _, count = string.gsub(node[1], "\n", "")
-      self.discardable = count == 0
+      getmetatable(self).discardable = count == 0
     end
   })
 
@@ -87,9 +80,6 @@ end
 
 FTL.Junk = class({
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end
   })
 
 FTL.Message = class({
@@ -115,11 +105,12 @@ end
 
 FTL.Identifier = class({
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end,
     __mod = function (self, node)
-      node.id = self
+      if node:is_a(FTL.VariantKey) then
+        node.key = self
+      else
+        node.id = self
+      end
       return node
     end
   })
@@ -167,16 +158,15 @@ FTL.Pattern = class({
       end
     end,
     format = function (self, parameters)
-      local function evaluate (node) return node:format(parameters) end
-      local value = table.concat(tablex.map(evaluate, self.elements))
-      return value
+      local values = tablex.map_named_method('format', self.elements, parameters)
+      return table.concat(values)
     end
   })
 
 FTL.TextElement = class({
-    appendable = true,
     _base = FluentNode,
     _init = function (self, node, resource)
+      getmetatable(self).appendable = true
       node.id = "TextElement"
       self:super(node, resource)
     end,
@@ -196,8 +186,14 @@ FTL.Placeable = class({
     _base = FluentNode,
     _init = function (self, node, resource)
       node.id = "Placeable"
-      node.expression = tablex.reduce('+', tablex.map(node_to_type, node.expression, resource))
+      node.expression = node_to_type(node.expression, resource)
       self:super(node, resource)
+    end,
+    __mod = function (self, node)
+      if node:is_a(FTL.Pattern) then
+        table.insert(node.elements, self)
+        return node
+      else error("Undefined attach "..self.type.." to "..node.type) end
     end,
     format = function (self, parameters)
       return self.expression:format(parameters)
@@ -214,63 +210,63 @@ end
 
 FTL.StringLiteral = class({
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end,
     format = function (self)
       return self.value
-    end
-  })
-
-FTL.NumberLiteral = class({
-    _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end,
-    format = function (self)
-      return self.value
-    end
-  })
-
-FTL.VariableReference = class({
-    _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end,
-    format = function (self, parameters)
-      return parameters[self.id.name]
     end,
     __mod = function (self, node)
       if node:is_a(FTL.SelectExpression) then
         node.selector = self
         return node
-      end
+      elseif node:is_a(FTL.VariantKey) then
+        node.key = self
+        return node
+      else error("Undefined attach "..self.type.." to "..node.type) end
     end
+  })
+
+FTL.NumberLiteral = class({
+    _base = FluentNode,
+    format = FTL.StringLiteral.format,
+    __mod = FTL.StringLiteral.__mod
+  })
+
+FTL.VariableReference = class({
+    _base = FluentNode,
+    format = function (self, parameters)
+      return parameters[self.id.name]
+    end,
+    __mod = FTL.StringLiteral.__mod
   })
 
 FTL.MessageReference = class({
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end,
     format = function (self, parameters)
-      if self.type == "MessageReference" then
-        return self._resource:get_message(self.id.name):format(parameters)
-      elseif self.type == "TermReference" then
-        return self._resource:get_term(self.id.name):format(parameters)
-      end
+      return self._resource:get_message(self.id.name):format(parameters)
     end
   })
 
-FTL.TermReference = function (node, resource)
-  return FTL.MessageReference(node, resource)
-end
+FTL.TermReference = class({
+    _base = FluentNode,
+    _init = function (self, node, resource)
+      node.id = "TermReference"
+      self:super(node, resource)
+    end,
+    __mul = function (self, node)
+      if node:is_a(FTL.SelectExpression) then
+        node.selector = self
+        return node
+      end
+    end,
+    format = function (self, parameters)
+      return self._resource:get_term(self.id.name):format(parameters)
+    end
+  })
+
+FTL._TermReference = FTL.TermReference
 
 FTL.FunctionReference = class({
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end
+    __mod = FTL.StringLiteral.__mod
   })
 
 FTL.SelectExpression = class({
@@ -283,41 +279,52 @@ FTL.SelectExpression = class({
       self.variants = {}
       self:super(node, resource)
     end,
-    __add = function (self, node)
-      if node:is_a(FTL.variant_list) then
-        self.variants = node.elements
-        return self
-      end
+    __mod = function (self, node)
+      if node:is_a(FTL.Placeable) then
+        node.expression = self
+        return node
+      else error("Undefined attach "..self.type.." to "..node.type) end
     end
   })
 
+FTL._InlineExpression = function(node, resource)
+  return FTL.InlineExpression(node, resource)
+end
+
 FTL.InlineExpression = function(node, resource)
-  return FTL.SelectExpression(node, resource)
+  return node_to_type(node[1], resource)
 end
 
 FTL.variant_list = class({
     _base = FluentNode,
     _init = function (self, node, resource)
+      self.elements = {}
       self:super(node, resource)
     end,
+    __mod = function (self, node)
+      if node:is_a(FTL.SelectExpression) then
+        tablex.insertvalues(node.variants, self.elements)
+        return node
+      else error("Undefined attach "..self.type.." to "..node.type) end
+    end
   })
 
 FTL.Variant = class({
     _base = FluentNode,
     _init = function (self, node, resource)
       node.id = "Variant"
+      node.default = node.default or false
       self:super(node, resource)
-    end,
+    end
   })
 
 FTL.VariantKey = class({
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end,
     __mod = function (self, node)
-      node.key = self.id
-      return node
+      if node:is_a(FTL.Variant) then
+        node.key = self.key
+        return node
+      else error("Undefined attach "..self.type.." to "..node.type) end
     end
   })
 
@@ -329,21 +336,26 @@ end
 FTL.CallArguments = class({
     _base = FluentNode,
     _init = function (self, node, resource)
+      self.named = {}
+      self.positional = {}
       self:super(node, resource)
+    end,
+    __mul = function (self, node)
+      if node:is_a(FTL.FunctionReference) then
+        node.arguments = self
+        return node
+      end
     end
   })
 
 FTL.NamedArgument = class({
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end
   })
 
 FTL.Comment = class({
-    appendable = true,
     _base = FluentNode,
     _init = function (self, node, resource)
+      getmetatable(self).appendable = true
       self:super(node, resource)
     end,
     __add = function (self, node)
@@ -361,28 +373,19 @@ FTL.Comment = class({
   })
 
 FTL.GroupComment = class({
-    appendable = true,
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end,
+    _init = FTL.Comment._init,
     __add = FTL.Comment.__add
   })
 
 FTL.ResourceComment = class({
-    appendable = true,
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end,
+    _init = FTL.Comment._init,
     __add = FTL.Comment.__add
   })
 
 FTL.Attribute = class({
     _base = FluentNode,
-    _init = function (self, node, resource)
-      self:super(node, resource)
-    end,
     __mul = function (self, node)
       if node:is_a(FTL.Message) then
         table.insert(node.attributes, self)
@@ -395,6 +398,16 @@ FTL.Attribute = class({
     end,
     format = function (self, parameters)
       return self.value:format(parameters)
+    end
+  })
+
+FTL.AttributeAccessor = class({
+    _base = FluentNode,
+    __mul = function (self, node)
+      if node:is_a(FTL.TermReference) then
+        node.attribute = self.id
+        return node
+      else error("Undefined attach "..self.type.." to "..node.type) end
     end
   })
 

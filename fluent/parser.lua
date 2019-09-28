@@ -32,7 +32,7 @@ end)
 local ftl_grammar = epnf.define(function (_ENV)
   local blank_inline = P" "^1
   local line_end = P"\r\n" / eol + P"\n" + P(nulleof)
-  blank_block = C((blank_inline^-1 * line_end)^1); local blank_block = V"blank_block"
+  blank_block = C((blank_inline^-1 * line_end)^1); local blank_block = (blank_inline^-1 * line_end)^1
   local blank = (blank_inline + line_end)^1
   local digits = R"09"^1
   local special_text_char = P"{" + P"}"
@@ -57,14 +57,16 @@ local ftl_grammar = epnf.define(function (_ENV)
   FunctionReference = V"Identifier" * V"CallArguments"
   MessageReference = V"Identifier" * V"AttributeAccessor"^-1
   TermReference = P"-" * V"Identifier" * V"AttributeAccessor"^-1 * V"CallArguments"^-1
+  _TermReference = P"-" * V"Identifier" * V"AttributeAccessor" * V"CallArguments"^-1
   VariableReference = P"$" * V"Identifier"
   AttributeAccessor = P"." * V"Identifier"
   NamedArgument = V"Identifier" * blank^-1 * P":" * blank^-1 * (V"StringLiteral" + V"NumberLiteral")
   Argument = V"NamedArgument" + V"InlineExpression"
   local argument_list = (V"Argument" * blank^-1 * P"," * blank^-1)^0 * V"Argument"^-1
   CallArguments = blank^-1 * P"(" * blank^-1 * argument_list * blank^-1 * P")"
-  SelectExpression = (V"InlineExpression" - V"MessageReference" - (P"-" * V"Identifier" * V"CallArguments"^-1)) * blank^-1 * P"->" * blank_inline^-1 * V"variant_list"
   InlineExpression = V"StringLiteral" + V"NumberLiteral" + V"FunctionReference" + V"MessageReference" + V"TermReference" + V"VariableReference" + inline_placeable
+  _InlineExpression = V"StringLiteral" + V"NumberLiteral" + V"FunctionReference" + V"_TermReference" + V"VariableReference"
+  SelectExpression = V"_InlineExpression" * blank^-1 * P"->" * blank_inline^-1 * V"variant_list"
   PatternElement = Cg(C(inline_text + block_text), "value") + Cg(inline_placeable + block_placeable, "expression")
   Pattern = V"PatternElement"^1
   Attribute = line_end * blank^-1 * P"." * V"Identifier" * blank_inline^-1 * "=" * blank_inline^-1 * V"Pattern"
@@ -75,7 +77,7 @@ local ftl_grammar = epnf.define(function (_ENV)
   Term = P"-" * V"Identifier" * blank_inline^-1 * "=" * blank_inline^-1 * V"Pattern" * V"Attribute"^0
   Message = V"Identifier" * blank_inline^-1 * P"=" * blank_inline^-1 * ((V"Pattern" * V"Attribute"^0) + V"Attribute"^1)
   Entry = (V"Message" * line_end) + (V"Term" * line_end) + V"CommentLine"
-  Resource = (V"Entry" + blank_block + V"Junk")^0 * (P(nulleof) + EOF"unparsable input")
+  Resource = (V"Entry" + V"blank_block" + V"Junk")^0 * (P(nulleof) + EOF"unparsable input")
   START("Resource")
 end)
 -- luacheck: pop
