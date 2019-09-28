@@ -221,6 +221,9 @@ FTL.StringLiteral = class({
       if node:is_a(FTL.SelectExpression) then
         node.selector = self
         return node
+      elseif node:is_a(FTL.VariantKey) then
+        node.key = self
+        return node
       end
     end
   })
@@ -339,6 +342,12 @@ FTL.CallArguments = class({
     _base = FluentNode,
     _init = function (self, node, resource)
       self:super(node, resource)
+    end,
+    __mul = function (self, node)
+      if node:is_a(FTL.FunctionReference) then
+        node.arguments = self
+        return node
+      end
     end
   })
 
