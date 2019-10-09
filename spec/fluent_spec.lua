@@ -59,11 +59,16 @@ describe('fluent.bundle', function ()
     en:add_messages([[
 foo =
     { $ab ->
-      [0] bar
-      *[1] baz
+     *[a] bar
+      [b] baz
+      [c] qiz
     }
       ]])
-    D(en:format("foo", { ab = 6 }))
+    assert.same("bar", en:format("foo"))
+    assert.same("bar", en:format("foo", { ab = "a" }))
+    assert.same("baz", en:format("foo", { ab = "b" }))
+    assert.same("qiz", en:format("foo", { ab = "c" }))
+    assert.same("bar", en:format("foo", { ab = "d" }))
   end)
 
   describe('messages', function ()

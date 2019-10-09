@@ -112,6 +112,9 @@ FTL.Identifier = class({
         node.id = self
       end
       return node
+    end,
+    format = function (self)
+      return self.name
     end
   })
 
@@ -286,12 +289,19 @@ FTL.SelectExpression = class({
       else error("Undefined attach "..self.type.." to "..node.type) end
     end,
     format = function (self, parameters)
-      local variant
-      if self.selector:is_a(FTL.VariableReference) then
-        variant = parameters[self.selector.id.name]
-      else error("Undefined format "..self.type.." selector "..self.selectore) end
-      D{self.variants}
-      D{variant}
+      local variant, result, default
+      if parameters then
+        if self.selector:is_a(FTL.VariableReference) then
+          variant = parameters[tostring(self.selector.id)]
+        else error("Undefined format "..self.type.." selector "..self.selector) end
+      end
+      for _, element in ipairs(self.variants) do
+        if element.default then default = element end
+        if variant then
+          if tostring(element.key) == tostring(variant) then result = element end
+        end
+      end
+      return (result or default).value:format()
     end
   })
 
