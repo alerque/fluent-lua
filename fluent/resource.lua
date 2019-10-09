@@ -272,6 +272,14 @@ FTL.FunctionReference = class({
     __mod = FTL.StringLiteral.__mod
   })
 
+-- TODO: this needs locale data!
+local tocldr = function (number)
+  number = tonumber(number)
+  if not number then return nil
+  elseif number == 1 then return "one"
+  else return "other" end
+end
+
 FTL.SelectExpression = class({
     selector = {},
     variants = {},
@@ -297,11 +305,12 @@ FTL.SelectExpression = class({
       end
       for _, element in ipairs(self.variants) do
         if element.default then default = element end
-        if variant then
-          if tostring(element.key) == tostring(variant) then result = element end
-        end
+        if variant
+          and tostring(element.key) == tostring(variant)
+          or  tostring(element.key) == tocldr(tostring(variant))
+        then result = element end
       end
-      return (result or default).value:format()
+      return (result or default).value:format(parameters)
     end
   })
 

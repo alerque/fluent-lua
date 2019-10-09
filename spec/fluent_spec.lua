@@ -71,6 +71,22 @@ foo =
     assert.same("bar", en:format("foo", { ab = "d" }))
   end)
 
+  it('should parse and format an attribute based on numbers', function ()
+    local en = FluentBundle("en-US")
+    en:add_messages([[
+foo =
+    { $num ->
+     *[0] no bar
+      [one] one bar
+      [other] {$num} bars
+    }
+      ]])
+    assert.same("no bar", en:format("foo"))
+    assert.same("one bar", en:format("foo", { num = 1 }))
+    assert.same("2 bars", en:format("foo", { num = 2 }))
+    assert.same("37 bars", en:format("foo", { num = 37 }))
+  end)
+
   describe('messages', function ()
     local en = FluentBundle("en-US")
     en:add_messages("hi = Hello { $name }!\nfoo = bar\nbar = baz\n    .bax = qux")
