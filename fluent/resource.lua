@@ -149,7 +149,11 @@ FTL.Pattern = class({
           end
           value = key == 1 and string.gsub(value, "^[\n ]+", "") or value
           value = key == #self.elements and string.gsub(value, "[\n ]+$", "") or value
-          self.elements[key].value = value
+          if string.len(value) == 0 then
+            self.elements[key] = nil
+          else
+            self.elements[key].value = value
+          end
         end
       end
       tablex.foreachi(self.elements, strip, striplen)
