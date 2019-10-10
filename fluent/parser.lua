@@ -3,7 +3,6 @@ local class = require("pl.class")
 local epnf = require("epnf")
 
 local nulleof = "NULL\000"
-local eol = function () return "\n" end
 
 -- UTF8 code points up to four-byte encodings
 local function f1 (s)
@@ -31,7 +30,7 @@ end)
 
 local ftl_grammar = epnf.define(function (_ENV)
   local blank_inline = P" "^1
-  local line_end = P"\r\n" / eol + P"\n" + P(nulleof)
+  local line_end = P"\r\n" + P"\n" + P(nulleof)
   blank_block = C((blank_inline^-1 * line_end)^1); local blank_block = (blank_inline^-1 * line_end)^1
   local blank = (blank_inline + line_end)^1
   local digits = R"09"^1

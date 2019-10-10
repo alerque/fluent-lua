@@ -14,7 +14,7 @@ local FluentNode = class({
           if key == "id" then
             self.type = value
           elseif key == "value" then
-            self[key] = string.gsub(value, "^\n+ +", "")
+            self[key] = string.gsub(string.gsub(value, "\r\n?","\n"), "^\n+ +", "")
           elseif key ~= "pos" and key ~= "sigil" then
             self[key] = value
           end
@@ -143,7 +143,7 @@ FTL.Pattern = class({
       end
       local strip = function (node, key, len)
         if type(node.value) == "string" then
-          local value = string.gsub(node.value, "\r\n", "\n")
+          local value = node.value
           if len >= 1 then
             value = string.gsub(value, strippref, "\n\n")
           end
