@@ -200,8 +200,11 @@ FTL.Placeable = class({
       if node:is_a(FTL.Pattern) then
         table.insert(node.elements, self)
         return node
-      else error("Undefined attach "..self.type.." to "..node.type) end
-    end,
+      elseif node:is_a(FTL.Placeable) or node:is_a(FTL.SelectExpression) then
+        node.expression = self
+        return node
+    else error("Undefined attach "..self.type.." to "..node.type) end
+  end,
     format = function (self, parameters)
       return self.expression:format(parameters)
     end
@@ -223,6 +226,9 @@ FTL.StringLiteral = class({
     __mod = function (self, node)
       if node:is_a(FTL.SelectExpression) then
         node.selector = self
+        return node
+      elseif node:is_a(FTL.Placeable) then
+        node.expression = self
         return node
       elseif node:is_a(FTL.VariantKey) then
         node.key = self
@@ -294,12 +300,6 @@ FTL.SelectExpression = class({
       self.variants = {}
       self:super(node, resource)
     end,
-    __mod = function (self, node)
-      if node:is_a(FTL.Placeable) then
-        node.expression = self
-        return node
-      else error("Undefined attach "..self.type.." to "..node.type) end
-    end,
     format = function (self, parameters)
       local variant, result, default
       if parameters then
@@ -323,7 +323,11 @@ FTL._InlineExpression = function(node, resource)
 end
 
 FTL.InlineExpression = function(node, resource)
-  return node_to_type(node[1], resource)
+  if node[1].id == "InlineExpression" then
+    return FTL.Placeable(node, resource)
+  else
+    return node_to_type(node[1], resource)
+  end
 end
 
 FTL.variant_list = class({
