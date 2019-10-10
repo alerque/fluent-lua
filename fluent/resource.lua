@@ -14,7 +14,7 @@ local FluentNode = class({
           if key == "id" then
             self.type = value
           elseif key == "value" then
-            self[key] = string.gsub(string.gsub(value, "\r\n?","\n"), "^\n+ +", "")
+            self[key] = string.gsub(value, "\r\n?","\n")
           elseif key ~= "pos" and key ~= "sigil" then
             self[key] = value
           end
@@ -136,27 +136,33 @@ FTL.Pattern = class({
         return tablex.reduce(math.min, indents) or 0
       end
       local striplen = tablex.reduce(math.min, tablex.imap(mindent, self.elements)) or 0
-      local i, strippref = 1, "\n"
+      local i, common = 1, ""
       while i <= striplen do
-        strippref = strippref .. " "
+        common = common .. " "
         i = i + 1
       end
-      local strip = function (node, key, len)
+      local strip = function (node, key, common)
         if type(node.value) == "string" then
-          local value = node.value
-          if len >= 1 then
-            value = string.gsub(value, strippref, "\n\n")
-          end
-          value = key == 1 and string.gsub(value, "^[\n ]+", "") or value
+          -- Strip spaces from otherwise empty lines
+          local value = string.gsub(node.value, "\n +\n", "\n\n")
+          -- Strip leading whitespace from first element
+          value = key == 1 and string.gsub(value, "^\n+", "") or value
+          -- Strip trailing whitespace from last element
           value = key == #self.elements and string.gsub(value, "[\n ]+$", "") or value
+          -- Strip lowest common donominator indent from all elements
+          if string.len(common) >= 1 then
+            value = string.gsub(value, "\n"..common, "\n")
+          end
           if string.len(value) == 0 then
+            -- Delete from elements if result is completely empty
             self.elements[key] = nil
           else
+            -- Otherwise update value
             self.elements[key].value = value
           end
         end
       end
-      tablex.foreachi(self.elements, strip, striplen)
+      tablex.foreachi(self.elements, strip, common)
     end,
     __mul = function (self, node)
       if node:is_a(FTL.Message) or node:is_a(FTL.Attribute) or node:is_a(FTL.Variant) then
@@ -179,7 +185,7 @@ FTL.TextElement = class({
     end,
     __add = function (self, node)
       if self:is_a(node:is_a()) and self.appendable and node.appendable then
-        node.value = (node.value or "") .. "\n" .. (self.value or "")
+        node.value = (node.value or "") .. (self.value or "")
         return node
       end
     end,
