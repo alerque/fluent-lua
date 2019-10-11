@@ -3,7 +3,6 @@ local class = require("pl.class")
 local epnf = require("epnf")
 
 local nulleof = "NULL\000"
-local eol = function () return "\n" end
 
 -- UTF8 code points up to four-byte encodings
 local function f1 (s)
@@ -31,7 +30,7 @@ end)
 
 local ftl_grammar = epnf.define(function (_ENV)
   local blank_inline = P" "^1
-  local line_end = P"\r\n" / eol + P"\n" + P(nulleof)
+  local line_end = P"\r\n" + P"\n" + P(nulleof)
   blank_block = C((blank_inline^-1 * line_end)^1); local blank_block = (blank_inline^-1 * line_end)^1
   local blank = (blank_inline + line_end)^1
   local digits = R"09"^1
@@ -42,7 +41,7 @@ local ftl_grammar = epnf.define(function (_ENV)
   local special_escape = P"\\" * special_quoted_char
   local unicode_escape = (P"\\u" * P(4) * R("09", "af", "AF")^4) + (P"\\u" * P(6) * R("09", "af", "AF")^6)
   local quoted_char = (any_char - special_quoted_char - line_end) + special_escape + unicode_escape
-  local indented_char = text_char - P"{" - P"*" - P"."
+  local indented_char = text_char - P"[" - P"*" - P"."
   Identifier = Cg(R("az", "AZ") * (R("az", "AZ", "09") + P"_" + P"-")^0, "name")
   variant_list = V"Variant"^0 * V"DefaultVariant" * V"Variant"^0 * line_end
   Variant = line_end * blank^-1 * V"VariantKey" * blank_inline^-1 * V"Pattern"

@@ -56,8 +56,35 @@ describe('fluent.bundle', function ()
 
   it('should parse and format an attribute', function ()
     local en = FluentBundle("en-US")
-    en:add_messages('foo = bar\n    .baz = qux')
-    assert.equals("qux", en:format("foo.baz"))
+    en:add_messages([[
+foo =
+    { $ab ->
+     *[a] bar
+      [b] baz
+      [c] qiz
+    }
+      ]])
+    assert.same("bar", en:format("foo"))
+    assert.same("bar", en:format("foo", { ab = "a" }))
+    assert.same("baz", en:format("foo", { ab = "b" }))
+    assert.same("qiz", en:format("foo", { ab = "c" }))
+    assert.same("bar", en:format("foo", { ab = "d" }))
+  end)
+
+  it('should parse and format an attribute based on numbers', function ()
+    local en = FluentBundle("en-US")
+    en:add_messages([[
+foo =
+    { $num ->
+     *[0] no bar
+      [one] one bar
+      [other] {$num} bars
+    }
+      ]])
+    assert.same("no bar", en:format("foo"))
+    assert.same("one bar", en:format("foo", { num = 1 }))
+    assert.same("2 bars", en:format("foo", { num = 2 }))
+    assert.same("37 bars", en:format("foo", { num = 37 }))
   end)
 
   describe('messages', function ()
