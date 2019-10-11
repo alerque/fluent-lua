@@ -2,6 +2,8 @@
 local class = require("pl.class")
 local tablex = require("pl.tablex")
 
+local nulleof = "NULL\000"
+
 local FTL = {}
 local node_to_type
 
@@ -80,6 +82,10 @@ end
 
 FTL.Junk = class({
     _base = FluentNode,
+    _init = function (self, node, resource)
+      self:super(node, resource)
+      self.content = string.gsub(self.content, nulleof.."$", "")
+    end
   })
 
 FTL.Message = class({
