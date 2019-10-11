@@ -201,12 +201,20 @@ FTL.TextElement = class({
   })
 
 FTL.Placeable = class({
-    appendable = true,
     _base = FluentNode,
     _init = function (self, node, resource)
       node.id = "Placeable"
+      if node.block_expression then
+        getmetatable(self).blockwise = true
+        node.expression = node.block_expression
+        node.block_expression = nil
+      end
       node.expression = node_to_type(node.expression, resource)
       self:super(node, resource)
+    end,
+    __add = function (self, node)
+      if self.blockwise and node.value then node.value = node.value .. "\n" end
+      return nil -- don't acknowledge this even happened so we keep trying options
     end,
     __mod = function (self, node)
       if node:is_a(FTL.Pattern) then

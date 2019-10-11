@@ -66,7 +66,7 @@ local ftl_grammar = epnf.define(function (_ENV)
   InlineExpression = V"StringLiteral" + V"NumberLiteral" + V"FunctionReference" + V"MessageReference" + V"TermReference" + V"VariableReference" + inline_placeable
   _InlineExpression = V"StringLiteral" + V"NumberLiteral" + V"FunctionReference" + V"_TermReference" + V"VariableReference"
   SelectExpression = V"_InlineExpression" * blank^-1 * P"->" * blank_inline^-1 * V"variant_list"
-  PatternElement = Cg(C(inline_text + block_text), "value") + Cg(inline_placeable + block_placeable, "expression")
+  PatternElement = Cg(C(inline_text + block_text), "value") + Cg(inline_placeable, "expression") + Cg(block_placeable, "block_expression")
   Pattern = V"PatternElement"^1
   Attribute = line_end * blank^-1 * P"." * V"Identifier" * blank_inline^-1 * "=" * blank_inline^-1 * V"Pattern"
   local junk_line = (1-P"\n"-P(nulleof))^0 * (P"\n" + P(nulleof))
