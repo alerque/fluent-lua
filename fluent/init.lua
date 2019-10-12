@@ -18,6 +18,10 @@ local FluentBundle = class({
       self:catch(function(_, k) return self:get_message(k) end)
     end,
 
+    set_locale = function (self, locale)
+      self.locale = CLDR.locales[locale] and locale or "und"
+    end,
+
     get_message = function (self, identifier)
       local locale = rawget(self, "locale")
       local locales = rawget(self, "locales")
