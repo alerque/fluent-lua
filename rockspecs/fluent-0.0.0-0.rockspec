@@ -1,5 +1,5 @@
 package = "fluent"
-version = "scm-0"
+version = "0.0.0-0"
 
 source = {
    url = "git://github.com/alerque/fluent-lua",
@@ -17,17 +17,11 @@ description = {
 
 dependencies = {
    "lua",
-   "luaepnf",
-   "penlight"
 }
 
 build = {
    type = "builtin",
    modules = {
-      ["fluent.init"] = "fluent/init.lua",
-      ["fluent.messages"] = "fluent/messages.lua",
-      ["fluent.parser"] = "fluent/parser.lua",
-      ["fluent.resource"] = "fluent/resource.lua",
-      ["fluent.syntax"] = "fluent/syntax.lua"
+      fluent = "fluent.lua"
    }
 }

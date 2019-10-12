@@ -1,5 +1,5 @@
 package = "fluent"
-version = "scm-0"
+version = "0.0.4-0"
 
 source = {
    url = "git://github.com/alerque/fluent-lua",

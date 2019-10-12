@@ -39,3 +39,7 @@ luac.out
 *.x86_64
 *.hex
 
+*.actual
+package-lock.json
+node_modules
+tags
