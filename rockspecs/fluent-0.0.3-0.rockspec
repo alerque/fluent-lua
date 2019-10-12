@@ -25,6 +25,9 @@ build = {
    type = "builtin",
    modules = {
       ["fluent.init"] = "fluent/init.lua",
+      ["fluent.messages"] = "fluent/messages.lua",
+      ["fluent.parser"] = "fluent/parser.lua",
+      ["fluent.resource"] = "fluent/resource.lua",
       ["fluent.syntax"] = "fluent/syntax.lua"
    }
 }
