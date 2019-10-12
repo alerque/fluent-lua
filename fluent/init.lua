@@ -1,6 +1,7 @@
 -- External dependencies
 local class = require("pl.class")
 local tablex = require("pl.tablex")
+local CLDR = require("cldr")
 
 -- Internal modules
 local FluentSyntax = require("fluent.syntax")
@@ -11,10 +12,14 @@ local FluentBundle = class({
     syntax = FluentSyntax(),
 
     _init = function (self, locale)
-      self.locale = locale or "und"
+      self.locale = CLDR.locales[locale] and locale or "und"
       self.locales = {}
       -- Penlight bug #307, should be — self:catch(self.get_message)
       self:catch(function(_, k) return self:get_message(k) end)
+    end,
+
+    set_locale = function (self, locale)
+      self.locale = CLDR.locales[locale] and locale or "und"
     end,
 
     get_message = function (self, identifier)

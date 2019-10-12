@@ -17,6 +17,7 @@ description = {
 
 dependencies = {
    "lua",
+   "cldr",
    "luaepnf",
    "penlight"
 }
