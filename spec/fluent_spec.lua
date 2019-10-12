@@ -9,53 +9,53 @@ describe('fluent.bundle', function ()
   end)
 
   it('should instantiate with a locale', function ()
-    local locale = "en-US"
+    local locale = "en"
     local en = FluentBundle(locale)
     assert.is_true(en:is_a(FluentBundle))
     assert.same(locale, en.locale)
   end)
 
   it('should parse and format single simple messages', function ()
-    local en = FluentBundle("en-US")
+    local en = FluentBundle("en")
     en:add_messages("foo = bar")
     assert.same("bar", en:format("foo"))
   end)
 
   it('should parse and format multiple simple messages', function ()
-    local en = FluentBundle("en-US")
+    local en = FluentBundle("en")
     en:add_messages("foo = bar\nbar = baz")
     assert.same("bar", en:format("foo"))
     assert.same("baz", en:format("bar"))
   end)
 
   it('should parse and format literals', function ()
-    local en = FluentBundle("en-US")
+    local en = FluentBundle("en")
     en:add_messages('foo = bar {"baz"} quz {-3.14}')
     assert.same("bar baz quz -3.14", en:format("foo"))
   end)
 
   it('should parse and format a variable substitution', function ()
-    local en = FluentBundle("en-US")
+    local en = FluentBundle("en")
     en:add_messages('foo = bar { $baz }')
     assert.same("bar qux", en:format("foo", { baz = "qux" }))
   end)
 
   it('should parse and format a message reference', function ()
-    local en = FluentBundle("en-US")
+    local en = FluentBundle("en")
     en:add_messages('foo = bar\nbaz = a { foo }')
     assert.same("bar", en:format("foo"))
     assert.same("a bar", en:format("baz"))
   end)
 
   it('should parse and format a term reference', function ()
-    local en = FluentBundle("en-US")
+    local en = FluentBundle("en")
     en:add_messages('-foo = bar\nfoo = public\nbaz = a { -foo }')
     assert.same("public", en:format("foo"))
     assert.same("a bar", en:format("baz"))
   end)
 
   it('should parse and format an attribute', function ()
-    local en = FluentBundle("en-US")
+    local en = FluentBundle("en")
     en:add_messages([[
 foo =
     { $ab ->
@@ -72,7 +72,7 @@ foo =
   end)
 
   it('should parse and format an attribute based on numbers', function ()
-    local en = FluentBundle("en-US")
+    local en = FluentBundle("en")
     en:add_messages([[
 foo =
     { $num ->
@@ -88,7 +88,7 @@ foo =
   end)
 
   describe('messages', function ()
-    local en = FluentBundle("en-US")
+    local en = FluentBundle("en")
     en:add_messages("hi = Hello { $name }!\nfoo = bar\nbar = baz\n    .bax = qux")
 
     it('can be accessed as properties', function ()
@@ -129,8 +129,8 @@ foo =
   end)
 
   it('should keep locale instances separate', function ()
-    local en = FluentBundle("en-US")
-    local tr = FluentBundle("tr-TR")
+    local en = FluentBundle("en")
+    local tr = FluentBundle("tr")
     assert.not_same(en, tr)
     en:add_messages("hi = hello")
     tr:add_messages("hi = merhaba")
