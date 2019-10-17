@@ -24,4 +24,4 @@ jobs:
       run: |
         luarocks install luacheck
     - name: Run Code Linter
-      run: luacheck fluent spec
+      run: luacheck .
