@@ -1,14 +1,15 @@
 std = "max"
 include_files = {
   "**/*.lua",
-  "*.rockspec",
+  "**/*.rockspec",
   ".busted",
   ".luacheckrc"
 }
 exclude_files = {
+  ".install",
   ".lua",
   ".luarocks",
-  ".install"
+  "lua_modules"
 }
 files["spec"] = {
 	std = "+busted"
