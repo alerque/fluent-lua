@@ -1,18 +1,23 @@
+rockspec_format = "3.0"
 package = "fluent"
 version = "scm-0"
 
 source = {
-   url = "git://github.com/alerque/fluent-lua",
+   url = "git://github.com/alerque/fluent-lua.git",
+   tag = "master"
 }
 
 description = {
-   summary = "Lua implementation of Project Fluent.",
+   summary = "Lua implementation of Project Fluent",
    detailed = [[
-      This is a lua port of the Fluent, A localization paradigm designed to
-	  unleash the entire expressive power of natural language translations.
+      A Lua port of Project Fluent, a localization paradigm designed to unleash
+	  the entire expressive power of natural language translations.
    ]],
+   license = "MIT",
    homepage = "https://github.com/alerque/fluent-lua",
-   license = "MIT"
+   issues_url = "https://github.com/alerque/fluent-lua/issues",
+   maintainer = "Caleb Maclennan <caleb@alerque.com>",
+   labels = { "i18n" }
 }
 
 dependencies = {
