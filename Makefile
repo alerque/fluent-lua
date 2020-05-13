@@ -1,4 +1,18 @@
 PACKAGE = fluent
+
+SHELL := zsh
+.SHELLFLAGS := +o nomatch -e -c
+
+.ONESHELL:
+.SECONDEXPANSION:
+.SECONDARY:
+.PRECIOUS:
+.DELETE_ON_ERROR:
+.SUFFIXES:
+
+JOBS ?= $(shell nproc 2>- || sysctl -n hw.ncpu 2>- || echo 1)
+MAKEFLAGS += -j$(JOBS) -Otarget
+
 VERSION != git describe --tags --all --abbrev=7 | sed 's/-/-r/'
 SEMVER != git describe --tags | sed 's/^v//;s/-.*//'
 ROCKREV = 0
@@ -51,3 +65,8 @@ check:
 .PHONY: test
 test:
 	busted
+
+.PHONY: force
+force:;
+
+$(MAKEFILE_LIST):;
