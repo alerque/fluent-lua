@@ -7,7 +7,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        luaVersion: ["5.4", "5.3", "5.2", "5.1", "luajit", "luajit-openresty"]
+        luaVersion: ["5.4"]
 
     runs-on: ubuntu-latest
 
@@ -31,8 +31,5 @@ jobs:
     - name: Run Busted Tests
       run: busted -c -v
     - name: Report Test Coverage
-      if: success()
       continue-on-error: true
-      run: luacov-coveralls -i fluent
-      env:
-        COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: luacov-coveralls --dryrun -i fluent
