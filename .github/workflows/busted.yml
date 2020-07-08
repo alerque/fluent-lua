@@ -24,9 +24,10 @@ jobs:
       run: |
         luarocks install --only-deps fluent-scm-0.rockspec
         luarocks install busted
-        luarocks install https://luarocks.org/manifests/moteus/luacov-coveralls-scm-0.rockspec
-        luarocks install luafilesystem
         luarocks install dkjson
+        luarocks install luafilesystem
+        luarocks install lua-path
+        luarocks install https://luarocks.org/manifests/moteus/luacov-coveralls-scm-0.rockspec
     - name: Run Busted Tests
       run: busted -c -v
     - name: Report Test Coverage
