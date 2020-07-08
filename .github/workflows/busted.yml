@@ -33,6 +33,6 @@ jobs:
     - name: Report Test Coverage
       if: success()
       continue-on-error: true
-      run: luacov-coveralls -i fluent
+      run: luacov-coveralls -i fluent -e .luarocks
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
