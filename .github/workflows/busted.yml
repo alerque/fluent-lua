@@ -32,4 +32,4 @@ jobs:
       run: busted -c -v
     - name: Report Test Coverage
       continue-on-error: true
-      run: luacov-coveralls --dryrun -i fluent
+      run: luacov-coveralls --dryrun -i fluent -e .luarocks
