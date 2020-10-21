@@ -1,6 +1,6 @@
 rockspec_format = "3.0"
 package = "fluent"
-version = "scm-0"
+version = "dev-0"
 
 source = {
    url = "git://github.com/alerque/fluent-lua.git",
