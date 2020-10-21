@@ -11,8 +11,8 @@ description = {
    summary = "Lua implementation of Project Fluent",
    detailed = [[
       A Lua port of Project Fluent, a localization paradigm designed to unleash
-	  the entire expressive power of natural language translations.
-   ]],
+      the entire expressive power of natural language translations.
+    ]],
    license = "MIT",
    homepage = "https://github.com/alerque/fluent-lua",
    issues_url = "https://github.com/alerque/fluent-lua/issues",
@@ -25,6 +25,14 @@ dependencies = {
    "cldr",
    "luaepnf",
    "penlight"
+}
+
+test_dependencies = {
+  "busted",
+}
+
+test = {
+  type = "busted",
 }
 
 build = {
