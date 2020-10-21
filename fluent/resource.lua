@@ -68,7 +68,8 @@ local FluentNode = class({
 FTL.blank_block = class({
     _base = FluentNode,
     _init = function (self, node, resource)
-      self:super(node, resource)
+      -- Penlight bug #347, should be self:super(node, resource)
+      self._base._init(self, node, resource)
       local _, count = string.gsub(node[1], "\n", "")
       getmetatable(self).discardable = count == 0
     end
@@ -87,7 +88,8 @@ FTL.Message = class({
     _base = FluentNode,
     _init = function (self, node, resource)
       self.attributes = {}
-      self:super(node, resource)
+      -- Penlight bug #347, should be self:super(node, resource)
+      self._base._init(self, node, resource)
       -- Penlight bug #307, should be — self:catch(self.get_attribute)
       self:catch(function (_, k) return self:get_attribute(k) end)
     end,
@@ -122,7 +124,8 @@ FTL.Pattern = class({
     _base = FluentNode,
     _init = function (self, node, resource)
       self.elements = {}
-      self:super(node, resource)
+      -- Penlight bug #347, should be self:super(node, resource)
+      self._base._init(self, node, resource)
       self:dedent()
     end,
     dedent = function (self)
@@ -175,7 +178,8 @@ FTL.TextElement = class({
     _init = function (self, node, resource)
       getmetatable(self).appendable = true
       node.id = "TextElement"
-      self:super(node, resource)
+      -- Penlight bug #347, should be self:super(node, resource)
+      self._base._init(self, node, resource)
     end,
     __add = function (self, node)
       if self:is_a(node:is_a()) and self.appendable and node.appendable then
@@ -194,7 +198,8 @@ FTL.Placeable = class({
     _init = function (self, node, resource)
       node.id = "Placeable"
       node.expression = node_to_type(node.expression, resource)
-      self:super(node, resource)
+      -- Penlight bug #347, should be self:super(node, resource)
+      self._base._init(self, node, resource)
     end,
     __mod = function (self, node)
       if node:is_a(FTL.Pattern) then
@@ -262,7 +267,8 @@ FTL.TermReference = class({
     _base = FluentNode,
     _init = function (self, node, resource)
       node.id = "TermReference"
-      self:super(node, resource)
+      -- Penlight bug #347, should be self:super(node, resource)
+      self._base._init(self, node, resource)
     end,
     __mul = function (self, node)
       if node:is_a(FTL.SelectExpression) then
@@ -298,7 +304,8 @@ FTL.SelectExpression = class({
       node.id = "SelectExpression"
       self.selector = {}
       self.variants = {}
-      self:super(node, resource)
+      -- Penlight bug #347, should be self:super(node, resource)
+      self._base._init(self, node, resource)
     end,
     format = function (self, parameters)
       local variant, result, default
@@ -334,7 +341,8 @@ FTL.variant_list = class({
     _base = FluentNode,
     _init = function (self, node, resource)
       self.elements = {}
-      self:super(node, resource)
+      -- Penlight bug #347, should be self:super(node, resource)
+      self._base._init(self, node, resource)
     end,
     __mod = function (self, node)
       if node:is_a(FTL.SelectExpression) then
@@ -349,7 +357,8 @@ FTL.Variant = class({
     _init = function (self, node, resource)
       node.id = "Variant"
       node.default = node.default or false
-      self:super(node, resource)
+      -- Penlight bug #347, should be self:super(node, resource)
+      self._base._init(self, node, resource)
     end
   })
 
@@ -373,7 +382,8 @@ FTL.CallArguments = class({
     _init = function (self, node, resource)
       self.named = {}
       self.positional = {}
-      self:super(node, resource)
+      -- Penlight bug #347, should be self:super(node, resource)
+      self._base._init(self, node, resource)
     end,
     __mul = function (self, node)
       if node:is_a(FTL.FunctionReference) then
@@ -391,7 +401,8 @@ FTL.Comment = class({
     _base = FluentNode,
     _init = function (self, node, resource)
       getmetatable(self).appendable = true
-      self:super(node, resource)
+      -- Penlight bug #347, should be self:super(node, resource)
+      self._base._init(self, node, resource)
     end,
     __add = function (self, node)
       if node:is_a(self:is_a()) and node.appendable and self.appendable then
