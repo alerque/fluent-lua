@@ -20,9 +20,9 @@ TAG = v$(SEMVER)
 
 LUAROCKS_ARGS ?= --local --tree lua_modules
 
-SCM_ROCK = $(PACKAGE)-scm-0.rockspec
+SCM_ROCK = $(PACKAGE)-dev-0.rockspec
 REL_ROCK = rockspecs/$(PACKAGE)-$(SEMVER)-$(ROCKREV).rockspec
-SCM_SRC = $(PACKAGE)-scm-0.src.rock
+SCM_SRC = $(PACKAGE)-dev-0.src.rock
 REL_SRC = $(PACKAGE)-$(SEMVER)-$(ROCKREV).src.rock
 
 .PHONY: all
@@ -42,7 +42,7 @@ define rockpec_template =
 		$< > $@
 endef
 
-$(SCM_ROCK): SEMVER = scm
+$(SCM_ROCK): SEMVER = dev
 $(SCM_ROCK): TAG = master
 $(SCM_ROCK): $(PACKAGE).rockspec.in
 	$(rockpec_template)
@@ -52,7 +52,7 @@ rockspecs/$(PACKAGE)-%-0.rockspec: TAG = v$*
 rockspecs/$(PACKAGE)-%-0.rockspec: $(PACKAGE).rockspec.in
 	$(rockpec_template)
 
-$(PACKAGE)-scm-0.src.rock: $(SCM_ROCK)
+$(PACKAGE)-dev-0.src.rock: $(SCM_ROCK)
 	luarocks $(LUAROCKS_ARGS) pack $<
 
 $(PACKAGE)-%.src.rock: rockspecs/$(PACKAGE)-%.rockspec

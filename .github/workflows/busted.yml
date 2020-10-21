@@ -22,7 +22,7 @@ jobs:
       uses: leafo/gh-actions-luarocks@v3
     - name: Setup dependencies
       run: |
-        luarocks install --only-deps fluent-scm-0.rockspec
+        luarocks install --only-deps fluent-dev-0.rockspec
         luarocks install busted
         luarocks install dkjson
         luarocks install luafilesystem
