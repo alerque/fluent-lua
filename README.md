@@ -29,9 +29,16 @@ It is possible to use this for simple string localization with basic parameter s
 - [ ] Localize number formatting
 - [ ] Functions
 
+### 0.0.5
+
+Cut a safe-haven release for anybody (including myself) using this in production before I move on.
+Looking at Git history it looks like refinements include improved PEG grammars, saner namespacing for easier project integration, better use of Penlight classing, and more advanced handling of terms.
+Dependencies now include cldr-lua, and tests now use CLDR compatible locales.
+Lua 5.4 support was also officially added.
+
 ### 0.0.4
 
-Add support for attributes plus access to messages using idomatic Lua (table properties).
+Add support for attributes plus access to messages using idiomatic Lua (table properties).
 
 ### 0.0.3
 
