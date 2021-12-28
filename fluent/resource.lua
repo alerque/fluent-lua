@@ -4,7 +4,6 @@ local tablex = require("pl.tablex")
 
 local FTL = {}
 local node_to_type
-local id_name_map
 
 local FluentNode = class({
 
@@ -87,7 +86,16 @@ FTL.Junk = class({
 FTL.Message = class({
     _base = FluentNode,
     _init = function (self, node, resource)
-      self.attributes = setmetatable({}, id_name_map)
+      self.attributes = setmetatable({}, {
+        map = {},
+        __index = function (_, k)
+          return rawget(self.attributes, getmetatable(self.attributes).map[k])
+        end,
+        __newindex = function (_, k, v)
+          getmetatable(self.attributes).map[v.id.name] = k
+          rawset(self.attributes, k, v)
+        end
+      })
       -- Penlight bug #347, should be self:super(node, resource)
       self._base._init(self, node, resource)
       -- Penlight bug #307, should be self:catch(self.get_attribute)
@@ -469,28 +477,25 @@ node_to_type = function (node, resource)
   end
 end
 
--- Make tables accessable by embeded id.name properies
-id_name_map = {
-  map = {},
-  __index = function (self, k)
-    return rawget(self, getmetatable(self).map[k])
-  end,
-  __newindex = function (self, k, v)
-    rawset(self, k, v)
-    local id_name = v.id and v.id.name or nil
-    if not id_name then return end
-    if v:is_a(FTL.Message) and v.type == "Term" then
-      id_name = "-" .. id_name
-    end
-    getmetatable(self).map[id_name] = k
-  end
-}
-
 local FluentResource = class({
     type = "Resource",
 
     _init = function (self, ast)
-      self.body = setmetatable({}, id_name_map)
+      self.body = setmetatable({}, {
+        map = {},
+        __index = function (_, k)
+          return rawget(self.body, getmetatable(self.body).map[k])
+        end,
+        __newindex = function (_, k, v)
+          rawset(self.body, k, v)
+          local id_name = v.id and v.id.name or nil
+          if not id_name then return end
+          if v:is_a(FTL.Message) and v.type == "Term" then
+            id_name = "-" .. id_name
+          end
+          getmetatable(self.body).map[id_name] = k
+        end
+      })
       local _stash = nil
       local flush = function ()
         if _stash then
