@@ -90,7 +90,7 @@ FTL.Message = class({
       self.attributes = {}
       -- Penlight bug #347, should be self:super(node, resource)
       self._base._init(self, node, resource)
-      -- Penlight bug #307, should be — self:catch(self.get_attribute)
+      -- Penlight bug #307, should be self:catch(self.get_attribute)
       self:catch(function (_, k) return self:get_attribute(k) end)
     end,
     get_attribute = function (self, attribute)

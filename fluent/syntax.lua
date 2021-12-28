@@ -31,7 +31,7 @@ local FluentSyntax = class({
       elseif not fname or type(fname) ~= "string" then
         error("FluentSyntax.parse error: fname must be a string")
       end
-    -- TODO: add loader that leverages epnf.parsefile()
+      -- TODO: add loader that leverages epnf.parsefile()
       local f = assert(io.open(fname, "rb"))
       local content = f:read("*all")
       f:close()
