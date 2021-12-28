@@ -4,18 +4,7 @@ local tablex = require("pl.tablex")
 
 local FTL = {}
 local node_to_type
-
--- Make tables accessable by embeded id.name properies
-local id_name_map = {
-  map = {},
-  __index = function (self, k)
-    return rawget(self, getmetatable(self).map[k])
-  end,
-  __newindex = function (self, k, v)
-    getmetatable(self).map[v.id.name] = k
-    rawset(self, k, v)
-  end
-}
+local id_name_map
 
 local FluentNode = class({
 
@@ -480,13 +469,28 @@ node_to_type = function (node, resource)
   end
 end
 
+-- Make tables accessable by embeded id.name properies
+id_name_map = {
+  map = {},
+  __index = function (self, k)
+    return rawget(self, getmetatable(self).map[k])
+  end,
+  __newindex = function (self, k, v)
+    rawset(self, k, v)
+    local id_name = v.id and v.id.name or nil
+    if not id_name then return end
+    if v:is_a(FTL.Message) and v.type == "Term" then
+      id_name = "-" .. id_name
+    end
+    getmetatable(self).map[id_name] = k
+  end
+}
+
 local FluentResource = class({
     type = "Resource",
-    messageindex = {},
-    termindex = {},
 
     _init = function (self, ast)
-      self.body = {}
+      self.body = setmetatable({}, id_name_map)
       local _stash = nil
       local flush = function ()
         if _stash then
@@ -523,16 +527,13 @@ local FluentResource = class({
 
     insert = function (self, node)
       table.insert(self.body, node)
-      if node:is_a(FTL.Message) then
-        local relevantindex = node.type == "Message" and self.messageindex or self.termindex
-        relevantindex[node.id.name] = #self.body
-      end
     end,
 
     get_message = function (self, identifier, isterm)
-      local key = rawget(isterm and self.termindex or self.messageindex, string.match(identifier, "^(%a[-_%a%d]+)"))
-      if not key then return end
-      local entry = rawget(self, "body")[key]
+      local id = string.match(identifier, "^(%a[-_%a%d]+)")
+      if not id then return end
+      local name = (isterm and "-" or "") .. id
+      local entry = self.body[name]
       if not entry then return end
       local attr = string.match(identifier, "%.([(%a[-_%a%d]+)$")
       return attr and entry.attributes[attr] or entry
