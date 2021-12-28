@@ -5,6 +5,18 @@ local tablex = require("pl.tablex")
 local FTL = {}
 local node_to_type
 
+-- Make tables accessable by embeded id.name properies
+local id_name_map = {
+  map = {},
+  __index = function (self, k)
+    return rawget(self, getmetatable(self).map[k])
+  end,
+  __newindex = function (self, k, v)
+    getmetatable(self).map[v.id.name] = k
+    rawset(self, k, v)
+  end
+}
+
 local FluentNode = class({
 
     _init = function (self, node, resource)
@@ -84,17 +96,16 @@ FTL.Junk = class({
   })
 
 FTL.Message = class({
-    attributeindex = {},
     _base = FluentNode,
     _init = function (self, node, resource)
-      self.attributes = {}
+      self.attributes = setmetatable({}, id_name_map)
       -- Penlight bug #347, should be self:super(node, resource)
       self._base._init(self, node, resource)
       -- Penlight bug #307, should be self:catch(self.get_attribute)
       self:catch(function (_, k) return self:get_attribute(k) end)
     end,
     get_attribute = function (self, attribute)
-      return self.attributeindex[attribute] and self.attributes[self.attributeindex[attribute]] or nil
+      return self.attributes[attribute]
     end,
     format = function (self, parameters)
       return self.value:format(parameters)
@@ -435,7 +446,6 @@ FTL.Attribute = class({
     __mul = function (self, node)
       if node:is_a(FTL.Message) then
         table.insert(node.attributes, self)
-        node.attributeindex[self.id.name] = #node.attributes
         return node
       elseif self:is_a(FTL.Pattern) then
         node.value = self
@@ -525,7 +535,7 @@ local FluentResource = class({
       local entry = rawget(self, "body")[key]
       if not entry then return end
       local attr = string.match(identifier, "%.([(%a[-_%a%d]+)$")
-      return attr and entry.attributes[entry.attributeindex[attr]] or entry
+      return attr and entry.attributes[attr] or entry
     end,
 
     get_term = function (self, identifier)
