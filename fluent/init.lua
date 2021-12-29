@@ -5,32 +5,34 @@ local CLDR = require("cldr")
 
 -- Internal modules
 local FluentSyntax = require("fluent.syntax")
+local FluentResource = require("fluent.resource")
 
 local FluentBundle = class({
-    locale = nil,
-    locales = {},
     syntax = FluentSyntax(),
 
     _init = function (self, locale)
-      self.locale = CLDR.locales[locale] and locale or "und"
       self.locales = {}
+      self:set_locale(locale)
       -- Penlight bug #307, should be — self:catch(self.get_message)
       self:catch(function(_, k) return self:get_message(k) end)
     end,
 
     set_locale = function (self, locale)
       self.locale = CLDR.locales[locale] and locale or "und"
+      if not self.locales[self.locale] then
+        self.locales[self.locale] = FluentResource()
+      end
     end,
 
     get_message = function (self, identifier)
-      local locale = rawget(self, "locale")
       local locales = rawget(self, "locales")
-      local default = rawget(locales, locale)
-      -- TODO iterate over fallback locales if not found in default
-      return default and default[identifier] or nil
+      -- TODO iterate over fallback locales if not found in current one
+      local resource = rawget(locales, self.locale)
+      return resource:get_message(identifier) or nil
     end,
 
     add_messages = function (self, input, locale)
+      if locale then self:set_locale(locale) end
       if type(input) == "string" then input = { input } end
       local resources = tablex.imap(function (v) return self.syntax:parsestring(v) end, input)
       local resource = tablex.reduce('+', resources)

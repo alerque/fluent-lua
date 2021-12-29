@@ -481,6 +481,7 @@ local FluentResource = class({
     type = "Resource",
 
     _init = function (self, ast)
+      ast = ast or {}
       self.body = setmetatable({}, {
         map = {},
         __index = function (_, k)
