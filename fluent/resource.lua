@@ -88,12 +88,12 @@ FTL.Message = class({
     _init = function (self, node, resource)
       self.attributes = setmetatable({}, {
         map = {},
-        __index = function (_, k)
-          return rawget(self.attributes, getmetatable(self.attributes).map[k])
+        __index = function (t, k)
+          return rawget(t, getmetatable(t).map[k])
         end,
-        __newindex = function (_, k, v)
-          getmetatable(self.attributes).map[v.id.name] = k
-          rawset(self.attributes, k, v)
+        __newindex = function (t, k, v)
+          getmetatable(t).map[v.id.name] = k
+          rawset(t, k, v)
         end
       })
       -- Penlight bug #347, should be self:super(node, resource)
@@ -484,17 +484,18 @@ local FluentResource = class({
       ast = ast or {}
       self.body = setmetatable({}, {
         map = {},
-        __index = function (_, k)
-          return rawget(self.body, getmetatable(self.body).map[k])
+        __index = function (t, k)
+          return rawget(t, getmetatable(t).map[k])
         end,
-        __newindex = function (_, k, v)
-          rawset(self.body, k, v)
+        __newindex = function (t, k, v)
           local id_name = v.id and v.id.name or nil
-          if not id_name then return end
-          if v:is_a(FTL.Message) and v.type == "Term" then
-            id_name = "-" .. id_name
+          if id_name then
+            if v:is_a(FTL.Message) and v.type == "Term" then
+              id_name = "-" .. id_name
+            end
+            getmetatable(t).map[id_name] = k
           end
-          getmetatable(self.body).map[id_name] = k
+          rawset(t, k, v)
         end
       })
       local _stash = nil

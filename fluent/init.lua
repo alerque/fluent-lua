@@ -36,7 +36,7 @@ local FluentBundle = class({
       if type(input) == "string" then input = { input } end
       local resources = tablex.imap(function (v) return self.syntax:parsestring(v) end, input)
       local resource = tablex.reduce('+', resources)
-      self.locales[locale or self.locale] = tablex.reduce('+', { resource, self.locales[locale or self.locale] })
+      self.locales[self.locale] = tablex.reduce('+', { self.locales[self.locale], resource })
     end,
 
     format = function (self, identifier, parameters)
