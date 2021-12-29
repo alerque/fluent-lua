@@ -2,8 +2,15 @@
 local class = require("pl.class")
 local tablex = require("pl.tablex")
 
+-- Private namespace to organize various node classes
 local FTL = {}
-local node_to_type
+
+-- Utility function to cast ast nodes from the syntax parser to corresponding class instances
+local node_to_type = function (node, resource)
+  if type(node) == "table" and type(node.id) == "string" then
+    return FTL[node.id](node, resource)
+  end
+end
 
 local FluentNode = class({
 
@@ -29,7 +36,9 @@ local FluentNode = class({
       if not (elements and #elements >= 1 and elements[#elements]:append(node))
         and not self:modify(node)
         and not self:attach(node) then
-        if not elements then error("Undefined insert "..node.type .. " into " .. self.type) end
+        if not elements then
+          error("Undefined insert "..node.type .. " into " .. self.type)
+        end
         table.insert(elements, node)
       end
     end,
@@ -41,15 +50,18 @@ local FluentNode = class({
     end,
 
     append = function (self, node)
-      return node and type(node.__add) == "function" and node + self
+      local func = node and rawget(getmetatable(node), "__add")
+      return node and type(func) == "function" and node + self
     end,
 
     modify = function (self, node)
-      return node and type(node.__mod) == "function" and node % self
+      local func = node and rawget(getmetatable(node), "__mod")
+      return node and type(func) == "function" and node % self
     end,
 
     attach = function (self, node)
-      return node and type(node.__mul) == "function" and node * self
+      local func = node and rawget(getmetatable(node), "__mul")
+      return node and type(func) == "function" and node * self
     end,
 
     __call = function (self, ...)
@@ -470,12 +482,6 @@ FTL.CommentLine = function (node, resource)
           or #node.sigil == 2 and "GroupComment"
           or #node.sigil == 3 and "ResourceComment"
   return FTL[node.id](node, resource)
-end
-
-node_to_type = function (node, resource)
-  if type(node) == "table" and type(node.id) == "string" then
-    return FTL[node.id](node, resource)
-  end
 end
 
 local FluentResource = class({

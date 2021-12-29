@@ -8,13 +8,11 @@ local FluentSyntax = require("fluent.syntax")
 local FluentResource = require("fluent.resource")
 
 local FluentBundle = class({
-    syntax = FluentSyntax(),
-
     _init = function (self, locale)
       self.locales = {}
       self:set_locale(locale)
       -- Penlight bug #307, should be — self:catch(self.get_message)
-      self:catch(function(_, k) return self:get_message(k) end)
+      self:catch(function(_, identifier) return self:get_message(identifier) end)
     end,
 
     set_locale = function (self, locale)
@@ -34,7 +32,7 @@ local FluentBundle = class({
     add_messages = function (self, input, locale)
       if locale then self:set_locale(locale) end
       if type(input) == "string" then input = { input } end
-      local resources = tablex.imap(function (v) return self.syntax:parsestring(v) end, input)
+      local resources = tablex.imap(function (v) return FluentSyntax:parsestring(v) end, input)
       local resource = tablex.reduce('+', resources)
       self.locales[self.locale] = tablex.reduce('+', { self.locales[self.locale], resource })
     end,

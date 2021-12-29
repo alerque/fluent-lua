@@ -5,7 +5,7 @@ local class = require("pl.class")
 local FluentParser = require("fluent.parser")
 local FluentResource = require("fluent.resource")
 
--- TODO: if this doesn't need any state information make in a function not a class
+-- TODO: if this doesn't need any state information make it a function not a class
 local FluentSyntax = class({
     resource = nil,
 
