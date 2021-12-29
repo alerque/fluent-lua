@@ -25,11 +25,12 @@ local FluentNode = class({
 
     insert = function (self, node)
       if type(node) ~= "table" then return nil end
-      if not (self.elements and #self.elements >= 1 and self.elements[#self.elements]:append(node))
+      local elements = rawget(self, "elements")
+      if not (elements and #elements >= 1 and elements[#elements]:append(node))
         and not self:modify(node)
         and not self:attach(node) then
-        if not self.elements then error("Undefined insert "..node.type .. " into " .. self.type) end
-        table.insert(self.elements, node)
+        if not elements then error("Undefined insert "..node.type .. " into " .. self.type) end
+        table.insert(elements, node)
       end
     end,
 
