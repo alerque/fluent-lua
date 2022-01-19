@@ -6,18 +6,16 @@ local tablex = require("pl.tablex")
 local FTL = {}
 
 -- Utility function to cast ast nodes from the syntax parser to corresponding class instances
-local node_to_type = function (node, resource)
+local node_to_type = function (node)
   if type(node) == "table" and type(node.id) == "string" then
-    return FTL[node.id](node, resource)
+    return FTL[node.id](node)
   end
 end
 
-local FluentNode = class({
+local _resource
 
-    -- _resource = {},
-    _init = function (self, node, resource)
-      getmetatable(self)._resource = resource
-      -- self._resource = resource
+local FluentNode = class({
+    _init = function (self, node)
       for key, value in pairs(node) do
         if type(key) == "string" then
           if key == "id" then
@@ -29,7 +27,7 @@ local FluentNode = class({
           end
         end
       end
-      tablex.foreachi(node, function (n) self:insert(node_to_type(n, resource)) end)
+      tablex.foreachi(node, function (n) self:insert(node_to_type(n)) end)
     end,
 
     insert = function (self, node)
@@ -82,21 +80,21 @@ local FluentNode = class({
 
 FTL.blank_block = class(FluentNode)
 
-function FTL.blank_block:_init (node, resource)
-  self:super(node, resource)
+function FTL.blank_block:_init (node)
+  self:super(node)
   local _, count = string.gsub(node[1], "\n", "")
   getmetatable(self).discardable = count == 0
 end
 
-FTL.Entry = function (node, resource)
-  return node_to_type(node[1], resource)
+FTL.Entry = function (node)
+  return node_to_type(node[1])
 end
 
 FTL.Junk = class(FluentNode)
 
 FTL.Message = class(FluentNode)
 
-function FTL.Message:_init (node, resource)
+function FTL.Message:_init (node)
   self.attributes = setmetatable({}, {
     map = {},
     __index = function (t, k)
@@ -107,7 +105,7 @@ function FTL.Message:_init (node, resource)
       rawset(t, k, v)
     end
   })
-  self:super(node, resource)
+  self:super(node)
   -- Penlight bug #307, should be self:catch(self.get_attribute)
   self:catch(function (_, k) return self:get_attribute(k) end)
 end
@@ -139,9 +137,9 @@ end
 
 FTL.Pattern = class(FluentNode)
 
-function FTL.Pattern:_init (node, resource)
+function FTL.Pattern:_init (node)
   self.elements = {}
-  self:super(node, resource)
+  self:super(node)
   self:dedent()
 end
 
@@ -193,10 +191,10 @@ end
 
 FTL.TextElement = class(FluentNode)
 
-function FTL.TextElement:_init (node, resource)
+function FTL.TextElement:_init (node)
   getmetatable(self).appendable = true
   node.id = "TextElement"
-  self:super(node, resource)
+  self:super(node)
 end
 
 function FTL.TextElement:__add (node)
@@ -215,8 +213,8 @@ FTL.Placeable = class(FluentNode)
 function FTL.Placeable:_init (node)
   getmetatable(self).appendable = true
   node.id = "Placeable"
-  node.expression = node_to_type(node.expression, resource)
-  self:super(node, resource)
+  node.expression = node_to_type(node.expression)
+  self:super(node)
 end
 
 function FTL.Placeable:__mod (node)
@@ -233,11 +231,11 @@ function FTL.Placeable:format (parameters)
   return self.expression:format(parameters)
 end
 
-FTL.PatternElement = function (node, resource)
+FTL.PatternElement = function (node)
   if node.value then
-    return FTL.TextElement(node, resource)
+    return FTL.TextElement(node)
   else
-    return FTL.Placeable(node, resource)
+    return FTL.Placeable(node)
   end
 end
 
@@ -276,14 +274,14 @@ FTL.VariableReference.__mod = FTL.StringLiteral.__mod
 FTL.MessageReference = class(FluentNode)
 
 function FTL.MessageReference:format (parameters)
-  return self._resource:get_message(self.id.name):format(parameters)
+  return _resource:get_message(self.id.name):format(parameters)
 end
 
 FTL.TermReference = class(FluentNode)
 
-function FTL.TermReference:_init (node, resource)
+function FTL.TermReference:_init (node)
   node.id = "TermReference"
-  self:super(node, resource)
+  self:super(node)
 end
 
 function FTL.TermReference:__mul (node)
@@ -294,7 +292,7 @@ function FTL.TermReference:__mul (node)
 end
 
 function FTL.TermReference:format (parameters)
-  return self._resource:get_term(self.id.name):format(parameters)
+  return _resource:get_term(self.id.name):format(parameters)
 end
 
 FTL._TermReference = FTL.TermReference
@@ -312,11 +310,11 @@ end
 
 FTL.SelectExpression = class(FluentNode)
 
-function FTL.SelectExpression:_init (node, resource)
+function FTL.SelectExpression:_init (node)
   node.id = "SelectExpression"
   self.selector = {}
   self.variants = {}
-  self:super(node, resource)
+  self:super(node)
 end
 
 function FTL.SelectExpression:format (parameters)
@@ -336,11 +334,11 @@ function FTL.SelectExpression:format (parameters)
     return (result or default).value:format(parameters)
   end
 
-FTL.InlineExpression = function(node, resource)
+FTL.InlineExpression = function(node)
   if node[1].id == "InlineExpression" then
-    return FTL.Placeable(node, resource)
+    return FTL.Placeable(node)
   else
-    return node_to_type(node[1], resource)
+    return node_to_type(node[1])
   end
 end
 
@@ -348,9 +346,9 @@ FTL._InlineExpression = FTL.InlineExpression
 
 FTL.variant_list = class(FluentNode)
 
-function FTL.variant_list:_init (node, resource)
+function FTL.variant_list:_init (node)
   self.elements = {}
-  self:super(node, resource)
+  self:super(node)
 end
 
 function FTL.variant_list:__mod (node)
@@ -362,10 +360,10 @@ end
 
 FTL.Variant = class(FluentNode)
 
-function FTL.Variant:_init (node, resource)
+function FTL.Variant:_init (node)
   node.id = "Variant"
   node.default = node.default or false
-  self:super(node, resource)
+  self:super(node)
 end
 
 FTL.VariantKey = class(FluentNode)
@@ -377,17 +375,17 @@ function FTL.VariantKey:__mod (node)
   else error("Undefined attach "..self.type.." to "..node.type) end
 end
 
-FTL.DefaultVariant = function (node, resource)
+FTL.DefaultVariant = function (node)
   node.default = true
-  return FTL.Variant(node, resource)
+  return FTL.Variant(node)
 end
 
 FTL.CallArguments = class(FluentNode)
 
-function FTL.CallArguments:_init (node, resource)
+function FTL.CallArguments:_init (node)
   self.named = {}
   self.positional = {}
-  self:super(node, resource)
+  self:super(node)
 end
 
 function FTL.CallArguments:__mul (node)
@@ -401,9 +399,9 @@ FTL.NamedArgument = class(FluentNode)
 
 FTL.Comment = class(FluentNode)
 
-function FTL.Comment:_init (node, resource)
+function FTL.Comment:_init (node)
   getmetatable(self).appendable = true
-  self:super(node, resource)
+  self:super(node)
 end
 
 function FTL.Comment:__add (node)
@@ -453,17 +451,18 @@ function FTL.AttributeAccessor:__mul (node)
   else error("Undefined attach "..self.type.." to "..node.type) end
 end
 
-FTL.CommentLine = function (node, resource)
+FTL.CommentLine = function (node)
   node.id = #node.sigil == 1 and "Comment"
           or #node.sigil == 2 and "GroupComment"
           or #node.sigil == 3 and "ResourceComment"
-  return FTL[node.id](node, resource)
+  return FTL[node.id](node)
 end
 
 local FluentResource = class({
     type = "Resource",
 
     _init = function (self, ast)
+      _resource = self
       ast = ast or {}
       self.body = setmetatable({}, {
         map = {},
@@ -498,7 +497,7 @@ local FluentResource = class({
         end
       end
       for _, leaf in ipairs(ast) do
-        local node = node_to_type(leaf, self)
+        local node = node_to_type(leaf)
         if node:is_a(FTL.blank_block) then
           if not node.discardable then
             flush()
@@ -511,7 +510,8 @@ local FluentResource = class({
         end
       end
       flush()
-      self:catch(self.get_message)
+      -- Penlight bug #307, should be — self:catch(self.get_message)
+      self:catch(function (_, k) return self:get_message(k) end)
     end,
 
     insert = function (self, node)
