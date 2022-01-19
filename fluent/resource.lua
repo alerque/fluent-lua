@@ -563,13 +563,13 @@ local FluentResource = class({
       return ast
     end,
 
-    ammend = function (self, resource)
-      return self:__add(resource)
+    ammend = function (self, other)
+      return self:__add(other)
     end,
 
-    __add = function (self, resource)
-      if not self:is_a(resource:is_a()) then error("Cannot merge unlike types") end
-      for _, node in ipairs(resource.body) do
+    __add = function (self, other)
+      if not self:is_a(other:is_a()) then error("Cannot merge unlike types") end
+      for _, node in ipairs(other.body) do
         self:insert(node)
       end
       return self
