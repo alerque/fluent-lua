@@ -31,10 +31,14 @@ local FluentBundle = class({
 
     add_messages = function (self, input, locale)
       if locale then self:set_locale(locale) end
-      if type(input) == "string" then input = { input } end
-      local resources = tablex.imap(function (v) return FluentSyntax:parsestring(v) end, input)
-      local resource = tablex.reduce('+', resources)
-      self.locales[self.locale] = tablex.reduce('+', { self.locales[self.locale], resource })
+      local syntax = FluentSyntax()
+      local addittions =
+        type(input) == "string"
+        and syntax:parsestring(input)
+        or tablex.reduce('+', tablex.imap(function (v)
+            return syntax:parsestring(v)
+          end))
+      self.locales[self.locale]:ammend(addittions)
     end,
 
     format = function (self, identifier, parameters)

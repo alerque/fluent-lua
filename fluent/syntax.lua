@@ -7,11 +7,9 @@ local FluentResource = require("fluent.resource")
 
 -- TODO: if this doesn't need any state information make it a function not a class
 local FluentSyntax = class({
-    resource = nil,
 
     _init = function (self, input)
       -- TODO: handle file pointers, filnames, tables of pointers?
-      if input then self:parsestring(input) end
     end,
 
     parsestring = function (self, input)

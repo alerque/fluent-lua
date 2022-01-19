@@ -505,7 +505,7 @@ local FluentResource = class({
           rawset(t, k, v)
         end
       })
-      local _stash = nil
+      local _stash
       local flush = function ()
         if _stash then
           self:insert(_stash)
@@ -561,6 +561,10 @@ local FluentResource = class({
       local ast =  { type = "Resource", body = {} }
       for _, v in ipairs(self.body) do table.insert(ast.body, v:dump_ast()) end
       return ast
+    end,
+
+    ammend = function (self, resource)
+      return self:__add(resource)
     end,
 
     __add = function (self, resource)
