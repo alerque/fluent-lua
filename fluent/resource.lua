@@ -15,6 +15,8 @@ end
 local _resource
 
 local FluentNode = class({
+    _name = "FluentNode",
+
     _init = function (self, node)
       for key, value in pairs(node) do
         if type(key) == "string" then
@@ -79,6 +81,7 @@ local FluentNode = class({
   })
 
 FTL.blank_block = class(FluentNode)
+FTL.blank_block._name = "blank_block"
 
 function FTL.blank_block:_init (node)
   self:super(node)
@@ -91,8 +94,10 @@ FTL.Entry = function (node)
 end
 
 FTL.Junk = class(FluentNode)
+FTL.Junk._name = "Junk"
 
 FTL.Message = class(FluentNode)
+FTL.Message._name = "Message"
 
 function FTL.Message:_init (node)
   self.attributes = setmetatable({}, {
@@ -121,6 +126,7 @@ end
 FTL.Term = FTL.Message
 
 FTL.Identifier = class(FluentNode)
+FTL.Identifier._name = "Identifier"
 
 function FTL.Identifier:__mod (node)
   if node:is_a(FTL.VariantKey) then
@@ -136,6 +142,7 @@ function FTL.Identifier:format ()
 end
 
 FTL.Pattern = class(FluentNode)
+FTL.Pattern._name = "Pattern"
 
 function FTL.Pattern:_init (node)
   self.elements = {}
@@ -190,6 +197,7 @@ function FTL.Pattern:format (parameters)
 end
 
 FTL.TextElement = class(FluentNode)
+FTL.TextElement._name ="TextElement"
 
 function FTL.TextElement:_init (node)
   getmetatable(self).appendable = true
@@ -209,6 +217,7 @@ function FTL.TextElement:format ()
 end
 
 FTL.Placeable = class(FluentNode)
+FTL.Placeable._name = "Placeable"
 
 function FTL.Placeable:_init (node)
   getmetatable(self).appendable = true
@@ -240,6 +249,7 @@ FTL.PatternElement = function (node)
 end
 
 FTL.StringLiteral = class(FluentNode)
+FTL.StringLiteral._name = "StringLiteral"
 
 function FTL.StringLiteral:format ()
   return self.value
@@ -259,25 +269,28 @@ function FTL.StringLiteral:__mod (node)
 end
 
 FTL.NumberLiteral = class(FluentNode)
-
+FTL.NumberLiteral._name = "NumberLiteral"
 FTL.NumberLiteral.format = FTL.StringLiteral.format
 FTL.NumberLiteral.__mod = FTL.StringLiteral.__mod
 
 FTL.VariableReference = class(FluentNode)
+FTL.VariableReference._name = "VariableReference"
+FTL.VariableReference.__mod = FTL.StringLiteral.__mod
 
 function FTL.VariableReference:format (parameters)
   return parameters[self.id.name]
 end
 
-FTL.VariableReference.__mod = FTL.StringLiteral.__mod
 
 FTL.MessageReference = class(FluentNode)
+FTL.MessageReference._name = "MessageReference"
 
 function FTL.MessageReference:format (parameters)
   return _resource:get_message(self.id.name):format(parameters)
 end
 
 FTL.TermReference = class(FluentNode)
+FTL.TermReference._name = "TermReference"
 
 function FTL.TermReference:_init (node)
   node.id = "TermReference"
@@ -298,6 +311,7 @@ end
 FTL._TermReference = FTL.TermReference
 
 FTL.FunctionReference = class(FluentNode)
+FTL.FunctionReference._name = "FunctionReference"
 FTL.FunctionReference.__mod = FTL.StringLiteral.__mod
 
 -- TODO: this needs locale data!
@@ -309,6 +323,7 @@ local tocldr = function (number)
 end
 
 FTL.SelectExpression = class(FluentNode)
+FTL.SelectExpression._name = "SelectExpression"
 
 function FTL.SelectExpression:_init (node)
   node.id = "SelectExpression"
@@ -345,6 +360,7 @@ end
 FTL._InlineExpression = FTL.InlineExpression
 
 FTL.variant_list = class(FluentNode)
+FTL.variant_list._name = "variant_list"
 
 function FTL.variant_list:_init (node)
   self.elements = {}
@@ -359,6 +375,7 @@ function FTL.variant_list:__mod (node)
 end
 
 FTL.Variant = class(FluentNode)
+FTL.Variant._name = "Variant"
 
 function FTL.Variant:_init (node)
   node.id = "Variant"
@@ -367,6 +384,7 @@ function FTL.Variant:_init (node)
 end
 
 FTL.VariantKey = class(FluentNode)
+FTL.VariantKey._name = "VariantKey"
 
 function FTL.VariantKey:__mod (node)
   if node:is_a(FTL.Variant) then
@@ -381,6 +399,7 @@ FTL.DefaultVariant = function (node)
 end
 
 FTL.CallArguments = class(FluentNode)
+FTL.CallArguments._name = "CallArguments"
 
 function FTL.CallArguments:_init (node)
   self.named = {}
@@ -396,8 +415,10 @@ function FTL.CallArguments:__mul (node)
 end
 
 FTL.NamedArgument = class(FluentNode)
+FTL.NamedArgument._name = "NamedArgument"
 
 FTL.Comment = class(FluentNode)
+FTL.Comment._name = "Comment"
 
 function FTL.Comment:_init (node)
   getmetatable(self).appendable = true
@@ -419,14 +440,17 @@ function FTL.Comment:__mul (node)
 end
 
 FTL.GroupComment = class(FluentNode)
+FTL.GroupComment._name = "GroupComment"
 FTL.GroupComment._init = FTL.Comment._init
 FTL.GroupComment.__add = FTL.Comment.__add
 
 FTL.ResourceComment = class(FluentNode)
+FTL.ResourceComment._name = "ResourceComment"
 FTL.ResourceComment._init = FTL.Comment._init
 FTL.ResourceComment.__add = FTL.Comment.__add
 
 FTL.Attribute = class(FluentNode)
+FTL.Attribute._name = "Attribute"
 
 function FTL.Attribute:__mul (node)
   if node:is_a(FTL.Message) then
@@ -443,6 +467,7 @@ function FTL.Attribute:format (parameters)
 end
 
 FTL.AttributeAccessor = class(FluentNode)
+FTL.AttributeAccessor._name = "AttributeAccessor"
 
 function FTL.AttributeAccessor:__mul (node)
   if node:is_a(FTL.TermReference) then
@@ -459,6 +484,7 @@ FTL.CommentLine = function (node)
 end
 
 local FluentResource = class({
+    _name = "FluentResource",
     type = "Resource",
 
     _init = function (self, ast)
