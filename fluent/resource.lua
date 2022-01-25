@@ -100,23 +100,27 @@ FTL.Message = class(FluentNode)
 FTL.Message._name = "Message"
 
 function FTL.Message:_init (node)
-  self.attributes = setmetatable({}, {
-    map = {},
-    __index = function (t, k)
-      return rawget(t, getmetatable(t).map[k])
-    end,
-    __newindex = function (t, k, v)
-      getmetatable(t).map[v.id.name] = k
-      rawset(t, k, v)
-    end
-  })
+  self.attributes = {}
+  self.attribute_map = {}
   self:super(node)
-  -- Penlight bug #307, should be self:catch(self.get_attribute)
-  self:catch(function (_, k) return self:get_attribute(k) end)
+  self:catch(self.get_attribute)
+end
+
+function FTL.Message:set_attribute (attribute)
+  local id = attribute.id.name
+  local attrs = rawget(self, "attributes")
+  local map = rawget(self, "attribute_map")
+  local k = map[attribute.id.name]
+  if not k then
+    k = #attrs + 1
+  end
+  attrs[k] = attribute
+  map[attribute.id.name] = k
+  self[id] = attrs[k]
 end
 
 function FTL.Message:get_attribute (attribute)
-  return self.attributes[attribute]
+  return rawget(self, attribute)
 end
 
 function FTL.Message:format (parameters)
@@ -454,7 +458,7 @@ FTL.Attribute._name = "Attribute"
 
 function FTL.Attribute:__mul (node)
   if node:is_a(FTL.Message) then
-    table.insert(node.attributes, self)
+    node:set_attribute(self)
     return node
   elseif self:is_a(FTL.Pattern) then
     node.value = self
@@ -536,8 +540,7 @@ local FluentResource = class({
         end
       end
       flush()
-      -- Penlight bug #307, should be — self:catch(self.get_message)
-      self:catch(function (_, k) return self:get_message(k) end)
+      self:catch(self.get_message)
     end,
 
     insert = function (self, node)
@@ -551,7 +554,7 @@ local FluentResource = class({
       local entry = self.body[name]
       if not entry then return end
       local attr = string.match(identifier, "%.([(%a[-_%a%d]+)$")
-      return attr and entry.attributes[attr] or entry
+      return attr and entry:get_attribute(attr) or entry
     end,
 
     get_term = function (self, identifier)
