@@ -47,7 +47,12 @@ local FluentNode = class({
 
     dump_ast = function (self)
       local ast = { type = self.type }
-      for k, v in pairs(self) do ast[k] = v end
+      local map = rawget(self, "attribute_map") or {}
+      for k, v in pairs(self) do
+        if k ~= "attribute_map" and not map[k] then
+          ast[k] = v
+        end
+      end
       return ast
     end,
 
@@ -116,7 +121,7 @@ function FTL.Message:set_attribute (attribute)
   end
   attrs[k] = attribute
   map[attribute.id.name] = k
-  self[id] = attrs[k]
+  rawset(self, id, attrs[k])
 end
 
 function FTL.Message:get_attribute (attribute)
