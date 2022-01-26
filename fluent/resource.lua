@@ -2,6 +2,8 @@
 local class = require("pl.class")
 local tablex = require("pl.tablex")
 
+local nulleof = "NULL\000"
+
 local FTL = {}
 local node_to_type
 
@@ -14,8 +16,8 @@ local FluentNode = class({
           if key == "id" then
             self.type = value
           elseif key == "value" then
-            self[key] = string.gsub(string.gsub(value, "\r\n?","\n"), "^\n+ +", "")
-          elseif key ~= "pos" and key ~= "sigil" then
+            self[key] = string.gsub(value, "\r\n?","\n")
+          elseif key ~= "pos" and key ~= "sigil" and key ~= "_blockwise" then
             self[key] = value
           end
         end
@@ -81,6 +83,10 @@ end
 
 FTL.Junk = class({
     _base = FluentNode,
+    _init = function (self, node, resource)
+      self:super(node, resource)
+      self.content = string.gsub(self.content, nulleof.."$", "")
+    end
   })
 
 FTL.Message = class({
@@ -139,27 +145,33 @@ FTL.Pattern = class({
         return tablex.reduce(math.min, indents) or 0
       end
       local striplen = tablex.reduce(math.min, tablex.imap(mindent, self.elements)) or 0
-      local i, strippref = 1, "\n"
+      local i, common = 1, ""
       while i <= striplen do
-        strippref = strippref .. " "
+        common = common .. " "
         i = i + 1
       end
-      local strip = function (node, key, len)
+      local strip = function (node, key, common)
         if type(node.value) == "string" then
-          local value = node.value
-          if len >= 1 then
-            value = string.gsub(value, strippref, "\n\n")
-          end
-          value = key == 1 and string.gsub(value, "^[\n ]+", "") or value
+          -- Strip spaces from otherwise empty lines
+          local value = string.gsub(node.value, "\n +\n", "\n\n")
+          -- Strip leading whitespace from first element
+          value = key == 1 and string.gsub(value, "^\n+", "") or value
+          -- Strip trailing whitespace from last element
           value = key == #self.elements and string.gsub(value, "[\n ]+$", "") or value
+          -- Strip lowest common donominator indent from all elements
+          if string.len(common) >= 1 then
+            value = string.gsub(value, "\n"..common, "\n")
+          end
           if string.len(value) == 0 then
+            -- Delete from elements if result is completely empty
             self.elements[key] = nil
           else
+            -- Otherwise update value
             self.elements[key].value = value
           end
         end
       end
-      tablex.foreachi(self.elements, strip, striplen)
+      tablex.foreachi(self.elements, strip, common)
     end,
     __mul = function (self, node)
       if node:is_a(FTL.Message) or node:is_a(FTL.Attribute) or node:is_a(FTL.Variant) then
@@ -183,7 +195,7 @@ FTL.TextElement = class({
     end,
     __add = function (self, node)
       if self:is_a(node:is_a()) and self.appendable and node.appendable then
-        node.value = (node.value or "") .. "\n" .. (self.value or "")
+        node.value = (node.value or "") .. (self.value or "")
         return node
       end
     end,
@@ -193,13 +205,27 @@ FTL.TextElement = class({
   })
 
 FTL.Placeable = class({
-    appendable = true,
     _base = FluentNode,
     _init = function (self, node, resource)
       node.id = "Placeable"
+      D{nobe._blockwise}
+      if node._blockwise then getmetatable(self).blockwise = true end
+      -- if node.block_expression then
+        -- getmetatable(self).blockwise = true
+        -- node.expression = node.block_expression
+        -- node.block_expression = nil
+      -- end
       node.expression = node_to_type(node.expression, resource)
       -- Penlight bug #347, should be self:super(node, resource)
       self._base._init(self, node, resource)
+    end,
+    __add = function (self, node)
+      -- D{self.type, self.blockwise, self.expression, node.value}
+      if node:is_a(FTL.TextElement) and self.blockwise then
+        node.value = node.value .. "\n"
+        -- don't acknowledge this even happened so we go on to attach self as well as modify node
+        return nil
+      end
     end,
     __mod = function (self, node)
       if node:is_a(FTL.Pattern) then
