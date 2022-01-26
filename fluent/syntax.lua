@@ -8,6 +8,7 @@ local FluentResource = require("fluent.resource")
 -- TODO: if this doesn't need any state information make it a function not a class
 local FluentSyntax = class({
 
+    -- luacheck: ignore 212
     _init = function (self, input)
       -- TODO: handle file pointers, filnames, tables of pointers?
     end,
