@@ -167,11 +167,11 @@ describe('upstream structure fixture', function ()
           assert.equal("table", type(reference))
         end)
 
-        it('should parsestring without blowing up', function ()
+        it('should parse without blowing up', function ()
           assert.no.error(function () resource = syntax:parsestring(ftl) end)
         end)
 
-        it('should have a Reference as the AST root', function ()
+        it('should have a Resource as the AST root', function ()
           assert.equal("Resource", resource.type)
         end)
 
