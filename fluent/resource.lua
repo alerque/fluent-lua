@@ -108,7 +108,8 @@ function FTL.Message:_init (node)
   self.attributes = {}
   self.attribute_map = {}
   self:super(node)
-  self:catch(self.get_attribute)
+  -- Penlight bug #307, should be — self:catch(self.get_attribute)
+  self:catch(function (_, attribute) return self:get_attribute(attribute) end)
 end
 
 function FTL.Message:set_attribute (attribute)
@@ -545,7 +546,8 @@ local FluentResource = class({
         end
       end
       flush()
-      self:catch(self.get_message)
+      -- Penlight bug #307, should be — self:catch(self.get_message)
+      self:catch(function (_, identifier) return self:get_message(identifier) end)
     end,
 
     insert = function (self, node)
