@@ -47,12 +47,7 @@ local FluentNode = class({
 
     dump_ast = function (self)
       local ast = { type = self.type }
-      local map = rawget(self, "attribute_map") or {}
-      for k, v in pairs(self) do
-        if k ~= "attribute_map" and not map[k] then
-          ast[k] = v
-        end
-      end
+      for k, v in pairs(self) do ast[k] = v end
       return ast
     end,
 
@@ -106,7 +101,7 @@ FTL.Message._name = "Message"
 
 function FTL.Message:_init (node)
   self.attributes = {}
-  self.attribute_map = {}
+  rawset(getmetatable(self), "attribute_map", {})
   self:super(node)
   -- Penlight bug #307, should be — self:catch(self.get_attribute)
   self:catch(function (_, attribute) return self:get_attribute(attribute) end)
@@ -115,18 +110,18 @@ end
 function FTL.Message:set_attribute (attribute)
   local id = attribute.id.name
   local attrs = rawget(self, "attributes")
-  local map = rawget(self, "attribute_map")
+  local map = rawget(getmetatable(self), "attribute_map")
   local k = map[attribute.id.name]
   if not k then
     k = #attrs + 1
   end
   attrs[k] = attribute
   map[attribute.id.name] = k
-  rawset(self, id, attrs[k])
+  rawset(getmetatable(self), id, attrs[k])
 end
 
 function FTL.Message:get_attribute (attribute)
-  return rawget(self, attribute)
+  return rawget(getmetatable(self), attribute)
 end
 
 function FTL.Message:format (parameters)
