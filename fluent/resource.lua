@@ -503,7 +503,6 @@ local FluentResource = class({
           self:load_node(_stash)
           _stash = nil
         end
-        return #self.body
       end
       local stash = function (node)
         if not _stash then
@@ -565,10 +564,6 @@ local FluentResource = class({
       local ast =  { type = "Resource", body = {} }
       for _, v in ipairs(self.body) do table.insert(ast.body, v:dump_ast()) end
       return ast
-    end,
-
-    ammend = function (self, other)
-      return self:__add(other)
     end,
 
     __add = function (self, other)
