@@ -495,22 +495,8 @@ local FluentResource = class({
     _init = function (self, ast)
       _resource = self
       ast = ast or {}
-      self.body = setmetatable({}, {
-        map = {},
-        __index = function (t, k)
-          return rawget(t, getmetatable(t).map[k])
-        end,
-        __newindex = function (t, k, v)
-          local id_name = v.id and v.id.name or nil
-          if id_name then
-            if v:is_a(FTL.Message) and v.type == "Term" then
-              id_name = "-" .. id_name
-            end
-            getmetatable(t).map[id_name] = k
-          end
-          rawset(t, k, v)
-        end
-      })
+      self.body = {}
+      rawset(getmetatable(self), "body_map", {})
       local _stash
       local flush = function ()
         if _stash then
@@ -546,14 +532,26 @@ local FluentResource = class({
     end,
 
     insert = function (self, node)
-      table.insert(self.body, node)
+      local id_name = node.id and node.id.name or nil
+      local body = self.body
+      local map = rawget(getmetatable(self), "body_map")
+      if id_name then
+        if node:is_a(FTL.Message) and node.type == "Term" then
+          id_name = "-" .. id_name
+        end
+      end
+      local k = map[id_name] or #body + 1
+      body[k] = node
+      map[id_name] = k
     end,
 
     get_message = function (self, identifier, isterm)
       local id = string.match(identifier, "^(%a[-_%a%d]+)")
       if not id then return end
       local name = (isterm and "-" or "") .. id
-      local entry = self.body[name]
+      local map = rawget(getmetatable(self), "body_map")
+      local k = map[name]
+      local entry = self.body[k]
       if not entry then return end
       local attr = string.match(identifier, "%.([(%a[-_%a%d]+)$")
       return attr and entry:get_attribute(attr) or entry
