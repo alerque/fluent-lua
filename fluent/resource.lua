@@ -6,7 +6,7 @@ local tablex = require("pl.tablex")
 local FTL = {}
 
 -- Utility function to cast ast nodes from the syntax parser to corresponding class instances
-local node_to_type = function (node)
+local leaf_to_node = function (node)
   if type(node) == "table" and type(node.id) == "string" then
     return FTL[node.id](node)
   end
@@ -17,8 +17,8 @@ local _resource
 local FluentNode = class({
     _name = "FluentNode",
 
-    _init = function (self, node)
-      for key, value in pairs(node) do
+    _init = function (self, ast)
+      for key, value in pairs(ast) do
         if type(key) == "string" then
           if key == "id" then
             self.type = value
@@ -29,17 +29,17 @@ local FluentNode = class({
           end
         end
       end
-      tablex.foreachi(node, function (n) self:insert(node_to_type(n)) end)
+      tablex.foreachi(ast, function (leaf) self:inject(leaf_to_node(leaf)) end)
     end,
 
-    insert = function (self, node)
+    inject = function (self, node)
       if type(node) ~= "table" then return nil end
       local elements = rawget(self, "elements")
       if not (elements and #elements >= 1 and elements[#elements]:append(node))
         and not self:modify(node)
         and not self:attach(node) then
         if not elements then
-          error("Undefined insert "..node.type .. " into " .. self.type)
+          error("Undefined injection "..node.type .. " into " .. self.type)
         end
         table.insert(elements, node)
       end
@@ -90,7 +90,7 @@ function FTL.blank_block:_init (node)
 end
 
 FTL.Entry = function (node)
-  return node_to_type(node[1])
+  return leaf_to_node(node[1])
 end
 
 FTL.Junk = class(FluentNode)
@@ -227,7 +227,7 @@ FTL.Placeable._name = "Placeable"
 function FTL.Placeable:_init (node)
   getmetatable(self).appendable = true
   node.id = "Placeable"
-  node.expression = node_to_type(node.expression)
+  node.expression = leaf_to_node(node.expression)
   self:super(node)
 end
 
@@ -358,7 +358,7 @@ FTL.InlineExpression = function(node)
   if node[1].id == "InlineExpression" then
     return FTL.Placeable(node)
   else
-    return node_to_type(node[1])
+    return leaf_to_node(node[1])
   end
 end
 
@@ -500,7 +500,7 @@ local FluentResource = class({
       local _stash
       local flush = function ()
         if _stash then
-          self:insert(_stash)
+          self:load_node(_stash)
           _stash = nil
         end
         return #self.body
@@ -514,7 +514,7 @@ local FluentResource = class({
         end
       end
       for _, leaf in ipairs(ast) do
-        local node = node_to_type(leaf)
+        local node = leaf_to_node(leaf)
         if node:is_a(FTL.blank_block) then
           if not node.discardable then
             flush()
@@ -531,7 +531,7 @@ local FluentResource = class({
       self:catch(function (_, identifier) return self:get_message(identifier) end)
     end,
 
-    insert = function (self, node)
+    load_node = function (self, node)
       local id_name = node.id and node.id.name or nil
       local body = self.body
       local map = rawget(getmetatable(self), "body_map")
@@ -574,7 +574,7 @@ local FluentResource = class({
     __add = function (self, other)
       if not self:is_a(other:is_a()) then error("Cannot merge unlike types") end
       for _, node in ipairs(other.body) do
-        self:insert(node)
+        self:load_node(node)
       end
       return self
     end
