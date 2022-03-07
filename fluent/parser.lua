@@ -81,21 +81,22 @@ local ftl_grammar = epnf.define(function (_ENV)
 end)
 -- luacheck: pop
 
+local function addtrailingnewine (input)
+  local hasnulleof = epnf.parsestring(ftl_eof, input)
+  return type(hasnulleof) == "nil" and input .. nulleof or input
+end
+
 -- TODO: if this doesn't need any state information make in a function not a class
-local FluentParser = class({
-    _init = function (self, input)
-      return type(input) == "string" and self:parsestring(input) or error("unknown input type")
-    end,
+local FluentParser = class()
 
-    addtrailingnewine = function(input)
-      local hasnulleof = epnf.parsestring(ftl_eof, input)
-      return type(hasnulleof) == "nil" and input..nulleof or input
-    end,
+function FluentParser:_init (input)
+  return type(input) == "string" and self:parsestring(input) or error("unknown input type")
+end
 
-    parsestring = function (self, input)
-      input = self.addtrailingnewine(input)
-      return epnf.parsestring(ftl_grammar, input)
-    end
-  })
+-- luacheck: ignore 212
+function FluentParser:parsestring (input)
+  input = addtrailingnewine(input)
+  return epnf.parsestring(ftl_grammar, input)
+end
 
 return FluentParser
