@@ -136,8 +136,10 @@ foo =
     end)
 
     it('preserves attributes when messages are added', function ()
+      assert.same("qux", en["bar.bax"]())
       assert.same("qux", en.bar.bax())
       en:add_messages("aa = bb")
+      assert.same("qux", en["bar.bax"]())
       assert.same("qux", en.bar.bax())
     end)
 
