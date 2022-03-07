@@ -69,8 +69,8 @@ function FluentResource:get_message (identifier, isterm)
   local k = map[name]
   local entry = body[k]
   if not entry then return end
-  local attr = string.match(identifier, "%.([(%a[-_%a%d]+)$")
-  return attr and entry:get_attribute(attr) or entry
+  local attribute = string.match(identifier, "%.([(%a[-_%a%d]+)$")
+  return attribute and entry:get_attribute(attribute) or entry
 end
 
 function FluentResource:get_term (identifier)

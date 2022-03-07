@@ -30,7 +30,10 @@ function FluentNode:_init (ast, resource)
       end
     end
   end
-  tablex.foreachi(ast, function (leaf) self:inject(leaf_to_node(leaf, resource)) end)
+  tablex.foreachi(ast, function (leaf)
+      local node = leaf_to_node(leaf, resource)
+      self:inject(node)
+    end)
 end
 
 function FluentNode:inject (node)
@@ -111,16 +114,16 @@ end
 
 function FTL.Message:set_attribute (attribute)
   local id = attribute.id.name
-  local attributes = rawget(self, "attributes")
-  local map = rawget(getmetatable(attributes), "map")
+  local attributes = self.attributes
+  local map = getmetatable(attributes).map
   local k = #attributes + 1
   attributes[k] = attribute
   map[id] = k
 end
 
 function FTL.Message:get_attribute (attribute)
-  local attributes = rawget(self, "attributes")
-  local map = rawget(getmetatable(attributes), "map")
+  local attributes = self.attributes
+  local map = getmetatable(attributes).map
   local k = map[attribute]
   return attributes[k]
 end
