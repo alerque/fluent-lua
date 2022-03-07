@@ -1,6 +1,5 @@
 -- External dependencies
 local class = require("pl.class")
-local tablex = require("pl.tablex")
 
 -- Private namespace to organize various node classes
 local FTL = require("fluent._nodes")
@@ -48,29 +47,27 @@ function FluentResource:_init (ast)
 end
 
 function FluentResource:load_node (node)
-  local id_name = node.id and node.id.name or nil
   local body = self.body
-  local k
+  local k = #body + 1
+  body[k] = node
+  local id_name = node.id and node.id.name or nil
   if id_name then
-    local map = rawget(getmetatable(body), "map")
+    local map = getmetatable(body).map
     if node:is_a(FTL.Message) and node.type == "Term" then
       id_name = "-" .. id_name
     end
-    k = map[id_name] or #body + 1
     map[id_name] = k
-  else
-    k = #body + 1
   end
-  body[k] = node
 end
 
 function FluentResource:get_message (identifier, isterm)
   local id = string.match(identifier, "^(%a[-_%a%d]+)")
   if not id then return end
   local name = (isterm and "-" or "") .. id
-  local map = rawget(getmetatable(self.body), "map")
+  local body = self.body
+  local map = getmetatable(body).map
   local k = map[name]
-  local entry = self.body[k]
+  local entry = body[k]
   if not entry then return end
   local attr = string.match(identifier, "%.([(%a[-_%a%d]+)$")
   return attr and entry:get_attribute(attr) or entry
@@ -82,16 +79,17 @@ end
 
 function FluentResource:dump_ast ()
   local ast =  { type = "Resource", body = {} }
-  for _, v in ipairs(self.body) do table.insert(ast.body, v:dump_ast()) end
+  for _, node in ipairs(self.body) do
+    table.insert(ast.body, node:dump_ast())
+  end
   return ast
 end
 
 function FluentResource:__add (other)
   if not self:is_a(other:is_a()) then error("Cannot merge unlike types") end
   for _, node in ipairs(other.body) do
-    local _node = tablex.deepcopy(node)
-    _node._resource = self
-    self:load_node(_node)
+    if node._resource then node._resource = self end
+    self:load_node(node)
   end
   return self
 end
