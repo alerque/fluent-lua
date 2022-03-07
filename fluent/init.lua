@@ -39,6 +39,7 @@ local FluentBundle = class({
             return syntax:parsestring(v)
           end, input))
       self.locales[self.locale]:__add(messages)
+      return self
     end,
 
     format = function (self, identifier, parameters)
