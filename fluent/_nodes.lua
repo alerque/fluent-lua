@@ -16,7 +16,9 @@ local FluentNode = class()
 FluentNode._name = "FluentNode"
 
 function FluentNode:_init (ast, resource)
-  self._resource = resource
+  if self._name == "MessageReference" or self._name == "TermReference" then
+    self._resource = resource
+  end
   for key, value in pairs(ast) do
     if type(key) == "string" then
       if key == "id" then
@@ -46,7 +48,11 @@ end
 
 function FluentNode:dump_ast ()
   local ast = { type = self.type }
-  for k, v in pairs(self) do ast[k] = v end
+  for k, v in pairs(self) do
+    if k ~= "_resource" then
+      ast[k] = v
+    end
+  end
   return ast
 end
 
@@ -107,19 +113,22 @@ end
 
 function FTL.Message:set_attribute (attribute)
   local id = attribute.id.name
-  local attrs = rawget(self, "attributes")
-  local map = rawget(getmetatable(self.attributes), "map")
+  local attributes = rawget(self, "attributes")
+  local map = rawget(getmetatable(attributes), "map")
   local k = map[attribute.id.name]
   if not k then
-    k = #attrs + 1
+    k = #attributes + 1
   end
-  attrs[k] = attribute
+  attributes[k] = attribute
   map[attribute.id.name] = k
-  rawset(getmetatable(self), id, attrs[k])
+  map[id] = attributes[k]
 end
 
 function FTL.Message:get_attribute (attribute)
-  return rawget(getmetatable(self), attribute)
+  local attributes = rawget(self, "attributes")
+  local map = rawget(getmetatable(attributes, "map"))
+  local k = map[attribute]
+  return attributes[k]
 end
 
 function FTL.Message:format (parameters)
