@@ -16,9 +16,7 @@ local FluentNode = class()
 FluentNode._name = "FluentNode"
 
 function FluentNode:_init (ast, resource)
-  if self._name == "MessageReference" or self._name == "TermReference" then
-    rawset(getmetatable(self), "_resource", resource)
-  end
+  self:set_parent(resource)
   for key, value in pairs(ast) do
     if type(key) == "string" then
       if key == "id" then
@@ -34,6 +32,16 @@ function FluentNode:_init (ast, resource)
       local node = leaf_to_node(leaf, resource)
       self:inject(node)
     end)
+end
+
+function FluentNode:set_parent (resource)
+  if self._name == "MessageReference" or self._name == "TermReference" then
+    rawset(getmetatable(self), "_resource", resource)
+  end
+end
+
+function FluentNode:get_parent ()
+  return rawget(getmetatable(self), "_resource")
 end
 
 function FluentNode:inject (node)
@@ -295,7 +303,7 @@ FTL.MessageReference = class(FluentNode)
 FTL.MessageReference._name = "MessageReference"
 
 function FTL.MessageReference:format (parameters)
-  return rawget(getmetatable(self), "_resource"):get_message(self.id.name):format(parameters)
+  return self:get_parent():get_message(self.id.name):format(parameters)
 end
 
 FTL.TermReference = class(FluentNode)
@@ -314,7 +322,7 @@ function FTL.TermReference:__mul (node)
 end
 
 function FTL.TermReference:format (parameters)
-  return rawget(getmetatable(self), "_resource"):get_term(self.id.name):format(parameters)
+  return self:get_parent():get_term(self.id.name):format(parameters)
 end
 
 FTL._TermReference = FTL.TermReference

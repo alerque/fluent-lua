@@ -88,7 +88,7 @@ end
 function FluentResource:__add (other)
   if not self:is_a(other:is_a()) then error("Cannot merge unlike types") end
   for _, node in ipairs(other.body) do
-    if rawget(node, "_resource") then rawset(node, "_resource", self) end
+    node:set_parent(self)
     self:load_node(node)
   end
   return self
