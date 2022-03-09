@@ -9,11 +9,11 @@ local FluentResource = require("fluent.resource")
 
 local FluentBundle = class()
 FluentBundle.locales = {}
+FluentBundle.locale = "und"
 
 function FluentBundle:_init (locale)
   self:set_locale(locale)
-  -- Penlight bug #307, should be — self:catch(self.get_message)
-  self:catch(function(_, identifier) return self:get_message(identifier) end)
+  self:catch(self.get_message)
 end
 
 function FluentBundle:set_locale (locale)
@@ -24,9 +24,10 @@ function FluentBundle:set_locale (locale)
 end
 
 function FluentBundle:get_message (identifier)
-  local locales = rawget(self, "locales")
+  local locales = self.locales
+  local locale = self.locale
+  local resource = locales[locale]
   -- TODO iterate over fallback locales if not found in current one
-  local resource = rawget(locales, self.locale)
   return resource:get_message(identifier) or nil
 end
 

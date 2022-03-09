@@ -42,8 +42,7 @@ function FluentResource:_init (ast)
     end
   end
   flush()
-  -- Penlight bug #307, should be — self:catch(self.get_message)
-  self:catch(function (_, identifier) return self:get_message(identifier) end)
+  self:catch(self.get_message)
 end
 
 function FluentResource:load_node (node)

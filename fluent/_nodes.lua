@@ -112,17 +112,14 @@ FTL.Message = class(FluentNode)
 FTL.Message._name = "Message"
 
 function FTL.Message:_init (ast, resource)
-  self.attributes = setmetatable({}, {
-      map = {}
-    })
+  self.attributes = setmetatable({}, { map = {} })
   self:super(ast, resource)
-  -- Penlight bug #307, should be — self:catch(self.get_attribute)
-  self:catch(function (_, attribute) return self:get_attribute(attribute) end)
+  self:catch(self.get_attribute)
 end
 
 function FTL.Message:set_attribute (attribute)
+  local attributes = rawget(self, "attributes")
   local id = attribute.id.name
-  local attributes = self.attributes
   local map = getmetatable(attributes).map
   local k = #attributes + 1
   attributes[k] = attribute
@@ -130,7 +127,7 @@ function FTL.Message:set_attribute (attribute)
 end
 
 function FTL.Message:get_attribute (attribute)
-  local attributes = self.attributes
+  local attributes = rawget(self, "attributes") or error ("No attributes")
   local map = getmetatable(attributes).map
   local k = map[attribute]
   return attributes[k]
