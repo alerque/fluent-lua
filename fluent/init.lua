@@ -7,47 +7,46 @@ local CLDR = require("cldr")
 local FluentSyntax = require("fluent.syntax")
 local FluentResource = require("fluent.resource")
 
-local FluentBundle = class({
-    _init = function (self, locale)
-      self.locales = {}
-      self:set_locale(locale)
-      -- Penlight bug #307, should be — self:catch(self.get_message)
-      self:catch(function(_, identifier) return self:get_message(identifier) end)
-    end,
+local FluentBundle = class()
+FluentBundle.locales = {}
 
-    set_locale = function (self, locale)
-      self.locale = CLDR.locales[locale] and locale or "und"
-      if not self.locales[self.locale] then
-        self.locales[self.locale] = FluentResource()
-      end
-    end,
+function FluentBundle:_init (locale)
+  self:set_locale(locale)
+  -- Penlight bug #307, should be — self:catch(self.get_message)
+  self:catch(function(_, identifier) return self:get_message(identifier) end)
+end
 
-    get_message = function (self, identifier)
-      local locales = rawget(self, "locales")
-      -- TODO iterate over fallback locales if not found in current one
-      local resource = rawget(locales, self.locale)
-      return resource:get_message(identifier) or nil
-    end,
+function FluentBundle:set_locale (locale)
+  self.locale = CLDR.locales[locale] and locale or "und"
+  if not self.locales[self.locale] then
+    self.locales[self.locale] = FluentResource()
+  end
+end
 
-    add_messages = function (self, input, locale)
-      if locale then self:set_locale(locale) end
-      local syntax = FluentSyntax()
-      local messages =
-        type(input) == "string"
-        and syntax:parsestring(input)
-        or tablex.reduce('+', tablex.imap(function (v)
-            return syntax:parsestring(v)
-          end, input))
-      self.locales[self.locale]:__add(messages)
-      return self
-    end,
+function FluentBundle:get_message (identifier)
+  local locales = rawget(self, "locales")
+  -- TODO iterate over fallback locales if not found in current one
+  local resource = rawget(locales, self.locale)
+  return resource:get_message(identifier) or nil
+end
 
-    format = function (self, identifier, parameters)
-      local resource = self.locales[self.locale]
-      local message = resource:get_message(identifier)
-      -- local message = resource[identifier]
-      return message:format(parameters)
-    end
-  })
+function FluentBundle:add_messages (input, locale)
+  if locale then self:set_locale(locale) end
+  local syntax = FluentSyntax()
+  local messages =
+    type(input) == "string"
+    and syntax:parsestring(input)
+    or tablex.reduce('+', tablex.imap(function (v)
+        return syntax:parsestring(v)
+      end, input))
+  self.locales[self.locale]:__add(messages)
+  return self
+end
+
+function FluentBundle:format (identifier, parameters)
+  local resource = self.locales[self.locale]
+  local message = resource:get_message(identifier)
+  return message:format(parameters)
+end
 
 return FluentBundle
