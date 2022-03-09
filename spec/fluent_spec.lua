@@ -28,6 +28,13 @@ describe('fluent.bundle', function ()
     assert.same("baz", en:format("bar"))
   end)
 
+  it('should parse and format a table of strings', function ()
+    local en = FluentBundle("en")
+    en:add_messages({ "foo = bar", "bar = baz" })
+    assert.same("bar", en:format("foo"))
+    assert.same("baz", en:format("bar"))
+  end)
+
   it('should parse and format literals', function ()
     local en = FluentBundle("en")
     en:add_messages('foo = bar {"baz"} quz {-3.14}')

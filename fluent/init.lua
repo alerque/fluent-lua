@@ -37,7 +37,7 @@ local FluentBundle = class({
         and syntax:parsestring(input)
         or tablex.reduce('+', tablex.imap(function (v)
             return syntax:parsestring(v)
-          end))
+          end, input))
       self.locales[self.locale]:__add(messages)
     end,
 
