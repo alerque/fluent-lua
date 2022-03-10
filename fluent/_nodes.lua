@@ -116,8 +116,16 @@ FTL.Message._name = "Message"
 function FTL.Message:_init (ast, resource)
   self.attributes = setmetatable({}, { map = {} })
   self:super(ast, resource)
+  -- Work around Penlight #307
   -- self:catch(self.get_attribute)
+  self:_patch_init()
   return self
+end
+
+function FTL.Message:_patch_init ()
+  if not type(rawget(getmetatable(self), "__index")) ~= "function" then
+    self:catch(function(_, attribute) return self:get_attribute(attribute) end)
+  end
 end
 
 function FTL.Message:set_attribute (attribute)
