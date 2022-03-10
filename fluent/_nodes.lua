@@ -114,7 +114,7 @@ FTL.Message._name = "Message"
 function FTL.Message:_init (ast, resource)
   self.attributes = setmetatable({}, { map = {} })
   self:super(ast, resource)
-  self:catch(self.get_attribute)
+  -- self:catch(self.get_attribute)
 end
 
 function FTL.Message:set_attribute (attribute)
