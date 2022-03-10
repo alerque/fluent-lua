@@ -193,4 +193,21 @@ foo =
     assert.same("merhaba", bundle2:format("hi"))
   end)
 
+  it('should not clobber itself when adding locales', function ()
+    local bundle = FluentBundle("en")
+    -- confirm we have a clean instance, not the previous test
+    assert.error(function () return bundle:format("hi") end)
+    bundle:add_messages("hi = hello")
+    assert.same("hello", bundle:format("hi"))
+    bundle:set_locale("tr")
+    bundle:add_messages("hi = merhaba")
+    assert.same("merhaba", bundle:format("hi"))
+    bundle:set_locale("en")
+    bundle:add_messages("hi = hello")
+    local en = bundle:get_resource("en")
+    local tr = bundle:get_resource("tr")
+    assert.same("merhaba", tr:format("hi"))
+    assert.same("hello", en:format("hi"))
+  end)
+
 end)
