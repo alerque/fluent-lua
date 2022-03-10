@@ -42,7 +42,9 @@ function FluentResource:_init (ast)
     end
   end
   flush()
+  -- Work around Penlight #307
   -- self:catch(self.get_message)
+  self:catch(function(_, identifier) return self:get_message(identifier) end)
   return self
 end
 
