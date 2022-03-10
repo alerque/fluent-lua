@@ -119,9 +119,25 @@ foo =
       assert.same("qux", en.bar.bax())
     end)
 
+    it('preserves messages when messages are added', function ()
+      assert.same("baz", en:format("bar"))
+      assert.error(function () return en:format("aa") end)
+      en:add_messages("aa = bb")
+      assert.same("baz", en:format("bar"))
+      assert.same("bb", en:format("aa"))
+    end)
+
+    it('updates messages when messages are readded', function ()
+      assert.same("bar", en:format("foo"))
+      assert.same("baz", en:format("bar"))
+      en:add_messages("bar = rebar")
+      assert.same("bar", en:format("foo"))
+      assert.same("rebar", en:format("bar"))
+    end)
+
     it('preserves attributes when messages are added', function ()
       assert.same("qux", en.bar.bax())
-      en:add_messages("x = y")
+      en:add_messages("aa = bb")
       assert.same("qux", en.bar.bax())
     end)
 
