@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org) for commit guidelines.
 
-## v0.1.0 ­ 2022-03-11
+## [v0.1.0](https://github.com/alerque/fluent-lua/releases/v0.1.0) ­ 2022-03-11
 
 Completely overhaul the object handling using more robust Penlight class syntax variant.
 Property and attribute indexing now works in many more situations.
@@ -10,25 +10,25 @@ The test coverage is greatly improved as well, so the things that work are prova
 Many edge case bugs where resources leaked between locales have been fixed.
 Loading multiple locales into a bundle and updating existing messages works as expected.
 
-## v0.0.5 ­ 2021-12-24
+## [v0.0.5](https://github.com/alerque/fluent-lua/releases/v0.0.5) ­ 2021-12-24
 
 Cut a safe-haven release for anybody (including myself) using this in production before I move on.
 Looking at Git history it looks like refinements include improved PEG grammars, saner namespacing for easier project integration, better use of Penlight classing, and more advanced handling of terms.
 Dependencies now include cldr-lua, and tests now use CLDR compatible locales.
 Lua 5.4 support was also officially added.
 
-## v0.0.4 ­ 2019-09-27
+## [v0.0.4](https://github.com/alerque/fluent-lua/releases/v0.0.1) ­ 2019-09-27
 
 Add support for attributes plus access to messages using idiomatic Lua (table properties).
 
-## v0.0.3 ­ 2019-09-26
+## [v0.0.3](https://github.com/alerque/fluent-lua/releases/v0.0.1) ­ 2019-09-26
 
 Add support for more types including format support for TextElement, StringLiteral, NumberLiteral, and VariableReference.
 Variable substitutions can be done by passing a parameters table to `format()`.
 Internally manipulating nodes in the API is now easier with meta methods.
 For example merge comments with `Comment + Comment`, attach children with `Message * Comment`, etc.
 
-## v0.0.2 ­ 2019-09-25
+## [v0.0.2](https://github.com/alerque/fluent-lua/releases/v0.0.1) ­ 2019-09-25
 
 Massage the AST returned by the PEG grammar so that about 1/3 of the possible types look like the reference Fluent spec.
 A basic Lua API is starting to take shape, modeled most closely to the Python implementation.
@@ -36,14 +36,14 @@ It is possible to load and parse almost any FTL file, and possible to format any
 Note there is no locale handling yet so it's only usable with separate instances per locale.
 Also `add_messages()` likely only works once, so cram your whole FTL resource in there for now.
 
-## v0.0.1 ­ 2019-09-14
+## [v0.0.1](https://github.com/alerque/fluent-lua/releases/v0.0.1) ­ 2019-09-14
 
 Complete a PEG grammar based parser for the entire 1.0 Fluent file format spec.
 All the pieces are there, but it's only partially tested.
 It at least parses a few basic types of entries.
 The AST it returns is straight out of *luaebnf* and probably needs massaging to match the reference ones (via capture groups?), then it needs testing against the upstream fixtures.
 
-## v0.0.0 ­ 2019-09-12
+## [v0.0.0](https://github.com/alerque/fluent-lua/releases/v0.0.0) ­ 2019-09-12
 
 Initialize project with some boilerplate Lua apparatus.
 
