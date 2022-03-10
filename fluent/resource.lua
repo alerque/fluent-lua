@@ -43,6 +43,7 @@ function FluentResource:_init (ast)
   end
   flush()
   -- self:catch(self.get_message)
+  return self
 end
 
 function FluentResource:load_node (node)

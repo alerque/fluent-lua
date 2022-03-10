@@ -32,6 +32,7 @@ function FluentNode:_init (ast, resource)
       local node = leaf_to_node(leaf, resource)
       self:inject(node)
     end)
+  return self
 end
 
 function FluentNode:set_parent (resource)
@@ -99,6 +100,7 @@ function FTL.blank_block:_init (ast, resource)
   self:super(ast, resource)
   local _, count = string.gsub(ast[1], "\n", "")
   getmetatable(self).discardable = count == 0
+  return self
 end
 
 FTL.Entry = function (ast, resource)
@@ -115,6 +117,7 @@ function FTL.Message:_init (ast, resource)
   self.attributes = setmetatable({}, { map = {} })
   self:super(ast, resource)
   -- self:catch(self.get_attribute)
+  return self
 end
 
 function FTL.Message:set_attribute (attribute)
@@ -169,6 +172,7 @@ function FTL.Pattern:_init (ast, resource)
   self.elements = {}
   self:super(ast, resource)
   self:dedent()
+  return self
 end
 
 function FTL.Pattern:dedent ()
@@ -223,7 +227,7 @@ FTL.TextElement._name ="TextElement"
 function FTL.TextElement:_init (ast, resource)
   getmetatable(self).appendable = true
   ast.id = "TextElement"
-  self:super(ast, resource)
+  return self:super(ast, resource)
 end
 
 function FTL.TextElement:__add (node)
@@ -244,7 +248,7 @@ function FTL.Placeable:_init (ast, resource)
   getmetatable(self).appendable = true
   ast.id = "Placeable"
   ast.expression = leaf_to_node(ast.expression, resource)
-  self:super(ast, resource)
+  return self:super(ast, resource)
 end
 
 function FTL.Placeable:__mod (node)
@@ -315,7 +319,7 @@ FTL.TermReference._name = "TermReference"
 
 function FTL.TermReference:_init (ast, resource)
   ast.id = "TermReference"
-  self:super(ast, resource)
+  return self:super(ast, resource)
 end
 
 function FTL.TermReference:__mul (node)
@@ -350,7 +354,7 @@ function FTL.SelectExpression:_init (ast, resource)
   ast.id = "SelectExpression"
   self.selector = {}
   self.variants = {}
-  self:super(ast, resource)
+  return self:super(ast, resource)
 end
 
 function FTL.SelectExpression:format (parameters)
@@ -385,7 +389,7 @@ FTL.variant_list._name = "variant_list"
 
 function FTL.variant_list:_init (ast, resource)
   self.elements = {}
-  self:super(ast, resource)
+  return self:super(ast, resource)
 end
 
 function FTL.variant_list:__mod (node)
@@ -401,7 +405,7 @@ FTL.Variant._name = "Variant"
 function FTL.Variant:_init (ast, resource)
   ast.id = "Variant"
   ast.default = ast.default or false
-  self:super(ast, resource)
+  return self:super(ast, resource)
 end
 
 FTL.VariantKey = class(FluentNode)
@@ -425,7 +429,7 @@ FTL.CallArguments._name = "CallArguments"
 function FTL.CallArguments:_init (ast, resource)
   self.named = {}
   self.positional = {}
-  self:super(ast, resource)
+  return self:super(ast, resource)
 end
 
 function FTL.CallArguments:__mul (node)
@@ -443,7 +447,7 @@ FTL.Comment._name = "Comment"
 
 function FTL.Comment:_init (ast, resource)
   getmetatable(self).appendable = true
-  self:super(ast, resource)
+  return self:super(ast, resource)
 end
 
 function FTL.Comment:__add (node)

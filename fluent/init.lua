@@ -14,6 +14,7 @@ FluentBundle.locale = "und"
 function FluentBundle:_init (locale)
   self:set_locale(locale)
   -- self:catch(self.get_message)
+  return self
 end
 
 function FluentBundle:set_locale (locale)

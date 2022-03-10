@@ -11,6 +11,7 @@ local FluentSyntax = class()
 -- luacheck: ignore 212
 function FluentSyntax:_init (input)
   -- TODO: handle file pointers, filnames, tables of pointers?
+  return self
 end
 
 function FluentSyntax:parsestring (input)
