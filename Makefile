@@ -16,7 +16,7 @@ MAKEFLAGS += -j$(JOBS) -Otarget
 VERSION != git describe --tags --all --abbrev=7 | sed 's/-/-r/'
 SEMVER != git describe --tags | sed 's/^v//;s/-.*//'
 ROCKREV = 0
-TAG = v$(SEMVER)
+TAG ?= v$(SEMVER)
 
 LUAROCKS_ARGS ?= --local --tree lua_modules
 
@@ -51,6 +51,12 @@ rockspecs/$(PACKAGE)-%-0.rockspec: SEMVER = $*
 rockspecs/$(PACKAGE)-%-0.rockspec: TAG = v$*
 rockspecs/$(PACKAGE)-%-0.rockspec: $(PACKAGE).rockspec.in
 	$(rockpec_template)
+	sed -i \
+		-e '/rockspec-format/s/3.0/1.0/' \
+		-e '/url = "git/a\   dir = "fluent.lua",' \
+		-e '/issues_url/d' \
+		-e '/maintainer/d' \
+		$@
 
 $(PACKAGE)-dev-0.src.rock: $(SCM_ROCK)
 	luarocks $(LUAROCKS_ARGS) pack $<
@@ -65,6 +71,9 @@ check:
 .PHONY: test
 test:
 	busted
+
+CHANGELOG.md:
+	git-cliff -p $@ -u $(if $(TAG),-t $(TAG))
 
 .PHONY: force
 force:;

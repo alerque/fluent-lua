@@ -2,7 +2,7 @@
 local class = require("pl.class")
 
 -- Private namespace to organize various node classes
-local FTL = require("fluent._nodes")
+local FluentMessages = require("fluent.messages")
 
 local FluentResource = class()
 FluentResource._name = "FluentResource"
@@ -29,8 +29,8 @@ function FluentResource:_init (ast)
     end
   end
   for _, leaf in ipairs(ast) do
-    local node = FTL[leaf.id](leaf, self)
-    if node:is_a(FTL.blank_block) then
+    local node = FluentMessages[leaf.id](leaf, self)
+    if node:is_a(FluentMessages.blank_block) then
       if not node.discardable then
         flush()
       end
@@ -63,7 +63,7 @@ function FluentResource:load_node (node)
   local id_name = node.id and node.id.name or nil
   if id_name then
     local map = getmetatable(body).map
-    if node:is_a(FTL.Message) and node.type == "Term" then
+    if node:is_a(FluentMessages.Message) and node.type == "Term" then
       id_name = "-" .. id_name
     end
     map[id_name] = k
