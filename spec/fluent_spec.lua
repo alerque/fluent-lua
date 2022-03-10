@@ -114,7 +114,7 @@ foo =
       assert.same("baz", tostring(bundle:get_message("bar")))
     end)
 
-    pending('can be accessed as properties', function ()
+    it('can be accessed as properties', function ()
       assert.same("bar", bundle.foo:format())
       assert.same("bar", bundle["foo"]:format())
       assert.same("baz", bundle.bar:format())
