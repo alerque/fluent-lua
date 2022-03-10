@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org) for commit guidelines.
 
+## v0.1.0 ­ 2022-03-11
+
+Completely overhaul the object handling using more robust Penlight class syntax variant.
+Property and attribute indexing now works in many more situations.
+The test coverage is greatly improved as well, so the things that work are provably functional.
+Many edge case bugs where resources leaked between locales have been fixed.
+Loading multiple locales into a bundle and updating existing messages works as expected.
+
 ## v0.0.5 ­ 2021-12-24
 
 Cut a safe-haven release for anybody (including myself) using this in production before I move on.
