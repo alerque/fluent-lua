@@ -56,10 +56,17 @@ function FluentResource:load_node (node)
       id_name = "-" .. id_name
     end
     map[id_name] = k
+    -- TODO Fix with working catch?
+    -- getmetatable(self)[id_name] = node
   end
 end
 
 function FluentResource:get_message (identifier, isterm)
+  -- local raw = rawget(self, identifier)
+  -- if raw then return raw end
+  -- if not rawget(self, "id") then
+  --   error("Penlight bug, please use get_message() rather than table index syntax for now")
+  -- end
   local id = string.match(identifier, "^(%a[-_%a%d]+)")
   if not id then return end
   local name = (isterm and "-" or "") .. id

@@ -124,10 +124,17 @@ function FTL.Message:set_attribute (attribute)
   local k = #attributes + 1
   attributes[k] = attribute
   map[id] = k
+  -- TODO Fix with working catch?
+  -- getmetatable(self)[id] = attribute
 end
 
 function FTL.Message:get_attribute (attribute)
-  local attributes = rawget(self, "attributes") or error ("No attributes")
+  -- local raw = rawget(self, attribute)
+  -- if raw then return raw end
+  -- if not rawget(self, "id") then
+  --   error("Penlight bug, please use get_attribute() rather than table index syntax for now")
+  -- end
+  local attributes = rawget(self, "attributes")
   local map = getmetatable(attributes).map
   local k = map[attribute]
   return attributes[k]
