@@ -24,10 +24,18 @@ function FluentBundle:set_locale (locale)
   end
 end
 
-function FluentBundle:get_message (identifier)
+function FluentBundle:get_locale ()
+  return self.locale
+end
+
+function FluentBundle:get_resource (locale)
   local locales = self.locales
-  local locale = self.locale
-  local resource = locales[locale]
+  local locale = self:get_locale(locale)
+  return locales[locale]
+end
+
+function FluentBundle:get_message (identifier)
+  local resource = self:get_resource()
   -- TODO iterate over fallback locales if not found in current one
   return resource:get_message(identifier) or nil
 end
