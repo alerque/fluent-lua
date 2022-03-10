@@ -12,7 +12,9 @@ local FluentBundle = class()
 function FluentBundle:_init (locale)
   self.locales = {}
   self:set_locale(locale)
+  -- Work around Penlight #307
   -- self:catch(self.get_message)
+  self:catch(function(_, identifier) return self:get_message(identifier) end)
   return self
 end
 
