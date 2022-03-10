@@ -106,6 +106,13 @@ foo =
       en = nil
     end)
 
+    it('can be accessed with getter', function ()
+      assert.same("bar", en:get_message("foo"):format())
+      assert.same("bar", tostring(en:get_message("foo")))
+      assert.same("baz", en:get_message("bar"):format())
+      assert.same("baz", tostring(en:get_message("bar")))
+    end)
+
     it('can be accessed as properties', function ()
       assert.same("bar", en.foo:format())
       assert.same("bar", en["foo"]:format())
@@ -136,11 +143,19 @@ foo =
     end)
 
     it('preserves attributes when messages are added', function ()
-      assert.same("qux", en["bar.bax"]())
-      assert.same("qux", en.bar.bax())
+      assert.same("baz", en:format("bar"))
+      assert.same("qux", en:get_message("bar"):get_attribute("bax")())
+      -- assert.same("qux", en["bar.bax"]())
+      -- assert.same("qux", en.bar.bax())
       en:add_messages("aa = bb")
-      assert.same("qux", en["bar.bax"]())
-      assert.same("qux", en.bar.bax())
+      -- assert.same("qux", en["bar.bax"]())
+      -- assert.same("qux", en.bar:get_attribute("bax")())
+      assert.same("baz", en:format("bar"))
+      assert.same("qux", en:get_message("bar"):get_attribute("bax")())
+      en:add_messages("bar = rebar")
+      assert.same("rebar", en:format("bar"))
+      assert.error(function() return en:get_message("bar"):get_attribute("bax")() end)
+      -- assert.same("qux", en.bar.bax())
     end)
 
     it('can be called', function ()
