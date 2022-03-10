@@ -164,14 +164,12 @@ foo =
       -- assert.same("qux", bundle["bar.bax"]())
       -- assert.same("qux", bundle.bar:get_attribute("bax")())
       assert.same("baz", bundle.bar())
-      -- TODO fix property accessor on resource
-      -- assert.same("baz", en.bar())
+      assert.same("baz", en.bar())
       assert.same("baz", bundle:format("bar"))
       assert.same("qux", bundle:get_message("bar"):get_attribute("bax")())
       bundle:add_messages("bar = rebar")
       assert.same("rebar", bundle.bar())
-      -- TODO fix property accessor on resource
-      -- assert.same("rebar", en.bar())
+      assert.same("rebar", en.bar())
       assert.same("rebar", bundle:format("bar"))
       assert.error(function() return bundle:get_message("bar"):get_attribute("bax")() end)
       -- assert.same("qux", bundle.bar.bax())
@@ -239,6 +237,9 @@ foo =
     local tr = bundle:get_resource("tr")
     assert.same("merhaba", tr:format("hi"))
     assert.same("hello", en:format("hi"))
+    -- TODO Penlight hack doesn't work around this?
+    -- assert.same("merhaba", tr.hi())
+    -- assert.same("hello", en.hi())
   end)
 
 end)

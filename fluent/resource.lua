@@ -44,11 +44,14 @@ function FluentResource:_init (ast)
   flush()
   -- Work around Penlight #307
   -- self:catch(self.get_message)
-  self:catch(function(_, identifier) return self:get_message(identifier) end)
   return self
 end
 
 function FluentResource:load_node (node)
+  -- Work around Penlight #307
+  if not type(rawget(getmetatable(self), "__index")) ~= "function" then
+    self:catch(function(_, identifier) return self:get_message(identifier) end)
+  end
   local body = self.body
   local k = #body + 1
   body[k] = node
