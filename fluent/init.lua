@@ -14,8 +14,14 @@ function FluentBundle:_init (locale)
   self:set_locale(locale)
   -- Work around Penlight #307
   -- self:catch(self.get_message)
-  self:catch(function(_, identifier) return self:get_message(identifier) end)
+  self:_patch_init()
   return self
+end
+
+function FluentBundle:_patch_init ()
+  if not type(rawget(getmetatable(self), "__index")) ~= "function" then
+    self:catch(function(_, identifier) return self:get_message(identifier) end)
+  end
 end
 
 function FluentBundle:set_locale (locale)
@@ -32,7 +38,9 @@ end
 
 function FluentBundle:get_resource (locale)
   local locales = self.locales
-  return locales[locale or self:get_locale()]
+  local resource = locales[locale or self:get_locale()]
+  resource._patch_init(resource)
+  return resource
 end
 
 function FluentBundle:get_message (identifier)
@@ -42,6 +50,8 @@ function FluentBundle:get_message (identifier)
 end
 
 function FluentBundle:add_messages (input, locale)
+  -- Work around Penlight #307
+  -- self:_patch_init()
   locale = locale or self:get_locale()
   local syntax = FluentSyntax()
   local messages =
