@@ -4,8 +4,9 @@ local FluentBundle = require("fluent")
 describe('fluent.bundle', function ()
 
   it('should instantiate without any locale', function ()
-    local und = FluentBundle()
-    assert.is_true(und:is_a(FluentBundle))
+    local bundle = FluentBundle()
+    assert.is_true(bundle:is_a(FluentBundle))
+    assert.same("und", bundle.locale)
   end)
 
   it('should instantiate with a locale', function ()
