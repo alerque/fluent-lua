@@ -73,6 +73,12 @@ check:
 test:
 	busted
 
+.PHONY: release
+release: CHANGELOG.md rockspecs/fluent-$(SEMVER)-$(ROCKREV).rockspec
+	git add $^
+	git commit -m "chore(release): $(SEMVER)"
+	git tag $(TAG)
+
 CHANGELOG.md:
 	git-cliff -p $@ -u $(if $(TAG),-t $(TAG))
 
