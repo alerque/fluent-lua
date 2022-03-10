@@ -95,8 +95,16 @@ foo =
   end)
 
   describe('messages', function ()
-    local en = FluentBundle("en")
-    en:add_messages("hi = Hello { $name }!\nfoo = bar\nbar = baz\n    .bax = qux")
+    local en
+
+    before_each(function ()
+      en = FluentBundle("en")
+      en:add_messages("hi = Hello { $name }!\nfoo = bar\nbar = baz\n    .bax = qux")
+    end)
+
+    after_each(function ()
+      en = nil
+    end)
 
     it('can be accessed as properties', function ()
       assert.same("bar", en.foo:format())
