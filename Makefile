@@ -16,7 +16,7 @@ MAKEFLAGS += -j$(JOBS) -Otarget
 VERSION != git describe --tags --all --abbrev=7 | sed 's/-/-r/'
 SEMVER != git describe --tags | sed 's/^v//;s/-.*//'
 ROCKREV = 0
-TAG = v$(SEMVER)
+TAG ?= v$(SEMVER)
 
 LUAROCKS_ARGS ?= --local --tree lua_modules
 
@@ -65,6 +65,9 @@ check:
 .PHONY: test
 test:
 	busted
+
+CHANGELOG.md:
+	git-cliff -p $@ -u $(if $(TAG),-t $(TAG))
 
 .PHONY: force
 force:;
