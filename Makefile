@@ -56,6 +56,7 @@ rockspecs/$(PACKAGE)-%-0.rockspec: $(PACKAGE).rockspec.in
 		-e '/url = "git/a\   dir = "fluent.lua",' \
 		-e '/issues_url/d' \
 		-e '/maintainer/d' \
+		-e '/labels/d' \
 		$@
 
 $(PACKAGE)-dev-0.src.rock: $(SCM_ROCK)

@@ -14,7 +14,6 @@ description = {
       the entire expressive power of natural language translations.]],
    license = "MIT",
    homepage = "https://github.com/alerque/fluent-lua",
-   labels = { "i18n" }
 }
 
 dependencies = {
