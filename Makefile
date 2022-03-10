@@ -51,6 +51,12 @@ rockspecs/$(PACKAGE)-%-0.rockspec: SEMVER = $*
 rockspecs/$(PACKAGE)-%-0.rockspec: TAG = v$*
 rockspecs/$(PACKAGE)-%-0.rockspec: $(PACKAGE).rockspec.in
 	$(rockpec_template)
+	sed -i \
+		-e '/rockspec-format/s/3.0/1.0/' \
+		-e '/url = "git/a\   dir = "fluent.lua",' \
+		-e '/issues_url/d' \
+		-e '/maintainer/d' \
+		$@
 
 $(PACKAGE)-dev-0.src.rock: $(SCM_ROCK)
 	luarocks $(LUAROCKS_ARGS) pack $<
