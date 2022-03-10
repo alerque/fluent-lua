@@ -80,6 +80,11 @@ function FluentResource:get_message (identifier, isterm)
   return attribute and entry:get_attribute(attribute) or entry
 end
 
+function FluentResource:format (identifier, parameters)
+  local message = self:get_message(identifier)
+  return message:format(parameters)
+end
+
 function FluentResource:get_term (identifier)
   return self:get_message(identifier, true)
 end
