@@ -29,32 +29,9 @@ It is possible to use this for simple string localization with basic parameter s
 - [ ] Localize number formatting
 - [ ] Functions
 
-### 0.0.5
+## Changelog
 
-Cut a safe-haven release for anybody (including myself) using this in production before I move on.
-Looking at Git history it looks like refinements include improved PEG grammars, saner namespacing for easier project integration, better use of Penlight classing, and more advanced handling of terms.
-Dependencies now include cldr-lua, and tests now use CLDR compatible locales.
-Lua 5.4 support was also officially added.
-
-### 0.0.4
-
-Add support for attributes plus access to messages using idiomatic Lua (table properties).
-
-### 0.0.3
-
-Added support for more types including format support for TextElement, StringLiteral, NumberLiteral, and VariableReference. Variable sutstitions can be done by passing a parameters table to `format()`. Internally manipulating nodes in the API is now easier with meta methods. For example merge comments with `Comment + Comment`, attach childred with `Message * Comment`, etc.
-
-### 0.0.2
-
-Massaged the AST returned by the PEG grammar so that about 1/3 of the possible types look like the reference Fluent spec. A basic Lua API is starting to take shape, modeled most closely to the Python implementation. It is possible to load and parse almost any FTL file, and possible to format any messages that are plain strings (no parameters, attributes, functions, or other jazz yet). Note there is no locale handling yet so it's only usable with separate instances per locale. Also `add_messages()` likely only works once, so cram your whole FTL resource in there for now.
-
-### 0.0.1
-
-Completed a PEG grammar based parser for the entire 1.0 Fluent file format spec. All the pieces are there, but it's only partially tested. It at least parses a few basic types of entries. The AST it returns is straight out of *luaebnf* and probably needs massaging to match the reference ones (via capture groups?), then it needs testing against the upstream fixtures.
-
-### 0.0.0
-
-Initialized project with some boiler plate Lua aparatus.
+Please see [CHANGELOG.md](./CHANGELOG.md).
 
 ## Usage
 
