@@ -42,10 +42,21 @@ function FluentResource:_init (ast)
     end
   end
   flush()
+  -- Work around Penlight #307
   -- self:catch(self.get_message)
+  self:_patch_init()
+  return self
+end
+
+-- Work around Penlight #307
+function FluentResource:_patch_init ()
+  if not type(rawget(getmetatable(self), "__index")) ~= "function" then
+    self:catch(function(_, identifier) return self:get_message(identifier) end)
+  end
 end
 
 function FluentResource:load_node (node)
+  self:_patch_init()
   local body = self.body
   local k = #body + 1
   body[k] = node
@@ -77,6 +88,11 @@ function FluentResource:get_message (identifier, isterm)
   if not entry then return end
   local attribute = string.match(identifier, "%.([(%a[-_%a%d]+)$")
   return attribute and entry:get_attribute(attribute) or entry
+end
+
+function FluentResource:format (identifier, parameters)
+  local message = self:get_message(identifier)
+  return message:format(parameters)
 end
 
 function FluentResource:get_term (identifier)
