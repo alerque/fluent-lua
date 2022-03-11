@@ -2,6 +2,8 @@ name: Deploy
 
 on:
   push:
+    tags:
+      - v*
     paths:
       - rockspecs/*.rockspec
 
@@ -51,7 +53,7 @@ jobs:
 
   upload:
     needs: [affected, build]
-    if: ${{ needs.affected.outputs.rockspecs && github.ref == 'refs/heads/master' && github.repository == 'alerque/fluent-lua' }}
+    if: ${{ needs.affected.outputs.rockspecs && startsWith(github.ref, 'refs/tags/') && github.repository == 'alerque/fluent-lua' }}
     strategy:
       fail-fast: false
       matrix:
