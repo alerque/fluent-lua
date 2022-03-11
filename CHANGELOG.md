@@ -2,17 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org) for commit guidelines.
 
+## [v0.1.3](https://github.com/alerque/fluent-lua/releases/v0.1.3) — 2022-03-11
+
+### Bug Fixes
+
+- Correct path in git checkout for LuaRocks installer
+
 ## [v0.1.2](https://github.com/alerque/fluent-lua/releases/v0.1.2) — 2022-03-11
 
 ### Bug Fixes
 
 - Use git+https URL scheme to pull rock data from GitHub
-
-## [v0.1.1](https://github.com/alerque/fluent-lua/releases/v0.1.1) — 2022-03-10
-
-### Bug Fixes
-
-- Use rockspec syntax compatible with older LuaRocks
 
 ## [v0.1.1](https://github.com/alerque/fluent-lua/releases/v0.1.1) — 2022-03-10
 
