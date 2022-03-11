@@ -3,7 +3,7 @@ package = "fluent"
 version = "@SEMVER@-@ROCKREV@"
 
 source = {
-   url = "git://github.com/alerque/fluent-lua.git",
+   url = "git+https://github.com/alerque/fluent-lua.git",
    tag = "@TAG@"
 }
 
