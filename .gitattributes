@@ -1,0 +1,2 @@
+spec/fixtures/crlf.ftl	eol=crlf
+spec/fixtures/cr.ftl	eol=cr
