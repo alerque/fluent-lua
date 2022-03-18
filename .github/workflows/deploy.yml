@@ -19,7 +19,7 @@ jobs:
       with:
         fetch-depth: 0
     - id: changed-files
-      uses: tj-actions/changed-files@v17
+      uses: tj-actions/changed-files@v18
       with:
         files: rockspecs/*.rockspec
         separator: '", "'
@@ -40,7 +40,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Setup ‘lua’
-      uses: leafo/gh-actions-lua@v8
+      uses: leafo/gh-actions-lua@v9
       with:
         luaVersion: ${{ matrix.luaVersion }}
     - name: Setup ‘luarocks’
@@ -63,7 +63,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Setup ‘lua’
-      uses: leafo/gh-actions-lua@v8
+      uses: leafo/gh-actions-lua@v9
     - name: Setup ‘luarocks’
       uses: leafo/gh-actions-luarocks@v4
     - name: Setup dependencies
