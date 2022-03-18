@@ -3,16 +3,14 @@ package = "fluent"
 version = "dev-0"
 
 source = {
-   url = "git://github.com/alerque/fluent-lua.git",
+   url = "git+https://github.com/alerque/fluent-lua.git",
    tag = "master"
 }
 
 description = {
    summary = "Lua implementation of Project Fluent",
-   detailed = [[
-      A Lua port of Project Fluent, a localization paradigm designed to unleash
-      the entire expressive power of natural language translations.
-    ]],
+   detailed = [[A Lua port of Project Fluent, a localization paradigm designed to unleash
+      the entire expressive power of natural language translations.]],
    license = "MIT",
    homepage = "https://github.com/alerque/fluent-lua",
    issues_url = "https://github.com/alerque/fluent-lua/issues",
@@ -21,7 +19,7 @@ description = {
 }
 
 dependencies = {
-   "lua",
+   "lua >= 5.1",
    "cldr",
    "luaepnf",
    "penlight"
