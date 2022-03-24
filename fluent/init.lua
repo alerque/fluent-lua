@@ -19,7 +19,7 @@ function FluentBundle:_init (locale)
 end
 
 function FluentBundle:_patch_init ()
-  if not type(rawget(getmetatable(self), "__index")) ~= "function" then
+  if type(rawget(getmetatable(self), "__index")) ~= "function" then
     self:catch(function(_, identifier) return self:get_message(identifier) end)
   end
 end

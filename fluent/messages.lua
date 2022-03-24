@@ -123,7 +123,7 @@ function FTL.Message:_init (ast, resource)
 end
 
 function FTL.Message:_patch_init ()
-  if not type(rawget(getmetatable(self), "__index")) ~= "function" then
+  if type(rawget(getmetatable(self), "__index")) ~= "function" then
     self:catch(function(_, attribute) return self:get_attribute(attribute) end)
   end
 end
