@@ -64,6 +64,19 @@ function FluentBundle:add_messages (input, locale)
   return resource + messages
 end
 
+function FluentBundle:load_file (fname, locale)
+  locale = locale or self:get_locale()
+  local syntax = FluentSyntax()
+  local messages =
+    type(fname) == "string"
+    and syntax:parsefile(fname)
+    or tablex.reduce('+', tablex.imap(function (v)
+        return syntax:parsefile(v)
+      end, fname))
+  local resource = self:get_resource(locale)
+  return resource + messages
+end
+
 function FluentBundle:format (identifier, parameters)
   local resource = self:get_resource()
   local message = resource:get_message(identifier)
