@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org) for commit guidelines.
 
+## [v0.2.0](https://github.com/alerque/fluent-lua/releases/v0.2.0) — 2022-04-16
+
+### Bug Fixes
+
+- Inform Git about fixtures with special requirements
+- Correct access protocol to GitHub in dev rockspec
+- Correct logic errors revealed by new Luacheck release
+
+### Features
+
+- Add external access to file loader
+
 ## [v0.1.3](https://github.com/alerque/fluent-lua/releases/v0.1.3) — 2022-03-11
 
 ### Bug Fixes
