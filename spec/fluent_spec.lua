@@ -16,6 +16,12 @@ describe('fluent.bundle', function ()
     assert.same(locale, bundle.locale)
   end)
 
+  it('should parse and format messages loaded from a file', function ()
+    local bundle = FluentBundle("en")
+    bundle:load_file("spec/spec.ftl")
+    assert.same("bar", bundle:format("foo"))
+  end)
+
   it('should parse and format single simple messages', function ()
     local bundle = FluentBundle("en")
     bundle:add_messages("foo = bar")
