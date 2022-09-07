@@ -46,6 +46,9 @@ $(SCM_ROCK): SEMVER = dev
 $(SCM_ROCK): TAG = master
 $(SCM_ROCK): $(PACKAGE).rockspec.in
 	$(rockpec_template)
+	sed -i \
+		-e '/tag =/s/tag/branch/' \
+		$@
 
 rockspecs/$(PACKAGE)-%-0.rockspec: SEMVER = $*
 rockspecs/$(PACKAGE)-%-0.rockspec: TAG = v$*

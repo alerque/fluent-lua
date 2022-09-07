@@ -4,7 +4,7 @@ version = "dev-0"
 
 source = {
    url = "git+https://github.com/alerque/fluent-lua.git",
-   tag = "master"
+   branch = "master"
 }
 
 description = {
