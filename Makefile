@@ -1,4 +1,4 @@
-PACKAGE = fluent
+PACKAGE_NAME = fluent
 
 SHELL := zsh
 .SHELLFLAGS := +o nomatch -e -c
@@ -13,27 +13,30 @@ SHELL := zsh
 JOBS ?= $(shell nproc 2>- || sysctl -n hw.ncpu 2>- || echo 1)
 MAKEFLAGS += -j$(JOBS) -Otarget
 
-VERSION != git describe --tags --all --abbrev=7 | sed 's/-/-r/'
+VERSION != git describe --tags --always --abbrev=7 | sed 's/-/-r/'
 SEMVER != git describe --tags | sed 's/^v//;s/-.*//'
 ROCKREV = 0
 TAG ?= v$(SEMVER)
 
 LUAROCKS_ARGS ?= --local --tree lua_modules
 
-SCM_ROCK = $(PACKAGE)-dev-0.rockspec
-REL_ROCK = rockspecs/$(PACKAGE)-$(SEMVER)-$(ROCKREV).rockspec
-SCM_SRC = $(PACKAGE)-dev-0.src.rock
-REL_SRC = $(PACKAGE)-$(SEMVER)-$(ROCKREV).src.rock
+DEV_SPEC = $(PACKAGE_NAME)-dev-$(ROCKREV).rockspec
+DEV_ROCK = $(PACKAGE_NAME)-dev-$(ROCKREV).src.rock
+REL_SPEC = rockspecs/$(PACKAGE_NAME)-$(SEMVER)-$(ROCKREV).rockspec
+REL_ROCK = $(PACKAGE_NAME)-$(SEMVER)-$(ROCKREV).src.rock
 
 .PHONY: all
-all: $(SCM_ROCK) $(SCM_SRC)
+all: rockspecs dist
+
+.PHONY: rockspecs
+rockspecs: $(DEV_SPEC) $(REL_SPEC)
 
 .PHONY: dist
-dist: $(REL_ROCK) $(REL_SRC)
+dist: $(DEV_ROCK) $(REL_ROCK)
 
 .PHONY: install
 install:
-	luarocks $(LUAROCKS_ARGS) make $(SCM_ROCK)
+	luarocks $(LUAROCKS_ARGS) make $(DEV_SPEC)
 
 define rockpec_template =
 	sed -e "s/@SEMVER@/$(SEMVER)/g" \
@@ -42,17 +45,18 @@ define rockpec_template =
 		$< > $@
 endef
 
-$(SCM_ROCK): SEMVER = dev
-$(SCM_ROCK): TAG = master
-$(SCM_ROCK): $(PACKAGE).rockspec.in
+$(DEV_SPEC): SEMVER = dev
+$(DEV_SPEC): TAG = master
+$(DEV_SPEC): $(PACKAGE_NAME).rockspec.in
 	$(rockpec_template)
 	sed -i \
+		"1i -- DO NOT EDIT! Modify template $< and rebuild with \`make $@\`" \
 		-e '/tag =/s/tag/branch/' \
 		$@
 
-rockspecs/$(PACKAGE)-%-0.rockspec: SEMVER = $*
-rockspecs/$(PACKAGE)-%-0.rockspec: TAG = v$*
-rockspecs/$(PACKAGE)-%-0.rockspec: $(PACKAGE).rockspec.in
+rockspecs/$(PACKAGE_NAME)-%-$(ROCKREV).rockspec: SEMVER = $*
+rockspecs/$(PACKAGE_NAME)-%-$(ROCKREV).rockspec: TAG = v$*
+rockspecs/$(PACKAGE_NAME)-%-$(ROCKREV).rockspec: $(PACKAGE_NAME).rockspec.in
 	$(rockpec_template)
 	sed -i \
 		-e '/rockspec_format/s/3.0/1.0/' \
@@ -62,10 +66,10 @@ rockspecs/$(PACKAGE)-%-0.rockspec: $(PACKAGE).rockspec.in
 		-e '/labels/d' \
 		$@
 
-$(PACKAGE)-dev-0.src.rock: $(SCM_ROCK)
+$(PACKAGE_NAME)-dev-$(ROCKREV).src.rock: $(DEV_SPEC)
 	luarocks $(LUAROCKS_ARGS) pack $<
 
-$(PACKAGE)-%.src.rock: rockspecs/$(PACKAGE)-%.rockspec
+$(PACKAGE_NAME)-%.src.rock: rockspecs/$(PACKAGE_NAME)-%.rockspec
 	luarocks $(LUAROCKS_ARGS) pack $<
 
 .PHONY: check
