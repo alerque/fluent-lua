@@ -4,7 +4,7 @@ version = "dev-0"
 
 source = {
    url = "git+https://github.com/alerque/fluent-lua.git",
-   branch = "master"
+   branch = "master",
 }
 
 description = {
@@ -15,22 +15,22 @@ description = {
    homepage = "https://github.com/alerque/fluent-lua",
    issues_url = "https://github.com/alerque/fluent-lua/issues",
    maintainer = "Caleb Maclennan <caleb@alerque.com>",
-   labels = { "i18n" }
+   labels = { "i18n" },
 }
 
 dependencies = {
    "lua >= 5.1",
    "cldr",
    "luaepnf",
-   "penlight"
+   "penlight",
 }
 
 test_dependencies = {
-  "busted",
+   "busted",
 }
 
 test = {
-  type = "busted",
+   type = "busted",
 }
 
 build = {
@@ -40,6 +40,6 @@ build = {
       ["fluent.messages"] = "fluent/messages.lua",
       ["fluent.parser"] = "fluent/parser.lua",
       ["fluent.resource"] = "fluent/resource.lua",
-      ["fluent.syntax"] = "fluent/syntax.lua"
-   }
+      ["fluent.syntax"] = "fluent/syntax.lua",
+   },
 }

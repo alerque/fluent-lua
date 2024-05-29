@@ -6,19 +6,19 @@ local nulleof = "NULL\000"
 
 -- UTF8 code points up to four-byte encodings
 local function f1 (s)
-  return string.byte(s)
+   return string.byte(s)
 end
 local function f2 (s)
-  local c1, c2 = string.byte(s, 1, 2)
-  return c1 * 64 + c2 - 12416
+   local c1, c2 = string.byte(s, 1, 2)
+   return c1 * 64 + c2 - 12416
 end
 local function f3 (s)
-  local c1, c2, c3 = string.byte(s, 1, 3)
-  return (c1 * 64 + c2) * 64 + c3 - 925824
+   local c1, c2, c3 = string.byte(s, 1, 3)
+   return (c1 * 64 + c2) * 64 + c3 - 925824
 end
 local function f4 (s)
-  local c1, c2, c3, c4 = string.byte(s, 1, 4)
-  return ((c1 * 64 + c2) * 64 + c3) * 64 + c4 - 63447168
+   local c1, c2, c3, c4 = string.byte(s, 1, 4)
+   return ((c1 * 64 + c2) * 64 + c3) * 64 + c4 - 63447168
 end
 local cont = "\128\191"
 
@@ -84,21 +84,21 @@ end)
 -- stylua: ignore end
 
 local function addtrailingnewine (input)
-  local hasnulleof = epnf.parsestring(ftl_eof, input)
-  return type(hasnulleof) == "nil" and input .. nulleof or input
+   local hasnulleof = epnf.parsestring(ftl_eof, input)
+   return type(hasnulleof) == "nil" and input .. nulleof or input
 end
 
 -- TODO: if this doesn't need any state information make in a function not a class
 local FluentParser = class()
 
 function FluentParser:_init (input)
-  return type(input) == "string" and self:parsestring(input) or error("unknown input type")
+   return type(input) == "string" and self:parsestring(input) or error("unknown input type")
 end
 
 -- luacheck: ignore 212
 function FluentParser:parsestring (input)
-  input = addtrailingnewine(input)
-  return epnf.parsestring(ftl_grammar, input)
+   input = addtrailingnewine(input)
+   return epnf.parsestring(ftl_grammar, input)
 end
 
 return FluentParser
